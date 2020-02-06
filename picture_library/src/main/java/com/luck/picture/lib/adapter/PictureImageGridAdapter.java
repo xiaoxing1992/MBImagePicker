@@ -264,6 +264,10 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 if (config.style.pictureCheckedStyle != 0) {
                     tvCheck.setBackgroundResource(config.style.pictureCheckedStyle);
                 }
+
+                if (config.style.pictureSelectNumberTextColor != 0) {
+                    tvCheck.setTextColor(config.style.pictureSelectNumberTextColor);
+                }
             }
         }
     }

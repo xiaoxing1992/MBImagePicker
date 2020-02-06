@@ -49,6 +49,12 @@ public class PictureParameterStyle implements Parcelable {
     public int pictureTitleTextColor;
 
     /**
+     * 相册选中的数字颜色
+     */
+    @ColorInt
+    public int pictureSelectNumberTextColor;
+
+    /**
      * 相册标题字体大小
      */
     public int pictureTitleTextSize;
@@ -283,6 +289,7 @@ public class PictureParameterStyle implements Parcelable {
         dest.writeInt(this.pictureTitleBarBackgroundColor);
         dest.writeInt(this.pictureContainerBackgroundColor);
         dest.writeInt(this.pictureTitleTextColor);
+        dest.writeInt(this.pictureSelectNumberTextColor);
         dest.writeInt(this.pictureTitleTextSize);
         dest.writeInt(this.pictureCancelTextColor);
         dest.writeInt(this.pictureRightDefaultTextColor);
@@ -331,6 +338,7 @@ public class PictureParameterStyle implements Parcelable {
         this.pictureTitleBarBackgroundColor = in.readInt();
         this.pictureContainerBackgroundColor = in.readInt();
         this.pictureTitleTextColor = in.readInt();
+        this.pictureSelectNumberTextColor = in.readInt();
         this.pictureTitleTextSize = in.readInt();
         this.pictureCancelTextColor = in.readInt();
         this.pictureRightDefaultTextColor = in.readInt();

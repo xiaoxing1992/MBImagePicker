@@ -1103,6 +1103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPictureParameterStyle.pictureLeftBackIcon = R.drawable.ic_back_arrow;
         // 标题栏字体颜色
         mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
+        mPictureParameterStyle.pictureSelectNumberTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
         // 相册右侧按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
         mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_53575e);
         // 相册右侧按钮字体默认颜色
