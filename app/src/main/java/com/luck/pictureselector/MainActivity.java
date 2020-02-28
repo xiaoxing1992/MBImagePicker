@@ -1091,6 +1091,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#FFFFFF");
         // 相册列表标题栏背景色
         mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
+        // 设置第一张拍照图片或者拍摄
+        mPictureParameterStyle.pictureFirstIcon = R.drawable.icon_album_camera2;
+        mPictureParameterStyle.pictureFirstTextColor = ContextCompat.getColor(getContext(), R.color.app_color_fa);
+        mPictureParameterStyle.pictureFirstBgColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
+
         // 相册父容器背景色
         mPictureParameterStyle.pictureContainerBackgroundColor = ContextCompat.getColor(getContext(), R.color.app_color_fa);
         // 相册列表标题栏右侧上拉箭头

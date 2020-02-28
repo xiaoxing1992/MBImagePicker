@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.luck.picture.lib.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:id="@+id/relativelayout"
     android:layout_height="wrap_content"
     android:background="@color/picture_color_f2f2f2"
     android:gravity="center_vertical"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvCamera"
+    <ImageView
+        android:id="@+id/iv_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:drawableTop="@drawable/icon_album_camera"
+        android:contentDescription="@null"
+        android:src="@drawable/icon_album_camera" />
+
+    <TextView
+        android:id="@+id/tvCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_camera"
+        android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/picture_take_picture"
         android:textColor="@color/picture_color_282828"

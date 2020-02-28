@@ -208,6 +208,24 @@ public class PictureParameterStyle implements Parcelable {
     public int pictureCheckedStyle;
 
     /**
+     * 相册拍摄或者拍照的图片样式
+     */
+    @DrawableRes
+    public int pictureFirstIcon;
+
+    /**
+     * 相册拍摄或者拍照的背景颜色
+     */
+    @ColorInt
+    public int pictureFirstBgColor;
+
+    /**
+     * 相册拍摄或者拍照的文字颜色
+     */
+    @ColorInt
+    public int pictureFirstTextColor;
+
+    /**
      * 是否使用(%1$d/%2$d)字符串
      */
     public boolean isCompleteReplaceNum;
@@ -328,6 +346,9 @@ public class PictureParameterStyle implements Parcelable {
         dest.writeInt(this.pictureExternalPreviewDeleteStyle);
         dest.writeInt(this.pictureOriginalControlStyle);
         dest.writeByte(this.pictureExternalPreviewGonePreviewDelete ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.pictureFirstIcon);
+        dest.writeInt(this.pictureFirstBgColor);
+        dest.writeInt(this.pictureFirstTextColor);
     }
 
     protected PictureParameterStyle(Parcel in) {
@@ -377,6 +398,9 @@ public class PictureParameterStyle implements Parcelable {
         this.pictureExternalPreviewDeleteStyle = in.readInt();
         this.pictureOriginalControlStyle = in.readInt();
         this.pictureExternalPreviewGonePreviewDelete = in.readByte() != 0;
+        this.pictureFirstIcon = in.readInt();
+        this.pictureFirstBgColor = in.readInt();
+        this.pictureFirstTextColor = in.readInt();
     }
 
     public static final Creator<PictureParameterStyle> CREATOR = new Creator<PictureParameterStyle>() {

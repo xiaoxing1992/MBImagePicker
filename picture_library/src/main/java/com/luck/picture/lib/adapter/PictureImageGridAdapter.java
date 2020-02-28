@@ -28,6 +28,7 @@ import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.VoiceUtils;
+import com.luck.picture.lib.widget.SquareRelativeLayout;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -232,15 +233,36 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     public class HeaderViewHolder extends RecyclerView.ViewHolder {
         View headerView;
         TextView tvCamera;
+        ImageView iv_camera;
+        SquareRelativeLayout relativelayout;
 
         public HeaderViewHolder(View itemView) {
             super(itemView);
             headerView = itemView;
+            relativelayout = itemView.findViewById(R.id.relativelayout);
+            iv_camera = itemView.findViewById(R.id.iv_camera);
             tvCamera = itemView.findViewById(R.id.tvCamera);
             String title = config.chooseMode == PictureMimeType.ofAudio() ?
                     context.getString(R.string.picture_tape)
                     : context.getString(R.string.picture_take_picture);
             tvCamera.setText(title);
+
+            if (config.style != null) {
+                if (config.style.pictureFirstIcon != 0) {
+                    iv_camera.setImageResource(config.style.pictureFirstIcon);
+                }
+
+                if (config.style.pictureFirstTextColor != 0) {
+                    tvCamera.setTextColor(config.style.pictureFirstTextColor);
+                }
+
+                 if (config.style.pictureFirstBgColor != 0) {
+                     relativelayout.setBackgroundColor(config.style.pictureFirstBgColor);
+                }
+
+
+            }
+
         }
     }
 
