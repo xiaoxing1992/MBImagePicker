@@ -285,7 +285,8 @@ public class Luban implements Handler.Callback {
                 // GIF without compression
                 if (isAndroidQ) {
                     String newFilePath = media.isCut() ? media.getCutPath() :
-                    AndroidQTransformUtils.copyPathToAndroidQ(context, Uri.parse(path.getPath()), media.getMimeType(), filename);
+                            AndroidQTransformUtils.copyPathToAndroidQ(context, Uri.parse(path.getPath()),
+                                    media.getMimeType(), filename);
                     result = new File(newFilePath);
                 } else {
                     result = new File(newPath);
@@ -297,7 +298,8 @@ public class Luban implements Handler.Callback {
                 } else {
                     if (isAndroidQ) {
                         String newFilePath = media.isCut() ? media.getCutPath() :
-                        AndroidQTransformUtils.copyPathToAndroidQ(context, Uri.parse(path.getPath()), media.getMimeType(), filename);
+                                AndroidQTransformUtils.copyPathToAndroidQ(context, Uri.parse(path.getPath()),
+                                        media.getMimeType(), filename);
                         result = new File(newFilePath);
                     } else {
                         result = new File(newPath);
@@ -309,7 +311,8 @@ public class Luban implements Handler.Callback {
                 // GIF without compression
                 if (isAndroidQ) {
                     String newFilePath = media.isCut() ? media.getCutPath() :
-                            AndroidQTransformUtils.copyPathToAndroidQ(context, Uri.parse(path.getPath()), media.getMimeType(), filename);
+                            AndroidQTransformUtils.copyPathToAndroidQ(context,
+                                    Uri.parse(path.getPath()), media.getMimeType(), filename);
                     result = new File(newFilePath);
                 } else {
                     result = new File(newPath);
@@ -319,7 +322,8 @@ public class Luban implements Handler.Callback {
                 result = isCompress ? new Engine(path, outFile, focusAlpha, compressQuality).compress() :
                         isAndroidQ ? new File(media.isCut() ? media.getCutPath() :
                                 AndroidQTransformUtils.copyPathToAndroidQ
-                                        (context, Uri.parse(path.getPath()), media.getMimeType(), filename)) : new File(newPath);
+                                        (context, Uri.parse(path.getPath()),
+                                                media.getMimeType(), filename)) : new File(newPath);
             }
         }
         return result;

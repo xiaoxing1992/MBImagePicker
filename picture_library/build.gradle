@@ -30,4 +30,5 @@ dependencies {
     implementation "com.android.support:appcompat-v7:${cfgs.version_appcompat}"
     //noinspection GradleCompatible
     implementation "com.android.support:recyclerview-v7:${cfgs.version_recyclerview}"
+    implementation "com.squareup.okio:okio:${cfgs.okio_version}"
 }

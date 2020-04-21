@@ -706,21 +706,16 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                             && TextUtils.isEmpty(media.getAndroidQToPath());
                     if (isCopyAndroidQToPath && media.getPath().startsWith("content://")) {
                         String pathToAndroidQ = AndroidQTransformUtils
-                                .getPathToAndroidQ(getContext(),
+                                .copyPathToAndroidQ(getContext(),
                                         Uri.parse(media.getPath()),
                                         media.getMimeType(), config.cameraFileName);
                         media.setAndroidQToPath(pathToAndroidQ);
-                        if (config.isCheckOriginalImage) {
-                            media.setOriginal(true);
-                            media.setOriginalPath(media.getAndroidQToPath());
-                        }
                     } else if (media.isCut() && media.isCompressed()) {
                         media.setAndroidQToPath(media.getCompressPath());
-                    } else {
-                        if (config.isCheckOriginalImage) {
-                            media.setOriginal(true);
-                            media.setOriginalPath(media.getAndroidQToPath());
-                        }
+                    }
+                    if (config.isCheckOriginalImage) {
+                        media.setOriginal(true);
+                        media.setOriginalPath(media.getAndroidQToPath());
                     }
                 }
                 return images;
