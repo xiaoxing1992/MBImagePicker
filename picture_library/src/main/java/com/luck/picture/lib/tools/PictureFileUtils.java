@@ -24,9 +24,11 @@ import com.luck.picture.lib.config.PictureMimeType;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Locale;
 
@@ -435,7 +437,7 @@ public class PictureFileUtils {
      * will cause both files to become null.
      * Simply skipping this step if the paths are identical.
      */
-    public static boolean copyFile(FileInputStream fileInputStream, File outFile) throws IOException {
+    public static boolean copyFile(FileInputStream fileInputStream, File outFile) {
         if (fileInputStream == null) {
             return false;
         }
@@ -455,6 +457,97 @@ public class PictureFileUtils {
             close(inputChannel);
             close(fileOutputStream);
             close(outputChannel);
+        }
+    }
+
+    /**
+     * Copies one file into the other with the given paths.
+     * In the event that the paths are the same, trying to copy one file to the other
+     * will cause both files to become null.
+     * Simply skipping this step if the paths are identical.
+     */
+    public static boolean copyFile(FileInputStream fileInputStream, FileOutputStream outputStream) {
+        if (fileInputStream == null) {
+            return false;
+        }
+        FileChannel inputChannel = null;
+        FileChannel outputChannel = null;
+        try {
+            inputChannel = fileInputStream.getChannel();
+            outputChannel = outputStream.getChannel();
+            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            close(fileInputStream);
+            close(inputChannel);
+            close(outputStream);
+            close(outputChannel);
+        }
+    }
+
+    /**
+     * 复制文件
+     *
+     * @param inputStream
+     * @param outFile
+     * @return
+     */
+    public static boolean nioBufferCopy(FileInputStream inputStream, File outFile) {
+        FileChannel in = null;
+        FileChannel out = null;
+        FileOutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream(outFile);
+            in = inputStream.getChannel();
+            out = outStream.getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate(4096);
+            while (in.read(buffer) != -1) {
+                buffer.flip();
+                out.write(buffer);
+                buffer.clear();
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close(inputStream);
+            close(in);
+            close(outStream);
+            close(out);
+        }
+    }
+
+    /**
+     * 复制文件
+     *
+     * @param inputStream
+     * @param outFile
+     * @return
+     */
+    public static boolean nioBufferCopy(FileInputStream inputStream, FileOutputStream outPutStream) {
+        FileChannel in = null;
+        FileChannel out = null;
+        try {
+            in = inputStream.getChannel();
+            out = outPutStream.getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate(4096);
+            while (in.read(buffer) != -1) {
+                buffer.flip();
+                out.write(buffer);
+                buffer.clear();
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close(inputStream);
+            close(in);
+            close(outPutStream);
+            close(out);
         }
     }
 
@@ -518,6 +611,51 @@ public class PictureFileUtils {
         }
     }
 
+    /**
+     * 根据类型创建文件名
+     *
+     * @param context
+     * @param uri
+     * @param mineType
+     * @param customFileName
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static String createFilePath(Context context, Uri uri, String mineType, String customFileName) throws FileNotFoundException {
+        String md5Value = Digest.computeToQMD5(context.getContentResolver().openInputStream(uri));
+        String suffix = PictureMimeType.getLastImgSuffix(mineType);
+        if (PictureMimeType.eqVideo(mineType)) {
+            // 视频
+            String filesDir = PictureFileUtils.getVideoDiskCacheDir(context) + File.separator;
+            if (!TextUtils.isEmpty(md5Value)) {
+                String fileName = TextUtils.isEmpty(customFileName) ? "VID_" + md5Value.toUpperCase() + suffix : customFileName;
+                return filesDir + fileName;
+            } else {
+                String fileName = TextUtils.isEmpty(customFileName) ? DateUtils.getCreateFileName("VID_") + suffix : customFileName;
+                return filesDir + fileName;
+            }
+        } else if (PictureMimeType.eqAudio(mineType)) {
+            // 音频
+            String filesDir = PictureFileUtils.getAudioDiskCacheDir(context) + File.separator;
+            if (!TextUtils.isEmpty(md5Value)) {
+                String fileName = TextUtils.isEmpty(customFileName) ? "AUD_" + md5Value.toUpperCase() + suffix : customFileName;
+                return filesDir + fileName;
+            } else {
+                String fileName = TextUtils.isEmpty(customFileName) ? DateUtils.getCreateFileName("AUD_") + suffix : customFileName;
+                return filesDir + fileName;
+            }
+        } else {
+            // 图片
+            String filesDir = PictureFileUtils.getDiskCacheDir(context) + File.separator;
+            if (!TextUtils.isEmpty(md5Value)) {
+                String fileName = TextUtils.isEmpty(customFileName) ? "IMG_" + md5Value.toUpperCase() + suffix : customFileName;
+                return filesDir + fileName;
+            } else {
+                String fileName = TextUtils.isEmpty(customFileName) ? DateUtils.getCreateFileName("IMG_") + suffix : customFileName;
+                return filesDir + fileName;
+            }
+        }
+    }
 
 
     @SuppressWarnings("ConstantConditions")

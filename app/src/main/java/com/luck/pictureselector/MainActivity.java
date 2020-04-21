@@ -37,6 +37,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.language.LanguageConfig;
+import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
@@ -74,8 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cb_voice, cb_choose_mode, cb_isCamera, cb_isGif,
             cb_preview_img, cb_preview_video, cb_crop, cb_compress,
             cb_mode, cb_hide, cb_crop_circular, cb_styleCrop, cb_showCropGrid,
-            cb_showCropFrame, cb_preview_audio, cb_original, cb_single_back
-            , cb_custom_camera,cb_choose_number,cb_select_bottom_view;
+            cb_showCropFrame, cb_preview_audio, cb_original, cb_single_back, cb_custom_camera, cb_choose_number, cb_select_bottom_view;
     private int themeId;
     private int chooseMode = PictureMimeType.ofAll();
     private boolean isWeChatStyle;
@@ -489,21 +489,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //.scaleEnabled(false)// 裁剪是否可放大缩小图片
                         //.videoQuality()// 视频录制质量 0 or 1
                         //.videoSecond()//显示多少秒以内的视频or音频也可适用
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-//                        .forResult(result -> {
-//                            for (LocalMedia media : result) {
-//                                Log.i(TAG, "是否压缩:" + media.isCompressed());
-//                                Log.i(TAG, "压缩:" + media.getCompressPath());
-//                                Log.i(TAG, "原图:" + media.getPath());
-//                                Log.i(TAG, "是否裁剪:" + media.isCut());
-//                                Log.i(TAG, "裁剪:" + media.getCutPath());
-//                                Log.i(TAG, "是否开启原图:" + media.isOriginal());
-//                                Log.i(TAG, "原图路径:" + media.getOriginalPath());
-//                                Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
-//                            }
-//                            mAdapter.setList(result);
-//                            mAdapter.notifyDataSetChanged();
-//                        });
+                        .forResult(new OnResultCallbackListener<LocalMedia>() {
+                            @Override
+                            public void onResult(List<LocalMedia> result) {
+                                for (LocalMedia media : result) {
+                                    Log.i(TAG, "是否压缩:" + media.isCompressed());
+                                    Log.i(TAG, "压缩:" + media.getCompressPath());
+                                    Log.i(TAG, "原图:" + media.getPath());
+                                    Log.i(TAG, "是否裁剪:" + media.isCut());
+                                    Log.i(TAG, "裁剪:" + media.getCutPath());
+                                    Log.i(TAG, "是否开启原图:" + media.isOriginal());
+                                    Log.i(TAG, "原图路径:" + media.getOriginalPath());
+                                    Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
+                                    Log.i(TAG, "Size: " + media.getSize());
+                                }
+                                mAdapter.setList(result);
+                                mAdapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                Log.i(TAG, "PictureSelector Cancel");
+                            }
+
+                        });
             } else {
                 // 单独拍照
                 PictureSelector.create(MainActivity.this)
@@ -1148,7 +1157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 相册返回箭头 ,只针对isWeChatStyle 为true时有效果
         mPictureParameterStyle.pictureWeChatLeftBackStyle = R.drawable.ic_back_arrow;
         // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor =  Color.parseColor("#FFFFFF");
+        mPictureParameterStyle.pictureBottomBgColor = Color.parseColor("#FFFFFF");
         // 已选数量圆点背景样式
         mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.picture_num_oval;
         // 相册列表底下预览文字色值(预览按钮可点击时的色值)

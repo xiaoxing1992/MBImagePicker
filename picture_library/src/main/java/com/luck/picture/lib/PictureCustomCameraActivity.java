@@ -61,8 +61,8 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //        }
 //        // 拍照预览
 //        mCameraView.setImageCallbackListener((file, imageView) -> {
-//            if (config != null && config.imageEngine != null && file != null) {
-//                config.imageEngine.loadImage(getContext(), file.getAbsolutePath(), imageView);
+//            if (config != null && PictureSelectionConfig.imageEngine != null && file != null) {
+//                PictureSelectionConfig.imageEngine.loadImage(getContext(), file.getAbsolutePath(), imageView);
 //            }
 //        });
 //        // 设置拍照或拍视频回调监听
