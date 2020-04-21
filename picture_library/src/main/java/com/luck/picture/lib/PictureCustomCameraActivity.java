@@ -7,7 +7,7 @@ package com.luck.picture.lib;
  * @describe：自定义拍照和录音
  */
 public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActivity {
-//
+    //
 //
 //    private CustomCameraView mCameraView;
 //
@@ -69,24 +69,24 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //        mCameraView.setCameraListener(new CameraListener() {
 //            @Override
 //            public void onPictureSuccess(@NonNull File file) {
+//                Intent intent = new Intent();
+//                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH,file.getAbsolutePath());
 //                if (config.camera) {
-//                    Intent intent = new Intent();
-//                    intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
 //                    requestCamera(intent);
 //                } else {
-//                    setResult(RESULT_OK);
+//                    setResult(RESULT_OK, intent);
 //                    onBackPressed();
 //                }
 //            }
 //
 //            @Override
 //            public void onRecordSuccess(@NonNull File file) {
+//                  Intent intent = new Intent();
+//                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
 //                if (config.camera) {
-//                    Intent intent = new Intent();
-//                    intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
 //                    requestCamera(intent);
 //                } else {
-//                    setResult(RESULT_OK);
+//                  setResult(RESULT_OK, intent);
 //                    onBackPressed();
 //                }
 //            }

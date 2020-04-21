@@ -17,6 +17,8 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.listener.OnMediaLoadListener;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ValueOf;
 
@@ -146,7 +148,7 @@ public class LocalMediaLoader implements Handler.Callback {
 
 
     public void loadAllMedia() {
-        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
             Cursor data = mContext.getContentResolver().query(QUERY_URI, PROJECTION, getSelection(), getSelectionArgs(), ORDER_BY);
             try {
                 if (data != null) {
@@ -160,11 +162,24 @@ public class LocalMediaLoader implements Handler.Callback {
                             long id = data.getLong
                                     (data.getColumnIndexOrThrow(PROJECTION[0]));
 
-                            String path = isAndroidQ ? getRealPathAndroid_Q(id) : data.getString
+                            String url = isAndroidQ ? getRealPathAndroid_Q(id) : data.getString
                                     (data.getColumnIndexOrThrow(PROJECTION[1]));
 
                             String mimeType = data.getString
                                     (data.getColumnIndexOrThrow(PROJECTION[2]));
+
+                            // 这里解决部分机型获取mimeType返回 image/* 格式导致无法判别其具体类型 例如小米8，9，10等机型
+                            if (mimeType.endsWith("image/*")) {
+                                if (url.startsWith("content://")) {
+                                    mimeType = PictureMimeType.getImageMimeType(PictureFileUtils.getPath(mContext, Uri.parse(url)));
+                                }
+                                if (!config.isGif) {
+                                    boolean isGif = PictureMimeType.isGif(mimeType);
+                                    if (isGif) {
+                                        continue;
+                                    }
+                                }
+                            }
 
                             int width = data.getInt
                                     (data.getColumnIndexOrThrow(PROJECTION[3]));
@@ -210,8 +225,8 @@ public class LocalMediaLoader implements Handler.Callback {
                             }
 
                             LocalMedia image = new LocalMedia
-                                    (id, path, fileName, duration, config.chooseMode, mimeType, width, height, size);
-                            LocalMediaFolder folder = getImageFolder(path, folderName, imageFolders);
+                                    (id, url, fileName, duration, config.chooseMode, mimeType, width, height, size);
+                            LocalMediaFolder folder = getImageFolder(url, folderName, imageFolders);
                             List<LocalMedia> images = folder.getImages();
                             images.add(image);
                             folder.setImageNum(folder.getImageNum() + 1);
@@ -245,6 +260,10 @@ public class LocalMediaLoader implements Handler.Callback {
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_QUERY_MEDIA_ERROR));
                 }
                 e.printStackTrace();
+            } finally {
+                if (data != null && !data.isClosed()) {
+                    data.close();
+                }
             }
         });
     }
@@ -402,16 +421,9 @@ public class LocalMediaLoader implements Handler.Callback {
         return false;
     }
 
-    private LocalMediaLoadListener mCompleteListener;
+    private OnMediaLoadListener mCompleteListener;
 
-    public void setCompleteListener(LocalMediaLoadListener mCompleteListener) {
+    public void setCompleteListener(OnMediaLoadListener mCompleteListener) {
         this.mCompleteListener = mCompleteListener;
-    }
-
-    public interface LocalMediaLoadListener {
-
-        void loadComplete(List<LocalMediaFolder> folders);
-
-        void loadMediaDataError();
     }
 }

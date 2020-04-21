@@ -308,7 +308,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
     protected void compressImage(final List<LocalMedia> result) {
         showPleaseDialog();
         if (config.synOrAsy) {
-            AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                 try {
                     List<File> files =
                             Luban.with(getContext())
@@ -392,8 +392,10 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
      * 去裁剪
      *
      * @param originalPath
+     * @param mimeType
+     *
      */
-    protected void startCrop(String originalPath) {
+    protected void startCrop(String originalPath, String mimeType) {
         if (TextUtils.isEmpty(originalPath)) {
             ToastUtils.s(this, getString(R.string.picture_not_crop_data));
             return;
@@ -466,7 +468,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
         boolean isHttp = PictureMimeType.isHttp(originalPath);
         boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
         Uri uri = isHttp || isAndroidQ ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
-        String mimeType = PictureMimeType.getMimeTypeFromMediaContentUri(this, uri);
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(this),
                 TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_") + suffix : config.renameCropFileName);
@@ -573,11 +574,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
                 }
             }
         }
-        String path = size > 0 && size > index ? list.get(index).getPath() : "";
+        String path = size > 0 ? list.get(index).getPath() : "";
+        String mimeType = size > 0 ? list.get(index).getMimeType() : "";
         boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
         boolean isHttp = PictureMimeType.isHttp(path);
         Uri uri = isHttp || isAndroidQ ? Uri.parse(path) : Uri.fromFile(new File(path));
-        String mimeType = PictureMimeType.getMimeTypeFromMediaContentUri(this, uri);
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(this),
                 TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_")
@@ -686,7 +687,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
      * @param images
      */
     private void onResultToAndroidAsy(List<LocalMedia> images) {
-        AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
             // Android Q 版本做拷贝应用内沙盒适配
             int size = images.size();
             for (int i = 0; i < size; i++) {

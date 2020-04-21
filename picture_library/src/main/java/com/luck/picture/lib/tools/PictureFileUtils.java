@@ -447,23 +447,14 @@ public class PictureFileUtils {
             fileOutputStream = new FileOutputStream(outFile);
             outputChannel = fileOutputStream.getChannel();
             inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-            inputChannel.close();
             return true;
         } catch (Exception e) {
             return false;
         } finally {
-            if (fileInputStream != null) {
-                fileInputStream.close();
-            }
-            if (fileOutputStream != null) {
-                fileOutputStream.close();
-            }
-            if (inputChannel != null) {
-                inputChannel.close();
-            }
-            if (outputChannel != null) {
-                outputChannel.close();
-            }
+            close(fileInputStream);
+            close(inputChannel);
+            close(fileOutputStream);
+            close(outputChannel);
         }
     }
 

@@ -150,11 +150,24 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
             int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
             media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
             media.setAndroidQToPath(cutPath);
+            if (TextUtils.isEmpty(cutPath)) {
+                media.setCut(false);
+                if (SdkVersionUtils.checkedAndroid_Q() && config.cameraPath.startsWith("content://")) {
+                    String path = PictureFileUtils.getPath(this, Uri.parse(config.cameraPath));
+                    media.setSize(new File(path).length());
+                } else {
+                    media.setSize(new File(config.cameraPath).length());
+                }
+            } else {
+                media.setSize(new File(cutPath).length());
+                media.setCut(true);
+            }
         } else {
             // 拍照产生一个临时id
             media.setId(System.currentTimeMillis());
+            media.setSize(new File(TextUtils.isEmpty(cutPath)
+                    ? media.getPath() : cutPath).length());
         }
-        media.setCut(true);
         media.setCutPath(cutPath);
         String mimeType = PictureMimeType.getImageMimeType(cutPath);
         media.setMimeType(mimeType);
@@ -190,10 +203,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         int[] newSize = new int[2];
         if (!isAndroidQ) {
             if (config.isFallbackVersion3) {
-                new PictureMediaScannerConnection(getContext(), config.cameraPath,
-                        () -> {
-
-                        });
+                new PictureMediaScannerConnection(getContext(), config.cameraPath);
             } else {
                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(config.cameraPath))));
             }
@@ -265,7 +275,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         if (config.enableCrop && eqImg) {
             // 去裁剪
             config.originalPath = config.cameraPath;
-            startCrop(config.cameraPath);
+            startCrop(config.cameraPath, mimeType);
         } else if (config.isCompress && eqImg && !config.isCheckOriginalImage) {
             // 去压缩
             List<LocalMedia> result = new ArrayList<>();
