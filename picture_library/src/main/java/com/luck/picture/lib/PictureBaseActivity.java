@@ -822,10 +822,17 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     config.windowAnimationStyle.activityExitAnimation : R.anim.picture_anim_exit);
         }
         // 关闭主界面后才释放回调监听
-        if (getContext() instanceof PictureSelectorActivity) {
-            releaseResultListener();
-            if (config.openClickSound) {
-                VoiceUtils.getInstance().releaseSoundPool();
+        if (config.camera) {
+            if (getContext() instanceof PictureSelectorCameraEmptyActivity
+                    || getContext() instanceof PictureCustomCameraActivity) {
+                releaseResultListener();
+            }
+        } else {
+            if (getContext() instanceof PictureSelectorActivity) {
+                releaseResultListener();
+                if (config.openClickSound) {
+                    VoiceUtils.getInstance().releaseSoundPool();
+                }
             }
         }
     }
@@ -979,10 +986,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      */
     private void releaseResultListener() {
         if (config != null) {
-            PictureSelectionConfig.listener = null;
-            PictureSelectionConfig.customVideoPlayCallback = null;
-            PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
-            PictureSelectionConfig.cacheResourcesEngine = null;
+            PictureSelectionConfig.destroy();
             PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
             PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
         }

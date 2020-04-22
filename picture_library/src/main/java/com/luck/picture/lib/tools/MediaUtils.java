@@ -5,14 +5,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+
+import java.io.InputStream;
 
 
 /**
@@ -154,46 +158,17 @@ public class MediaUtils {
     }
 
     /**
-     * get Local video width or height for api 29
-     *
-     * @return
-     */
-    @Deprecated
-    public static int[] getLocalSizeToAndroidQ(Context context, String videoPath) {
-        int[] size = new int[2];
-        Cursor query = null;
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                query = context.getApplicationContext().getContentResolver().query(Uri.parse(videoPath),
-                        null, null, null);
-                if (query != null) {
-                    query.moveToFirst();
-                    size[0] = query.getInt(query.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH));
-                    size[1] = query.getInt(query.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (query != null) {
-                query.close();
-            }
-        }
-        return size;
-    }
-
-    /**
      * get Local image width or height for api 29
      *
      * @return
      */
-    public static int[] getLocalImageSizeToAndroidQ(Context context, String videoPath) {
+    public static int[] getImageSizeForUrlToAndroidQ(Context context, String url) {
         int[] size = new int[2];
         Cursor query = null;
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 query = context.getApplicationContext().getContentResolver()
-                        .query(Uri.parse(videoPath),
+                        .query(Uri.parse(url),
                                 null, null, null);
                 if (query != null) {
                     query.moveToFirst();
@@ -218,11 +193,11 @@ public class MediaUtils {
      *
      * @return
      */
-    public static int[] getLocalVideoSize(String videoPath) {
+    public static int[] getVideoSizeForUrl(String url) {
         int[] size = new int[2];
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(videoPath);
+            mmr.setDataSource(url);
             size[0] = ValueOf.toInt(mmr.extractMetadata
                     (MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             size[1] = ValueOf.toInt(mmr.extractMetadata
@@ -238,7 +213,7 @@ public class MediaUtils {
      *
      * @return
      */
-    public static int[] getLocalVideoSize(Context context, Uri uri) {
+    public static int[] getVideoSizeForUri(Context context, Uri uri) {
         int[] size = new int[2];
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -258,16 +233,43 @@ public class MediaUtils {
      *
      * @return
      */
-    public static int[] getLocalImageWidthOrHeight(String imagePath) {
+    public static int[] getImageSizeForUrl(String url) {
         int[] size = new int[2];
         try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(imagePath, options);
-            size[0] = options.outWidth;
-            size[1] = options.outHeight;
+            ExifInterface exifInterface = new ExifInterface(url);
+            // 获取图片的宽度
+            int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, ExifInterface.ORIENTATION_NORMAL);
+            // 获取图片的高度
+            int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, ExifInterface.ORIENTATION_NORMAL);
+            size[0] = width;
+            size[1] = height;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return size;
+    }
+
+    /**
+     * get Local image width or height
+     *
+     * @return
+     */
+    public static int[] getImageSizeForUri(Context context, Uri uri) {
+        int[] size = new int[2];
+        ParcelFileDescriptor fileDescriptor = null;
+        try {
+            fileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+            if (fileDescriptor != null) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
+                size[0] = options.outWidth;
+                size[1] = options.outHeight;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            PictureFileUtils.close(fileDescriptor);
         }
         return size;
     }
@@ -352,5 +354,119 @@ public class MediaUtils {
             }
         }
         return path;
+    }
+
+    /**
+     * 获取旋转角度
+     *
+     * @param path
+     * @return
+     */
+    public static int getVideoOrientationForUrl(String path) {
+        try {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(path);
+            int rotation = ValueOf.toInt(mmr.extractMetadata
+                    (MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            switch (rotation) {
+                case 90:
+                    return ExifInterface.ORIENTATION_ROTATE_90;
+                case 270:
+                    return ExifInterface.ORIENTATION_ROTATE_270;
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 获取旋转角度
+     *
+     * @param uri
+     * @return
+     */
+    public static int getVideoOrientationForUri(Context context, Uri uri) {
+        try {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(context, uri);
+            int rotation = ValueOf.toInt(mmr.extractMetadata
+                    (MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            switch (rotation) {
+                case 90:
+                    return ExifInterface.ORIENTATION_ROTATE_90;
+                case 270:
+                    return ExifInterface.ORIENTATION_ROTATE_270;
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 获取旋转角度
+     *
+     * @param context
+     * @param url
+     * @return
+     */
+    public static int getImageOrientationForUrl(Context context, String url) {
+        ExifInterface exifInterface = null;
+        InputStream inputStream = null;
+        try {
+            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(url)) {
+                inputStream = context.getContentResolver().openInputStream(Uri.parse(url));
+                if (inputStream != null) {
+                    exifInterface = new ExifInterface(inputStream);
+                }
+            } else {
+                exifInterface = new ExifInterface(url);
+            }
+            return exifInterface != null ? exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            PictureFileUtils.close(inputStream);
+        }
+    }
+
+
+    /**
+     * 设置LocalMedia旋转信息
+     *
+     * @param context
+     * @param media
+     * @return
+     */
+    public static int setOrientation(Context context, LocalMedia media) {
+        // 如果有旋转信息图片宽高则是相反
+        if (media.getOrientation() == -1) {
+            int orientation = 0;
+            if (PictureMimeType.eqImage(media.getMimeType())) {
+                orientation = MediaUtils.getImageOrientationForUrl(context, media.getPath());
+            } else if (PictureMimeType.eqVideo(media.getMimeType())) {
+                if (PictureMimeType.isContent(media.getPath())) {
+                    orientation = MediaUtils.getVideoOrientationForUri(context, Uri.parse(media.getPath()));
+                } else {
+                    orientation = MediaUtils.getVideoOrientationForUrl(media.getPath());
+                }
+            }
+            if (orientation == ExifInterface.ORIENTATION_ROTATE_90
+                    || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                int width = media.getWidth();
+                int height = media.getHeight();
+                media.setWidth(height);
+                media.setHeight(width);
+            }
+            media.setOrientation(orientation);
+            return orientation;
+        }
+        return media.getOrientation();
     }
 }

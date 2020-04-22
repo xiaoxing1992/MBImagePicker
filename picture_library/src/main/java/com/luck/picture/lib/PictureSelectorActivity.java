@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -1333,6 +1334,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         }
         LocalMedia media = new LocalMedia();
+        media.setPath(config.cameraPath);
         if (config.chooseMode != PictureMimeType.ofAudio()) {
             // 图片视频处理规则
             if (PictureMimeType.isContent(config.cameraPath)) {
@@ -1343,9 +1345,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
                 }
                 if (PictureMimeType.eqImage(mimeType)) {
-                    newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, config.cameraPath);
+                    newSize = MediaUtils.getImageSizeForUrlToAndroidQ(this, config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(this, Uri.parse(config.cameraPath));
+                    newSize = MediaUtils.getVideoSizeForUri(this, Uri.parse(config.cameraPath));
                     duration = MediaUtils.extractDuration(getContext(), true, config.cameraPath);
                 }
                 int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
@@ -1365,9 +1367,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (PictureMimeType.eqImage(mimeType)) {
                     int degree = PictureFileUtils.readPictureDegree(this, config.cameraPath);
                     BitmapUtils.rotateImage(degree, config.cameraPath);
-                    newSize = MediaUtils.getLocalImageWidthOrHeight(config.cameraPath);
+                    newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(config.cameraPath);
+                    newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
                     duration = MediaUtils.extractDuration(getContext(), false, config.cameraPath);
                 }
                 // 拍照产生一个临时id
@@ -1375,12 +1377,13 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         }
         media.setDuration(duration);
+        media.setMimeType(mimeType);
         media.setWidth(newSize[0]);
         media.setHeight(newSize[1]);
-        media.setPath(config.cameraPath);
-        media.setMimeType(mimeType);
         media.setSize(size);
         media.setChooseModel(config.chooseMode);
+        // 如果有旋转信息图片宽高则是相反
+        MediaUtils.setOrientation(getContext(), media);
         if (mAdapter != null) {
             images.add(0, media);
             if (checkVideoLegitimacy(media)) {

@@ -264,6 +264,16 @@ public final class PictureSelectionConfig implements Parcelable {
     public PictureSelectionConfig() {
     }
 
+    /**
+     * 释放监听器
+     */
+    public static void destroy() {
+        PictureSelectionConfig.listener = null;
+        PictureSelectionConfig.customVideoPlayCallback = null;
+        PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
+        PictureSelectionConfig.cacheResourcesEngine = null;
+    }
+
 
     @Override
     public int describeContents() {
@@ -463,7 +473,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isFallbackVersion3 = in.readByte() != 0;
     }
 
-    public static final Creator<PictureSelectionConfig> CREATOR = new Creator<PictureSelectionConfig>() {
+    public static final Parcelable.Creator<PictureSelectionConfig> CREATOR = new Parcelable.Creator<PictureSelectionConfig>() {
         @Override
         public PictureSelectionConfig createFromParcel(Parcel source) {
             return new PictureSelectionConfig(source);

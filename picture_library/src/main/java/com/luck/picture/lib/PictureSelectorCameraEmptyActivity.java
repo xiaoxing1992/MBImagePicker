@@ -122,6 +122,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     break;
             }
         } else if (resultCode == RESULT_CANCELED) {
+            if (config != null && PictureSelectionConfig.listener != null) {
+                PictureSelectionConfig.listener.onCancel();
+            }
             closeActivity();
         } else if (resultCode == UCrop.RESULT_ERROR) {
             if (data == null) {
@@ -148,15 +151,15 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         }
         String cutPath = resultUri.getPath();
         // 单独拍照
+        boolean isCutEmpty = TextUtils.isEmpty(cutPath);
         LocalMedia media = new LocalMedia(config.cameraPath, 0, false,
                 config.isCamera ? 1 : 0, 0, config.chooseMode);
         if (SdkVersionUtils.checkedAndroid_Q()) {
             int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
             media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
             media.setAndroidQToPath(cutPath);
-            if (TextUtils.isEmpty(cutPath)) {
-                media.setCut(false);
-                if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(config.cameraPath)) {
+            if (isCutEmpty) {
+                if (PictureMimeType.isContent(config.cameraPath)) {
                     String path = PictureFileUtils.getPath(this, Uri.parse(config.cameraPath));
                     media.setSize(!TextUtils.isEmpty(path) ? new File(path).length() : 0);
                 } else {
@@ -164,17 +167,43 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 }
             } else {
                 media.setSize(new File(cutPath).length());
-                media.setCut(true);
             }
         } else {
             // 拍照产生一个临时id
             media.setId(System.currentTimeMillis());
-            media.setSize(new File(TextUtils.isEmpty(cutPath)
-                    ? media.getPath() : cutPath).length());
+            media.setSize(new File(isCutEmpty ? media.getPath() : cutPath).length());
         }
+        media.setCut(!isCutEmpty);
         media.setCutPath(cutPath);
         String mimeType = PictureMimeType.getImageMimeType(cutPath);
         media.setMimeType(mimeType);
+        int width = 0, height = 0;
+        media.setOrientation(-1);
+        if (PictureMimeType.isContent(media.getPath())) {
+            if (PictureMimeType.eqVideo(media.getMimeType())) {
+                int[] size = MediaUtils.getVideoSizeForUri(getContext(), Uri.parse(media.getPath()));
+                width = size[0];
+                height = size[1];
+            } else if (PictureMimeType.eqImage(media.getMimeType())) {
+                int[] size = MediaUtils.getImageSizeForUri(getContext(), Uri.parse(media.getPath()));
+                width = size[0];
+                height = size[1];
+            }
+        } else {
+            if (PictureMimeType.eqVideo(media.getMimeType())) {
+                int[] size = MediaUtils.getVideoSizeForUrl(media.getPath());
+                width = size[0];
+                height = size[1];
+            } else if (PictureMimeType.eqImage(media.getMimeType())) {
+                int[] size = MediaUtils.getImageSizeForUrl(media.getPath());
+                width = size[0];
+                height = size[1];
+            }
+        }
+        media.setWidth(width);
+        media.setHeight(height);
+        // 如果有旋转信息图片宽高则是相反
+        MediaUtils.setOrientation(getContext(), media);
         medias.add(media);
         handlerResult(medias);
     }
@@ -221,9 +250,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 size = file.length();
                 mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
                 if (PictureMimeType.eqImage(mimeType)) {
-                    newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, config.cameraPath);
+                    newSize = MediaUtils.getImageSizeForUrlToAndroidQ(this, config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(this, Uri.parse(config.cameraPath));
+                    newSize = MediaUtils.getVideoSizeForUri(this, Uri.parse(config.cameraPath));
                     duration = MediaUtils.extractDuration(getContext(), true, config.cameraPath);
                 }
                 int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
@@ -243,9 +272,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 if (PictureMimeType.eqImage(mimeType)) {
                     int degree = PictureFileUtils.readPictureDegree(this, config.cameraPath);
                     BitmapUtils.rotateImage(degree, config.cameraPath);
-                    newSize = MediaUtils.getLocalImageWidthOrHeight(config.cameraPath);
+                    newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(config.cameraPath);
+                    newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
                     duration = MediaUtils.extractDuration(getContext(), false, config.cameraPath);
                 }
                 // 拍照产生一个临时id
@@ -259,6 +288,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         media.setMimeType(mimeType);
         media.setSize(size);
         media.setChooseModel(config.chooseMode);
+        // 如果有旋转信息图片宽高则是相反
+        MediaUtils.setOrientation(getContext(), media);
         cameraHandleResult(media, mimeType);
         // 这里主要解决极个别手机拍照会在DCIM目录重复生成一张照片问题
         if (!isAndroidQ && PictureMimeType.eqImage(media.getMimeType())) {

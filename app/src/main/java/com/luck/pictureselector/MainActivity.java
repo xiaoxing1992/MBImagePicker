@@ -492,6 +492,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //.scaleEnabled(false)// 裁剪是否可放大缩小图片
                         //.videoQuality()// 视频录制质量 0 or 1
                         //.videoSecond()//显示多少秒以内的视频or音频也可适用
+//                        .forResult(new OnResultCallbackListener<LocalMedia>() {
+//                            @Override
+//                            public void onResult(List<LocalMedia> result) {
+//                                for (LocalMedia media : result) {
+//                                    Log.i(TAG, "是否压缩:" + media.isCompressed());
+//                                    Log.i(TAG, "压缩:" + media.getCompressPath());
+//                                    Log.i(TAG, "原图:" + media.getPath());
+//                                    Log.i(TAG, "是否裁剪:" + media.isCut());
+//                                    Log.i(TAG, "裁剪:" + media.getCutPath());
+//                                    Log.i(TAG, "是否开启原图:" + media.isOriginal());
+//                                    Log.i(TAG, "原图路径:" + media.getOriginalPath());
+//                                    Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
+//                                    Log.i(TAG, "宽高: " + media.getWidth() + "x" + media.getHeight());
+//                                    Log.i(TAG, "Size: " + media.getSize());
+//
+//                                    // TODO 可以通过PictureSelectorExternalUtils.getExifInterface();方法获取一些额外的资源信息，如旋转角度、经纬度等信息
+//
+//                                }
+//                                mAdapter.setList(result);
+//                                mAdapter.notifyDataSetChanged();
+//                            }
+//
+//                            @Override
+//                            public void onCancel() {
+//                                Log.i(TAG, "PictureSelector Cancel");
+//                            }
+//
+//                        });
+                        //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
                         .forResult(new OnResultCallbackListener<LocalMedia>() {
                             @Override
                             public void onResult(List<LocalMedia> result) {
@@ -504,6 +533,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     Log.i(TAG, "是否开启原图:" + media.isOriginal());
                                     Log.i(TAG, "原图路径:" + media.getOriginalPath());
                                     Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
+                                    Log.i(TAG, "宽高: " + media.getWidth() + "x" + media.getHeight());
                                     Log.i(TAG, "Size: " + media.getSize());
                                 }
                                 mAdapter.setList(result);
@@ -514,7 +544,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             public void onCancel() {
                                 Log.i(TAG, "PictureSelector Cancel");
                             }
-
                         });
             } else {
                 // 单独拍照
@@ -579,6 +608,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                                Log.i(TAG, "是否开启原图:" + media.isOriginal());
 //                                Log.i(TAG, "原图路径:" + media.getOriginalPath());
 //                                Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
+                //                                    Log.i(TAG, "宽高: " + media.getWidth() + "x" + media.getHeight());
+//                                    Log.i(TAG, "Size: " + media.getSize());
 //                            }
 //                            mAdapter.setList(result);
 //                            mAdapter.notifyDataSetChanged();
@@ -653,6 +684,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.i(TAG, "是否开启原图:" + media.isOriginal());
                         Log.i(TAG, "原图路径:" + media.getOriginalPath());
                         Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
+                        Log.i(TAG, "宽高: " + media.getWidth() + "x" + media.getHeight());
+                        Log.i(TAG, "Size: " + media.getSize());
+
+                        // TODO 可以通过PictureSelectorExternalUtils.getExifInterface();方法获取一些额外的资源信息，如旋转角度、经纬度等信息
+
                     }
                     mAdapter.setList(selectList);
                     mAdapter.notifyDataSetChanged();

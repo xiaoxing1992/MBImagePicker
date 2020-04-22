@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.luck.picture.lib.config.PictureConfig;
+
 /**
  * @author：luck
  * @date：2017-5-24 16:21
@@ -114,6 +116,24 @@ public class LocalMedia implements Parcelable {
      * Parent  Folder Name
      */
     private String parentFolderName;
+
+    /**
+     * orientation info
+     * # For internal use only
+     */
+    private int orientation = -1;
+
+    /**
+     * loadLongImageStatus
+     * # For internal use only
+     */
+    public int loadLongImageStatus = PictureConfig.NORMAL;
+
+    /**
+     * isLongImage
+     * # For internal use only
+     */
+    public boolean isLongImage;
 
     public LocalMedia() {
 
@@ -319,6 +339,14 @@ public class LocalMedia implements Parcelable {
         this.parentFolderName = parentFolderName;
     }
 
+    public int getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -347,6 +375,9 @@ public class LocalMedia implements Parcelable {
         dest.writeByte(this.isOriginal ? (byte) 1 : (byte) 0);
         dest.writeString(this.fileName);
         dest.writeString(this.parentFolderName);
+        dest.writeInt(this.orientation);
+        dest.writeInt(this.loadLongImageStatus);
+        dest.writeByte(this.isLongImage ? (byte) 1 : (byte) 0);
     }
 
     protected LocalMedia(Parcel in) {
@@ -371,9 +402,12 @@ public class LocalMedia implements Parcelable {
         this.isOriginal = in.readByte() != 0;
         this.fileName = in.readString();
         this.parentFolderName = in.readString();
+        this.orientation = in.readInt();
+        this.loadLongImageStatus = in.readInt();
+        this.isLongImage = in.readByte() != 0;
     }
 
-    public static final Creator<LocalMedia> CREATOR = new Creator<LocalMedia>() {
+    public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {
         @Override
         public LocalMedia createFromParcel(Parcel source) {
             return new LocalMedia(source);
