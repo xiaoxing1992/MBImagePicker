@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.listener.OnItemClickListener;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 /**
@@ -37,8 +38,12 @@ public class PhotoItemSelectedDialog extends DialogFragment implements View.OnCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        if (getDialog() != null) {
+            getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+            if (getDialog().getWindow() != null) {
+                getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+        }
         return inflater.inflate(R.layout.picture_dialog_camera_selected, container);
     }
 
@@ -66,9 +71,11 @@ public class PhotoItemSelectedDialog extends DialogFragment implements View.OnCl
         Dialog dialog = getDialog();
         if (dialog != null) {
             Window window = dialog.getWindow();
-            window.setLayout(ScreenUtils.getScreenWidth(getContext()), RelativeLayout.LayoutParams.WRAP_CONTENT);
-            window.setGravity(Gravity.BOTTOM);
-            window.setWindowAnimations(R.style.PictureThemeDialogFragmentAnim);
+            if (window != null) {
+                window.setLayout(ScreenUtils.getScreenWidth(getContext()), RelativeLayout.LayoutParams.WRAP_CONTENT);
+                window.setGravity(Gravity.BOTTOM);
+                window.setWindowAnimations(R.style.PictureThemeDialogFragmentAnim);
+            }
         }
     }
 
@@ -83,20 +90,15 @@ public class PhotoItemSelectedDialog extends DialogFragment implements View.OnCl
         int id = v.getId();
         if (onItemClickListener != null) {
             if (id == R.id.picture_tv_photo) {
-                onItemClickListener.onItemClick(IMAGE_CAMERA);
+                onItemClickListener.onItemClick(v, IMAGE_CAMERA);
             }
             if (id == R.id.picture_tv_video) {
-                onItemClickListener.onItemClick(VIDEO_CAMERA);
+                onItemClickListener.onItemClick(v, VIDEO_CAMERA);
             }
         }
 
         dismissAllowingStateLoss();
     }
-
-    public interface OnItemClickListener {
-        void onItemClick(int position);
-    }
-
 
     @Override
     public void show(FragmentManager manager, String tag) {

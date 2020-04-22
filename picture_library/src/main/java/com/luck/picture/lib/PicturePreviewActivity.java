@@ -112,7 +112,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         if (numComplete) {
             initCompleteText(0);
         }
-        tv_img_num.setSelected(config.checkNumMode ? true : false);
+        tv_img_num.setSelected(config.checkNumMode);
         btnCheck.setOnClickListener(this);
         selectImages = getIntent().
                 getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
@@ -145,7 +145,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 index = media.getPosition();
                 if (!config.previewEggs) {
                     if (config.checkNumMode) {
-                        check.setText(media.getNum() + "");
+                        check.setText(ValueOf.toString(media.getNum()));
                         notifyCheckChanged(media);
                     }
                     onImageChecked(position);
@@ -188,7 +188,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             } else {
                 // 已选择
                 boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mTvPictureOk.setText(String.format(config.style.pictureCompleteText, startCount, 1));
                 } else {
                     mTvPictureOk.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
@@ -204,7 +204,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                         startCount, config.maxVideoSelectNum + config.maxSelectNum));
             } else {
                 // 已选择
-                if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mTvPictureOk.setText(String.format(config.style.pictureCompleteText, startCount, config.maxVideoSelectNum + config.maxSelectNum));
                 } else {
                     mTvPictureOk.setText(getString(R.string.picture_done_front_num,
@@ -289,7 +289,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
      */
     private void isPreviewEggs(boolean previewEggs, int position, int positionOffsetPixels) {
         if (previewEggs) {
-            if (images.size() > 0 && images != null) {
+            if (images.size() > 0) {
                 LocalMedia media;
                 int num;
                 if (positionOffsetPixels < screenWidth / 2) {
@@ -297,7 +297,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     check.setSelected(isSelected(media));
                     if (config.checkNumMode) {
                         num = media.getNum();
-                        check.setText(num + "");
+                        check.setText(ValueOf.toString(num));
                         notifyCheckChanged(media);
                         onImageChecked(position);
                     }
@@ -306,7 +306,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     check.setSelected(isSelected(media));
                     if (config.checkNumMode) {
                         num = media.getNum();
-                        check.setText(num + "");
+                        check.setText(ValueOf.toString(num));
                         notifyCheckChanged(media);
                         onImageChecked(position + 1);
                     }
@@ -480,8 +480,13 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     }
                 }
                 if (PictureMimeType.eqVideo(image.getMimeType())) {
-                    if (config.maxVideoSelectNum > 0
-                            && videoSize >= config.maxVideoSelectNum && !check.isSelected()) {
+                    if (config.maxVideoSelectNum <= 0) {
+                        // 如果视频可选数量是0
+                        ToastUtils.s(getContext(), getString(R.string.picture_rule));
+                        return;
+                    }
+
+                    if (videoSize >= config.maxVideoSelectNum && !check.isSelected()) {
                         // 如果选择的是视频
                         ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), image.getMimeType(), config.maxVideoSelectNum));
                         return;
@@ -676,7 +681,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private void bothMimeTypeWith(String mimeType, LocalMedia image) {
         if (config.enableCrop) {
             isCompleteOrSelected = false;
-            isCompleteOrSelected = false;
             boolean eqImage = PictureMimeType.eqImage(mimeType);
             if (config.selectionMode == PictureConfig.SINGLE && eqImage) {
                 config.originalPath = image.getPath();
@@ -730,7 +734,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private void separateMimeTypeWith(String mimeType, LocalMedia image) {
         if (config.enableCrop && PictureMimeType.eqImage(mimeType)) {
             isCompleteOrSelected = false;
-            isCompleteOrSelected = false;
             if (config.selectionMode == PictureConfig.SINGLE) {
                 config.originalPath = image.getPath();
                 startCrop(config.originalPath, image.getMimeType());
@@ -765,6 +768,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case UCrop.REQUEST_MULTI_CROP:

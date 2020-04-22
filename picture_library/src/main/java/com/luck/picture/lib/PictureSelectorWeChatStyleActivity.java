@@ -244,21 +244,16 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
         if (config.isWithVideoImage) {
             // 混选模式
             if (config.selectionMode == PictureConfig.SINGLE) {
-                if (size <= 0) {
-                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
-                            ? config.style.pictureUnCompleteText : getString(R.string.picture_send));
+                boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                    mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, 1));
                 } else {
-                    boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                    if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
-                        mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, 1));
-                    } else {
-                        mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
-                                ? config.style.pictureCompleteText : getString(R.string.picture_send));
-                    }
+                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
+                            ? config.style.pictureCompleteText : getString(R.string.picture_send));
                 }
             } else {
                 boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, config.maxVideoSelectNum + config.maxSelectNum));
                 } else {
                     mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
@@ -276,7 +271,7 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
                             ? config.style.pictureUnCompleteText : getString(R.string.picture_send));
                 } else {
                     boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                    if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                    if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                         mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, 1));
                     } else {
                         mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
@@ -285,7 +280,7 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
                 }
             } else {
                 boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                if (isCompleteReplaceNum && isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, maxSize));
                 } else {
                     mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)

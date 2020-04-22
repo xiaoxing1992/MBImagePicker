@@ -134,6 +134,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //        mCameraView.setCameraListener(new CameraListener() {
 //            @Override
 //            public void onPictureSuccess(@NonNull File file) {
+//    config.cameraMimeType = PictureMimeType.ofImage();
 //                Intent intent = new Intent();
 //                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH,file.getAbsolutePath());
 //                if (config.camera) {
@@ -146,6 +147,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //
 //            @Override
 //            public void onRecordSuccess(@NonNull File file) {
+//    config.cameraMimeType = PictureMimeType.ofVideo();
 //                  Intent intent = new Intent();
 //                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
 //                if (config.camera) {

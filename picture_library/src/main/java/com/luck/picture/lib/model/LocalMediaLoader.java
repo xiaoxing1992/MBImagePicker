@@ -29,8 +29,7 @@ import java.util.Locale;
  */
 
 public class LocalMediaLoader {
-    private static final int MSG_QUERY_MEDIA_SUCCESS = 0;
-    private static final int MSG_QUERY_MEDIA_ERROR = -1;
+    private static final String TAG = LocalMediaLoader.class.getSimpleName();
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
     private static final String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
     private static final String NOT_GIF = "!='image/gif'";
@@ -167,7 +166,10 @@ public class LocalMediaLoader {
                         // 这里解决部分机型获取mimeType返回 image/* 格式导致无法判别其具体类型 例如小米8，9，10等机型
                         if (mimeType.endsWith("image/*")) {
                             if (PictureMimeType.isContent(url)) {
-                                mimeType = PictureMimeType.getImageMimeType(PictureFileUtils.getPath(mContext, Uri.parse(url)));
+                                String absolutePath = PictureFileUtils.getPath(mContext, Uri.parse(url));
+                                mimeType = PictureMimeType.getImageMimeType(absolutePath);
+                            } else {
+                                mimeType = PictureMimeType.getImageMimeType(url);
                             }
                             if (!config.isGif) {
                                 boolean isGif = PictureMimeType.isGif(mimeType);
@@ -315,9 +317,9 @@ public class LocalMediaLoader {
             if (lhs.getImages() == null || rhs.getImages() == null) {
                 return 0;
             }
-            int lsize = lhs.getImageNum();
-            int rsize = rhs.getImageNum();
-            return lsize == rsize ? 0 : (lsize < rsize ? 1 : -1);
+            int lSize = lhs.getImageNum();
+            int rSize = rhs.getImageNum();
+            return Integer.compare(rSize, lSize);
         });
     }
 

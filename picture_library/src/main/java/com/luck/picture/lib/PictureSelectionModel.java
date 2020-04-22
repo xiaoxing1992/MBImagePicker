@@ -12,6 +12,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.config.UCropOptions;
+import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
@@ -21,6 +22,7 @@ import com.luck.picture.lib.style.PictureCropParameterStyle;
 import com.luck.picture.lib.style.PictureParameterStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.DoubleUtils;
+import com.luck.picture.lib.tools.SdkVersionUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -93,6 +95,21 @@ public class PictureSelectionModel {
     }
 
     /**
+     * Only for Android version Q
+     *
+     * @param cacheResourcesEngine Image Cache
+     * @return
+     */
+    public PictureSelectionModel loadCacheResourcesCallback(CacheResourcesEngine cacheResourcesEngine) {
+        if (SdkVersionUtils.checkedAndroid_Q()) {
+            if (PictureSelectionConfig.cacheResourcesEngine != cacheResourcesEngine) {
+                PictureSelectionConfig.cacheResourcesEngine = new WeakReference<>(cacheResourcesEngine).get();
+            }
+        }
+        return this;
+    }
+
+    /**
      * @param selectionMode PictureSelector Selection model and PictureConfig.MULTIPLE or PictureConfig.SINGLE
      * @return
      */
@@ -136,7 +153,7 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel bindPictureSelectorInterfaceListener(OnPictureSelectorInterfaceListener listener) {
-        PictureSelectionConfig.onPictureSelectorInterfaceListener = listener;
+        PictureSelectionConfig.onPictureSelectorInterfaceListener = new WeakReference<>(listener).get();
         return this;
     }
 
@@ -286,8 +303,8 @@ public class PictureSelectionModel {
      */
     public PictureSelectionModel isWithVideoImage(boolean isWithVideoImage) {
         selectionConfig.isWithVideoImage =
-                selectionConfig.selectionMode == PictureConfig.SINGLE
-                        || selectionConfig.chooseMode != PictureMimeType.ofAll() ? false : isWithVideoImage;
+                selectionConfig.selectionMode != PictureConfig.SINGLE
+                        && selectionConfig.chooseMode == PictureMimeType.ofAll() && isWithVideoImage;
         return this;
     }
 
@@ -334,9 +351,8 @@ public class PictureSelectionModel {
      */
     public PictureSelectionModel isSingleDirectReturn(boolean isSingleDirectReturn) {
         selectionConfig.isSingleDirectReturn = selectionConfig.selectionMode
-                == PictureConfig.SINGLE ? isSingleDirectReturn : false;
-        selectionConfig.isOriginalControl = selectionConfig.selectionMode
-                == PictureConfig.SINGLE && isSingleDirectReturn ? false : selectionConfig.isOriginalControl;
+                == PictureConfig.SINGLE && isSingleDirectReturn;
+        selectionConfig.isOriginalControl = (selectionConfig.selectionMode != PictureConfig.SINGLE || !isSingleDirectReturn) && selectionConfig.isOriginalControl;
         return this;
     }
 

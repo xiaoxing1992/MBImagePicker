@@ -7,6 +7,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.StyleRes;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
@@ -100,6 +101,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isWithVideoImage;
     public UCropOptions uCropOptions;
     public static ImageEngine imageEngine;
+    public static CacheResourcesEngine cacheResourcesEngine;
     public static OnResultCallbackListener listener;
     public static OnVideoSelectedPlayCallback customVideoPlayCallback;
     public static OnPictureSelectorInterfaceListener onPictureSelectorInterfaceListener;
@@ -136,6 +138,7 @@ public final class PictureSelectionConfig implements Parcelable {
 
     public String originalPath;
     public String cameraPath;
+    public int cameraMimeType;
     /**
      * 内测专用###########
      */
@@ -152,7 +155,7 @@ public final class PictureSelectionConfig implements Parcelable {
         selectionMode = PictureConfig.MULTIPLE;
         maxSelectNum = 9;
         minSelectNum = 0;
-        maxVideoSelectNum = 1;
+        maxVideoSelectNum = 0;
         minVideoSelectNum = 0;
         videoQuality = 1;
         language = -1;
@@ -218,6 +221,7 @@ public final class PictureSelectionConfig implements Parcelable {
         selectionMedias = new ArrayList<>();
         imageEngine = null;
         listener = null;
+        cacheResourcesEngine = null;
         customVideoPlayCallback = null;
         onPictureSelectorInterfaceListener = null;
         uCropOptions = null;
@@ -240,6 +244,7 @@ public final class PictureSelectionConfig implements Parcelable {
         overrideHeight = 0;
         originalPath = "";
         cameraPath = "";
+        cameraMimeType = -1;
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -356,6 +361,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeString(this.outPutCameraPath);
         dest.writeString(this.originalPath);
         dest.writeString(this.cameraPath);
+        dest.writeInt(this.cameraMimeType);
         dest.writeByte(this.isFallbackVersion ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion2 ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion3 ? (byte) 1 : (byte) 0);
@@ -451,6 +457,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.outPutCameraPath = in.readString();
         this.originalPath = in.readString();
         this.cameraPath = in.readString();
+        this.cameraMimeType = in.readInt();
         this.isFallbackVersion = in.readByte() != 0;
         this.isFallbackVersion2 = in.readByte() != 0;
         this.isFallbackVersion3 = in.readByte() != 0;

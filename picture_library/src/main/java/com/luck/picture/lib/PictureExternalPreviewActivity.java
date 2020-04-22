@@ -4,14 +4,10 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PointF;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
@@ -33,12 +29,11 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.listener.ImageCompleteCallback;
+import com.luck.picture.lib.listener.OnImageCompleteCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.photoview.PhotoView;
 import com.luck.picture.lib.thread.PictureThreadUtils;
 import com.luck.picture.lib.tools.AttrsUtils;
-import com.luck.picture.lib.tools.BitmapUtils;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.JumpUtils;
 import com.luck.picture.lib.tools.MediaUtils;
@@ -51,16 +46,16 @@ import com.luck.picture.lib.widget.longimage.ImageSource;
 import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import okio.BufferedSource;
+import okio.Okio;
 
 /**
  * @author：luck
@@ -264,7 +259,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
                     // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
                     path = media.getCompressPath();
+                } else if (!TextUtils.isEmpty(media.getAndroidQToPath())) {
+                    // AndroidQ特有path
+                    path = media.getAndroidQToPath();
                 } else {
+                    // 原图
                     path = media.getPath();
                 }
                 boolean isHttp = PictureMimeType.isHttp(path);
@@ -286,7 +285,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (isHttp) {
                             // 网络图片
                             PictureSelectionConfig.imageEngine.loadImage(contentView.getContext(), path,
-                                    imageView, longImageView, new ImageCompleteCallback() {
+                                    imageView, longImageView, new OnImageCompleteCallback() {
                                         @Override
                                         public void onShowLoading() {
                                             showPleaseDialog();
@@ -333,15 +332,15 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
                 if (!eqVideo) {
                     imageView.setOnLongClickListener(v -> {
-                                if (config.isNotPreviewDownload) {
-                                    if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                                        downloadPath = path;
-                                        String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
-                                        mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
-                                        showDownLoadDialog();
-                                    } else {
-                                        PermissionChecker.requestPermissions(PictureExternalPreviewActivity.this,
-                                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                        if (config.isNotPreviewDownload) {
+                            if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                downloadPath = path;
+                                String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
+                                mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
+                                showDownLoadDialog();
+                            } else {
+                                PermissionChecker.requestPermissions(PictureExternalPreviewActivity.this,
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
                             }
                         }
                         return true;
@@ -504,45 +503,22 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             @Override
             public String doInBackground() {
-                OutputStream outputStream = null;
-                ParcelFileDescriptor parcelFileDescriptor = null;
+                BufferedSource buffer = null;
                 try {
-                    outputStream = getContentResolver().openOutputStream(uri);
-                    parcelFileDescriptor = getContentResolver().openFileDescriptor(inputUri, "r");
-                    BitmapFactory.Options opts = new BitmapFactory.Options();
-                    opts.inJustDecodeBounds = true;
-                    opts.inSampleSize = 2;
-                    opts.inJustDecodeBounds = false;
-                    Bitmap bitmap = BitmapFactory.decodeFileDescriptor(parcelFileDescriptor.getFileDescriptor(), null, opts);
-                    if (bitmap != null) {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && PictureMimeType.isJPEG(mMimeType)) {
-                            ExifInterface exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
-                            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-                            int rotationAngle = BitmapUtils.getRotationAngle(orientation);
-                            bitmap = BitmapUtils.rotatingImage(bitmap, rotationAngle);
-                        }
-                        if (bitmap != null) {
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                            outputStream.close();
-                            String path = PictureFileUtils.getPath(getContext(), uri);
-                            bitmap.recycle();
-                            return path;
-                        }
+                    buffer = Okio.buffer(Okio.source(Objects.requireNonNull(getContentResolver().openInputStream(inputUri))));
+                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                    boolean bufferCopy = PictureFileUtils.bufferCopy(buffer, outputStream);
+                    if (bufferCopy) {
+                        return PictureFileUtils.getPath(getContext(), uri);
                     }
-                    return "";
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return "";
                 } finally {
-                    PictureFileUtils.close(parcelFileDescriptor);
-                    try {
-                        if (outputStream != null) {
-                            outputStream.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (buffer != null && buffer.isOpen()) {
+                        PictureFileUtils.close(buffer);
                     }
                 }
+                return "";
             }
 
             @Override
@@ -571,19 +547,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     // 下载图片保存至手机
     public String showLoadingImage(String urlPath) {
-        BufferedOutputStream bout = null;
-        BufferedInputStream bin = null;
         Uri outImageUri = null;
+        OutputStream outputStream = null;
+        InputStream inputStream = null;
+        BufferedSource inBuffer = null;
         try {
-            URL u = new URL(urlPath);
-            String path;
             if (isAndroidQ) {
                 outImageUri = createOutImageUri();
-                if (outImageUri == null) {
-                    return "";
-                }
-                bout = new BufferedOutputStream(Objects.requireNonNull(getContentResolver().openOutputStream(outImageUri)));
-                path = PictureFileUtils.getPath(this, outImageUri);
             } else {
                 String suffix = PictureMimeType.getLastImgSuffix(mMimeType);
                 String state = Environment.getExternalStorageState();
@@ -591,39 +561,39 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         state.equals(Environment.MEDIA_MOUNTED)
                                 ? Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
                                 : getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
+                if (rootDir != null) {
+                    if (!rootDir.exists()) {
+                        rootDir.mkdirs();
+                    }
+                    File folderDir = new File(!state.equals(Environment.MEDIA_MOUNTED)
+                            ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+                    if (!folderDir.exists() && folderDir.mkdirs()) {
+                    }
+                    String fileName = DateUtils.getCreateFileName("IMG_") + suffix;
+                    File file = new File(folderDir, fileName);
+                    outImageUri = Uri.fromFile(file);
                 }
-                File folderDir = new File(!state.equals(Environment.MEDIA_MOUNTED)
-                        ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
-                if (!folderDir.exists() && folderDir.mkdirs()) {
-                }
-                String fileName = DateUtils.getCreateFileName("IMG_") + suffix;
-                File file = new File(folderDir, fileName);
-                path = file.getAbsolutePath();
-                bout = new BufferedOutputStream(new FileOutputStream(path));
             }
-            byte[] buffer = new byte[8192];
-            int read;
-            int ava = 0;
-            long start = System.currentTimeMillis();
-            bin = new BufferedInputStream(u.openStream());
-            while ((read = bin.read(buffer)) > -1) {
-                bout.write(buffer, 0, read);
-                ava += read;
-                long speed = ava / (System.currentTimeMillis() - start);
-            }
-            bout.flush();
-            return path;
-        } catch (IOException e) {
             if (outImageUri != null) {
+                outputStream = Objects.requireNonNull(getContentResolver().openOutputStream(outImageUri));
+                URL u = new URL(urlPath);
+                inputStream = u.openStream();
+                inBuffer = Okio.buffer(Okio.source(inputStream));
+                boolean bufferCopy = PictureFileUtils.bufferCopy(inBuffer, outputStream);
+                if (bufferCopy) {
+                    return PictureFileUtils.getPath(this, outImageUri);
+                }
+            }
+        } catch (Exception e) {
+            if (outImageUri != null && isAndroidQ) {
                 getContentResolver().delete(outImageUri, null, null);
             }
-            e.printStackTrace();
-            return "";
         } finally {
-            PictureFileUtils.close(bout);
-            PictureFileUtils.close(bin);
+            PictureFileUtils.close(inputStream);
+            PictureFileUtils.close(outputStream);
+            PictureFileUtils.close(inBuffer);
         }
+        return null;
     }
 
     @Override
