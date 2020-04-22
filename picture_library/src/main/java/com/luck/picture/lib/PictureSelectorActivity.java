@@ -120,7 +120,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     readLocalMedia();
                 }
             } else {
-                showPermissionsDialog(getString(R.string.picture_jurisdiction));
+                showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
             }
             isEnterSetting = false;
         }
@@ -477,6 +477,18 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     public void startCamera() {
         // 防止快速点击，但是单独拍照不管
         if (!DoubleUtils.isFastDoubleClick()) {
+            if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
+                // 用户需要自定义拍照处理
+                if (config.chooseMode == PictureConfig.TYPE_ALL) {
+                    // 如果是全部类型下，单独拍照就默认图片 (因为单独拍照不会new此PopupWindow对象)
+                    PhotoItemSelectedDialog selectedDialog = PhotoItemSelectedDialog.newInstance();
+                    selectedDialog.setOnItemClickListener(this);
+                    selectedDialog.show(getSupportFragmentManager(), "PhotoItemSelectedDialog");
+                } else {
+                    PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(config.chooseMode);
+                }
+                return;
+            }
 //            if (config.isUseCustomCamera) {
 //                startCustomCamera();
 //                return;
@@ -490,11 +502,19 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     break;
                 case PictureConfig.TYPE_IMAGE:
                     // 拍照
-                    startOpenCamera();
+                    if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
+                        PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(PictureConfig.TYPE_IMAGE);
+                    } else {
+                        startOpenCamera();
+                    }
                     break;
                 case PictureConfig.TYPE_VIDEO:
                     // 录视频
-                    startOpenCameraVideo();
+                    if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
+                        PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(PictureConfig.TYPE_VIDEO);
+                    } else {
+                        startOpenCameraVideo();
+                    }
                     break;
                 case PictureConfig.TYPE_AUDIO:
                     // 录音
@@ -993,22 +1013,23 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onTakePhoto() {
         // 启动相机拍照,先判断手机是否有拍照权限
-        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
-            // 获取到相机权限再验证是否有存储权限
-            if (PermissionChecker
-                    .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
-                    PermissionChecker
-                            .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (PermissionChecker
+                .checkSelfPermission(this, Manifest.permission.CAMERA)) {
+            startCamera();
+            boolean isPermissionChecker = true;
+            if (config.isUseCustomCamera) {
+                isPermissionChecker = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+            }
+            if (isPermissionChecker) {
                 startCamera();
             } else {
-                PermissionChecker.requestPermissions(this, new String[]{
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_CAMERA_STORAGE_PERMISSIONS_CODE);
+                PermissionChecker
+                        .requestPermissions(this,
+                                new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
             }
-        } else {
-            PermissionChecker
-                    .requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
+        }  else {
+            PermissionChecker.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
         }
     }
 
@@ -1325,9 +1346,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             // 图片视频处理规则
             if (PictureMimeType.isContent(config.cameraPath)) {
                 String path = PictureFileUtils.getPath(getApplicationContext(), Uri.parse(config.cameraPath));
-                File file = new File(path);
-                size = file.length();
-                mimeType = PictureMimeType.getMimeType(file);
+                if (!TextUtils.isEmpty(path)) {
+                    File file = new File(path);
+                    size = file.length();
+                    mimeType = PictureMimeType.getMimeType(file);
+                }
                 if (PictureMimeType.eqImage(mimeType)) {
                     newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, config.cameraPath);
                 } else {
@@ -1337,10 +1360,12 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
                 media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
                 media.setRealPath(path);
-//                if (config.isUseCustomCamera && data != null) {
+//                  if (config.isUseCustomCamera) {
 //                    // 自定义拍照时已经在应用沙盒内生成了文件
-//                    String mediaPath = data.getStringExtra(PictureConfig.EXTRA_MEDIA_PATH);
-//                    media.setAndroidQToPath(mediaPath);
+//                   if (data != null) {
+//                        String mediaPath = data.getStringExtra(PictureConfig.EXTRA_MEDIA_PATH);
+//                        media.setAndroidQToPath(mediaPath);
+//                    }
 //                }
             } else {
                 File file = new File(config.cameraPath);
@@ -1408,7 +1433,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         if (PictureMimeType.eqVideo(media.getMimeType()) && config.maxVideoSelectNum > 0) {
                             // 视频还可选
                             if (videoSize < config.maxVideoSelectNum) {
-                                selectedImages.add(media);
+                                selectedImages.add(0, media);
                                 mAdapter.bindSelectImages(selectedImages);
                             } else {
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), media.getMimeType(),
@@ -1417,7 +1442,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         } else {
                             // 图片还可选
                             if (imageSize < config.maxSelectNum) {
-                                selectedImages.add(media);
+                                selectedImages.add(0, media);
                                 mAdapter.bindSelectImages(selectedImages);
                             } else {
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), media.getMimeType(),
@@ -1431,7 +1456,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                             if (count < config.maxVideoSelectNum) {
                                 if (mimeTypeSame || count == 0) {
                                     if (selectedImages.size() < config.maxVideoSelectNum) {
-                                        selectedImages.add(media);
+                                        selectedImages.add(0, media);
                                         mAdapter.bindSelectImages(selectedImages);
                                     }
                                 }
@@ -1444,10 +1469,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                             if (count < config.maxSelectNum) {
                                 // 类型相同或还没有选中才加进选中集合中
                                 if (mimeTypeSame || count == 0) {
-                                    if (count < config.maxSelectNum) {
-                                        selectedImages.add(media);
-                                        mAdapter.bindSelectImages(selectedImages);
-                                    }
+                                    selectedImages.add(0, media);
+                                    mAdapter.bindSelectImages(selectedImages);
                                 }
                             } else {
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType,
@@ -1757,7 +1780,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     readLocalMedia();
                 } else {
-                    showPermissionsDialog(getString(R.string.picture_jurisdiction));
+                    showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
                 }
                 break;
             case PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE:
@@ -1765,7 +1788,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
-                    showPermissionsDialog(getString(R.string.picture_camera));
+                    showPermissionsDialog(true, getString(R.string.picture_camera));
                 }
                 break;
             case PictureConfig.APPLY_CAMERA_STORAGE_PERMISSIONS_CODE:
@@ -1773,15 +1796,16 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startCamera();
                 } else {
-                    showPermissionsDialog(getString(R.string.picture_jurisdiction));
+                    showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
                 }
                 break;
 //            case PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE:
 //                // 录音权限
-//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    startCustomCamera();
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    onTakePhoto();
 //                } else {
-//                    showPermissionsDialog(getString(R.string.picture_camera));
+//                    closeActivity();
+//                    ToastUtils.s(getContext(), getString(R.string.picture_audio));
 //                }
 //                break;
         }
@@ -1790,7 +1814,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     /**
      * 权限提示
      */
-    private void showPermissionsDialog(String errorMsg) {
+    @Override
+    protected void showPermissionsDialog(boolean isCamera, String errorMsg) {
         if (isFinishing()) {
             return;
         }
@@ -1809,7 +1834,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             if (!isFinishing()) {
                 dialog.dismiss();
             }
-            closeActivity();
+            if (!isCamera) {
+                closeActivity();
+            }
         });
         btn_commit.setOnClickListener(v -> {
             if (!isFinishing()) {

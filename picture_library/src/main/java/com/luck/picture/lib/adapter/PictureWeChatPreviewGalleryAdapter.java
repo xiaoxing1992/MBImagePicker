@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 
@@ -70,6 +71,7 @@ public class PictureWeChatPreviewGalleryAdapter
                 PictureSelectionConfig.imageEngine.loadImage(holder.itemView.getContext(), item.getPath(), holder.ivImage);
             }
 
+            holder.ivPlay.setVisibility(PictureMimeType.eqVideo(item.getMimeType()) ? View.VISIBLE : View.GONE);
             holder.itemView.setOnClickListener(v -> {
                 if (listener != null && holder.getAdapterPosition() >= 0) {
                     listener.onItemClick(holder.getAdapterPosition(), getItem(position), v);
@@ -84,11 +86,13 @@ public class PictureWeChatPreviewGalleryAdapter
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
+        ImageView ivPlay;
         View viewBorder;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ivImage = itemView.findViewById(R.id.ivImage);
+            ivPlay = itemView.findViewById(R.id.ivPlay);
             viewBorder = itemView.findViewById(R.id.viewBorder);
         }
     }

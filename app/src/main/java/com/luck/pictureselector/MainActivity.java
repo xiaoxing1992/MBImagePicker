@@ -37,6 +37,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.language.LanguageConfig;
+import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
@@ -438,6 +439,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
                         .isOriginalImageControl(cb_original.isChecked())// 是否显示原图控制按钮，如果设置为true则用户可以自由选择是否使用原图，压缩、裁剪功能将会失效
                         //.bindCustomPlayVideoCallback(callback)// 自定义视频播放回调控制，用户可以使用自己的视频播放界面
+                        .bindPictureSelectorInterfaceListener(interfaceListener)// 提供给用户的一些额外的自定义操作回调
                         //.cameraFileName(System.currentTimeMillis() +".jpg")    // 重命名拍照文件名、如果是相册拍照则内部会自动拼上当前时间戳防止重复，注意这个只在使用相机时可以使用，如果使用相机又开启了压缩或裁剪 需要配合压缩和裁剪文件名api
                         //.renameCompressFile(System.currentTimeMillis() +".jpg")// 重命名压缩文件名、 注意这个不要重复，只适用于单张图压缩使用
                         //.renameCropFileName(System.currentTimeMillis() + ".jpg")// 重命名裁剪文件名、 注意这个不要重复，只适用于单张图裁剪使用
@@ -463,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //.sizeMultiplier(0.5f)// glide 加载图片大小 0~1之间 如设置 .glideOverride()无效 注：已废弃
                         //.glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度 注：已废弃
                         .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(cb_hide.isChecked() ? false : true)// 是否显示uCrop工具栏，默认不显示
+                        .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
                         .isGif(cb_isGif.isChecked())// 是否显示gif图片
                         .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
                         .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
@@ -542,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .compressQuality(60)// 图片压缩后输出质量
                         .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
                         .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(cb_hide.isChecked() ? false : true)// 是否显示uCrop工具栏，默认不显示
+                        .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
                         .isGif(cb_isGif.isChecked())// 是否显示gif图片
                         .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
                         .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
@@ -588,6 +590,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 自定义播放逻辑处理，用户可以自己实现播放界面
      */
     private OnVideoSelectedPlayCallback callback = media -> ToastUtils.s(getContext(), media.getPath());
+
+    /**
+     * PictureSelector自定义的一些回调接口
+     */
+    private OnPictureSelectorInterfaceListener interfaceListener = type -> {
+        // 必须使用.startActivityForResult(this,PictureConfig.REQUEST_CAMERA);
+        switch (type) {
+            case PictureConfig.TYPE_IMAGE:
+                // 拍照
+                ToastUtils.s(getContext(), "Click Camera Image");
+                break;
+            case PictureConfig.TYPE_VIDEO:
+                // 录视频
+                ToastUtils.s(getContext(), "Click Camera Video");
+                break;
+            case PictureConfig.TYPE_AUDIO:
+                // 录音
+                ToastUtils.s(getContext(), "Click Camera Recording");
+                break;
+            default:
+                break;
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

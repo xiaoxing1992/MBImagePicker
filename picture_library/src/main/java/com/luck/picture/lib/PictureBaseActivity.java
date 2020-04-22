@@ -897,7 +897,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     cameraFileName = config.camera ? config.cameraFileName : StringUtils.rename(config.cameraFileName);
                 }
                 File cameraFile = PictureFileUtils.createCameraFile(getApplicationContext(),
-                        chooseMode, cameraFileName, config.suffixType);
+                        chooseMode, cameraFileName, config.suffixType, config.outPutCameraPath);
                 config.cameraPath = cameraFile.getAbsolutePath();
 
                 imageUri = PictureFileUtils.parUri(this, cameraFile);
@@ -939,7 +939,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     cameraFileName = config.camera ? config.cameraFileName : StringUtils.rename(config.cameraFileName);
                 }
                 File cameraFile = PictureFileUtils.createCameraFile(getApplicationContext(),
-                        chooseMode, cameraFileName, config.suffixType);
+                        chooseMode, cameraFileName, config.suffixType, config.outPutCameraPath);
                 config.cameraPath = cameraFile.getAbsolutePath();
                 imageUri = PictureFileUtils.parUri(this, cameraFile);
             }
@@ -975,6 +975,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         if (config != null) {
             PictureSelectionConfig.listener = null;
             PictureSelectionConfig.customVideoPlayCallback = null;
+            PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
         }
     }
 
@@ -994,5 +995,12 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    /**
+     * 权限提示
+     */
+    protected void showPermissionsDialog(boolean isCamera, String errorMsg) {
+
     }
 }

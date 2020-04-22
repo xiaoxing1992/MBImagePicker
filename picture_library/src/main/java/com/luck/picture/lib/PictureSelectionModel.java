@@ -14,6 +14,7 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.config.UCropOptions;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
@@ -126,6 +127,19 @@ public class PictureSelectionModel {
         PictureSelectionConfig.customVideoPlayCallback = new WeakReference<>(callback).get();
         return this;
     }
+
+    /**
+     * # The developer provides an additional callback interface to the user where the user can perform some custom actions
+     * {link 如果是自定义相机则必须使用.startActivityForResult(this,PictureConfig.REQUEST_CAMERA);方式启动否则PictureSelector处理不了相机后的回调}
+     *
+     * @param listener
+     * @return
+     */
+    public PictureSelectionModel bindPictureSelectorInterfaceListener(OnPictureSelectorInterfaceListener listener) {
+        PictureSelectionConfig.onPictureSelectorInterfaceListener = listener;
+        return this;
+    }
+
 
     /**
      * @param enableCrop Do you want to start cutting ?
@@ -592,15 +606,13 @@ public class PictureSelectionModel {
     }
 
     /**
-     * # Responding to the Q version of Android, it's all in the app
-     * sandbox so customizations are no longer provided
+     * Extra used with {@link #Environment.getExternalStorageDirectory() +  File.separator + "CustomCamera" + File.separator}  to indicate that
      *
-     * @param outputCameraPath Camera save path   由于Android Q的原因 其实此方法作用的意义就没了
+     * @param outPutCameraPath Camera save path 只支持Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
      * @return
      */
-    @Deprecated
-    public PictureSelectionModel setOutputCameraPath(String outputCameraPath) {
-        selectionConfig.outputCameraPath = outputCameraPath;
+    public PictureSelectionModel setOutputCameraPath(String outPutCameraPath) {
+        selectionConfig.outPutCameraPath = outPutCameraPath;
         return this;
     }
 

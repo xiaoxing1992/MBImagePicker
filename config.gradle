@@ -4,8 +4,8 @@ ext {
             buildToolsVersion             : "28.0.3",
             minSdkVersion                 : 16,
             targetSdkVersion              : 29,
-            versionCode                   : 20,
-            versionName                   : "2.5.0",
+            versionCode                   : 21,
+            versionName                   : "2.5.1",
             ucropVersionCode              : 22,
             ucropVersionName              : "2.2.0-native",
 
@@ -26,7 +26,7 @@ ext {
             androidx_transition_version   : "27.1.1",
 
             // okio
-            okio_version                  : "2.4.3"
+            okio_version                  : "2.5.0"
 
     ]
 }
