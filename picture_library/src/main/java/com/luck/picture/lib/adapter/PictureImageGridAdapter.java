@@ -62,6 +62,10 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         this.showCamera = showCamera;
     }
 
+    public boolean isShowCamera() {
+        return showCamera;
+    }
+
     public void bindImagesData(List<LocalMedia> images) {
         this.images = images == null ? new ArrayList<>() : images;
         notifyDataSetChanged();
@@ -90,6 +94,15 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public List<LocalMedia> getImages() {
         return images == null ? new ArrayList<>() : images;
+    }
+
+    public boolean isDataEmpty() {
+        return images == null || images.size() == 0;
+    }
+
+
+    public int getSize() {
+        return images == null ? 0 : images.size();
     }
 
     @Override

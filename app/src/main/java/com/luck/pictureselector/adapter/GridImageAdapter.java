@@ -209,7 +209,7 @@ public class GridImageAdapter extends
             } else {
 
                 Glide.with(viewHolder.itemView.getContext())
-                        .load(path.startsWith("content://") && !media.isCut() && !media.isCompressed() ? Uri.parse(path)
+                        .load(PictureMimeType.isContent(path) && !media.isCut() && !media.isCompressed() ? Uri.parse(path)
                                 : path)
                         .centerCrop()
                         .placeholder(R.color.app_color_f6)

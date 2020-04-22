@@ -1,7 +1,6 @@
 package com.luck.picture.lib;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -20,6 +19,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -59,6 +59,7 @@ import com.yalantis.ucrop.model.CutInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author：luck
@@ -90,8 +91,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     protected int oldCurrentListSize;
     protected int audioH;
     protected boolean isFirstEnterActivity = false;
-
-    @SuppressLint("HandlerLeak")
+    protected boolean isEnterSetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +110,24 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     protected void onResume() {
         super.onResume();
-        if (mCbOriginal != null && config != null) {
-            mCbOriginal.setChecked(config.isCheckOriginalImage);
+        // 这里只针对权限被手动拒绝后进入设置页面重新获取权限后的操作
+        if (isEnterSetting) {
+            if (PermissionChecker
+                    .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                    PermissionChecker
+                            .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (mAdapter.isDataEmpty()) {
+                    readLocalMedia();
+                }
+            } else {
+                showPermissionsDialog(getString(R.string.picture_jurisdiction));
+            }
+            isEnterSetting = false;
+        }
+        if (config.isOriginalControl) {
+            if (mCbOriginal != null) {
+                mCbOriginal.setChecked(config.isCheckOriginalImage);
+            }
         }
     }
 
@@ -556,6 +572,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         bundle.putParcelableArrayList(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putBoolean(PictureConfig.EXTRA_CHANGE_ORIGINAL, config.isCheckOriginalImage);
+        bundle.putBoolean(PictureConfig.EXTRA_SHOW_CAMERA, mAdapter.isShowCamera());
+        bundle.putString(PictureConfig.EXTRA_IS_CURRENT_DIRECTORY, mTvPictureTitle.getText().toString());
         JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, bundle,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCrop.REQUEST_MULTI_CROP);
 
@@ -964,7 +982,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 
     @Override
     public void onItemClick(boolean isCameraFolder, String folderName, List<LocalMedia> images) {
-        boolean camera = config.isCamera ? isCameraFolder : false;
+        boolean camera = config.isCamera && isCameraFolder;
         mAdapter.setShowCamera(camera);
         mTvPictureTitle.setText(folderName);
         folderWindow.dismiss();
@@ -976,7 +994,17 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     public void onTakePhoto() {
         // 启动相机拍照,先判断手机是否有拍照权限
         if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
-            startCamera();
+            // 获取到相机权限再验证是否有存储权限
+            if (PermissionChecker
+                    .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                    PermissionChecker
+                            .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                startCamera();
+            } else {
+                PermissionChecker.requestPermissions(this, new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_CAMERA_STORAGE_PERMISSIONS_CODE);
+            }
         } else {
             PermissionChecker
                     .requestPermissions(this,
@@ -1045,6 +1073,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             bundle.putParcelableArrayList(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) selectedImages);
             bundle.putInt(PictureConfig.EXTRA_POSITION, position);
             bundle.putBoolean(PictureConfig.EXTRA_CHANGE_ORIGINAL, config.isCheckOriginalImage);
+            bundle.putBoolean(PictureConfig.EXTRA_SHOW_CAMERA, mAdapter.isShowCamera());
+            bundle.putString(PictureConfig.EXTRA_IS_CURRENT_DIRECTORY, mTvPictureTitle.getText().toString());
             JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, bundle,
                     config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCrop.REQUEST_MULTI_CROP);
             overridePendingTransition(config.windowAnimationStyle != null
@@ -1293,7 +1323,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         LocalMedia media = new LocalMedia();
         if (config.chooseMode != PictureMimeType.ofAudio()) {
             // 图片视频处理规则
-            if (config.cameraPath.startsWith("content://")) {
+            if (PictureMimeType.isContent(config.cameraPath)) {
                 String path = PictureFileUtils.getPath(getApplicationContext(), Uri.parse(config.cameraPath));
                 File file = new File(path);
                 size = file.length();
@@ -1502,7 +1532,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 media.setChooseModel(config.chooseMode);
                 if (TextUtils.isEmpty(cutPath)) {
                     if (SdkVersionUtils.checkedAndroid_Q()
-                            && media.getPath().startsWith("content://")) {
+                            && PictureMimeType.isContent(media.getPath())) {
                         String path = PictureFileUtils.getPath(this, Uri.parse(media.getPath()));
                         media.setSize(new File(path).length());
                     } else {
@@ -1524,7 +1554,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 media.setChooseModel(config.chooseMode);
                 if (TextUtils.isEmpty(cutPath)) {
                     if (SdkVersionUtils.checkedAndroid_Q()
-                            && media.getPath().startsWith("content://")) {
+                            && PictureMimeType.isContent(media.getPath())) {
                         String path = PictureFileUtils.getPath(this, Uri.parse(media.getPath()));
                         media.setSize(new File(path).length());
                     } else {
@@ -1597,7 +1627,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (!TextUtils.isEmpty(c.getCutPath())) {
                     media.setSize(new File(c.getCutPath()).length());
                 } else {
-                    if (SdkVersionUtils.checkedAndroid_Q() && c.getPath().startsWith("content://")) {
+                    if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(c.getPath())) {
                         String path = PictureFileUtils.getPath(this, Uri.parse(c.getPath()));
                         media.setSize(!TextUtils.isEmpty(path) ? new File(path).length() : 0);
                     } else {
@@ -1635,6 +1665,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             LocalMediaFolder folder = getImageFolder(media.getPath(), foldersList);
             LocalMediaFolder cameraFolder = foldersList.size() > 0 ? foldersList.get(0) : null;
             if (cameraFolder != null && folder != null) {
+                media.setParentFolderName(folder.getName());
                 // 相机胶卷
                 cameraFolder.setFirstImagePath(media.getPath());
                 cameraFolder.setImages(images);
@@ -1657,8 +1688,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
      * @param imageFolders
      */
     private void updateMediaFolder(List<LocalMediaFolder> imageFolders, LocalMedia media) {
-        File imageFile = new File(media.getPath().startsWith("content://")
-                ? PictureFileUtils.getPath(getContext(), Uri.parse(media.getPath())) : media.getPath());
+        File imageFile = new File(PictureMimeType.isContent(media.getPath())
+                ? Objects.requireNonNull(PictureFileUtils.getPath(getContext(), Uri.parse(media.getPath()))) : media.getPath());
         File folderFile = imageFile.getParentFile();
         int size = imageFolders.size();
         for (int i = 0; i < size; i++) {
@@ -1726,7 +1757,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     readLocalMedia();
                 } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_jurisdiction));
+                    showPermissionsDialog(getString(R.string.picture_jurisdiction));
                 }
                 break;
             case PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE:
@@ -1734,7 +1765,15 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_camera));
+                    showPermissionsDialog(getString(R.string.picture_camera));
+                }
+                break;
+            case PictureConfig.APPLY_CAMERA_STORAGE_PERMISSIONS_CODE:
+                // 拍照前重新获取存储权限
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCamera();
+                } else {
+                    showPermissionsDialog(getString(R.string.picture_jurisdiction));
                 }
                 break;
 //            case PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE:
@@ -1742,9 +1781,43 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 //                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 //                    startCustomCamera();
 //                } else {
-//                    ToastUtils.s(getContext(), getString(R.string.picture_camera));
+//                    showPermissionsDialog(getString(R.string.picture_camera));
 //                }
 //                break;
         }
+    }
+
+    /**
+     * 权限提示
+     */
+    private void showPermissionsDialog(String errorMsg) {
+        if (isFinishing()) {
+            return;
+        }
+        final PictureCustomDialog dialog =
+                new PictureCustomDialog(getContext(), R.layout.picture_wind_base_dialog);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
+        Button btn_commit = dialog.findViewById(R.id.btn_commit);
+        btn_commit.setText(getString(R.string.picture_go_setting));
+        TextView tv_title = dialog.findViewById(R.id.tv_title);
+        TextView tv_content = dialog.findViewById(R.id.tv_content);
+        tv_title.setText(getString(R.string.picture_prompt));
+        tv_content.setText(errorMsg);
+        btn_cancel.setOnClickListener(v -> {
+            if (!isFinishing()) {
+                dialog.dismiss();
+            }
+            closeActivity();
+        });
+        btn_commit.setOnClickListener(v -> {
+            if (!isFinishing()) {
+                dialog.dismiss();
+            }
+            PermissionChecker.launchAppDetailsSettings(getContext());
+            isEnterSetting = true;
+        });
+        dialog.show();
     }
 }

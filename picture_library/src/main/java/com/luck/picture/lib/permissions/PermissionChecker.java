@@ -2,7 +2,10 @@ package com.luck.picture.lib.permissions;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,5 +39,23 @@ public class PermissionChecker {
      */
     public static void requestPermissions(Activity activity, @NonNull String[] permissions, int code) {
         ActivityCompat.requestPermissions(activity, permissions, code);
+    }
+
+    /**
+     * Launch the application's details settings.
+     */
+    public static void launchAppDetailsSettings(Context context) {
+        Context applicationContext = context.getApplicationContext();
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + applicationContext.getPackageName()));
+        if (!isIntentAvailable(context, intent)) return;
+        applicationContext.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+
+    private static boolean isIntentAvailable(Context context, final Intent intent) {
+        return context.getApplicationContext()
+                .getPackageManager()
+                .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                .size() > 0;
     }
 }

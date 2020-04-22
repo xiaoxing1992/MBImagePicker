@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -53,6 +54,12 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
         }
     }
 
+    public void removeCacheView(int position) {
+        if (mCacheView != null && position < mCacheView.size()) {
+            mCacheView.removeAt(position);
+        }
+    }
+
     public interface OnCallBackActivity {
         /**
          * 关闭预览Activity
@@ -80,6 +87,11 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
         if (mCacheView.size() > MAX_CACHE_SIZE) {
             mCacheView.remove(position);
         }
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
     }
 
     @Override
