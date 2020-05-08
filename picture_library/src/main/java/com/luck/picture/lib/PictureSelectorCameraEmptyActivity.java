@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,7 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.immersive.ImmersiveManage;
 import com.luck.picture.lib.permissions.PermissionChecker;
+import com.luck.picture.lib.thread.PictureThreadUtils;
 import com.luck.picture.lib.tools.BitmapUtils;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.tools.PictureFileUtils;
@@ -45,7 +47,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (!config.isUseCustomCamera && PictureSelectionConfig.onPictureSelectorInterfaceListener == null) {
+        super.onCreate(savedInstanceState);
+        if (config != null && !config.isUseCustomCamera && PictureSelectionConfig.onPictureSelectorInterfaceListener == null) {
             if (savedInstanceState == null) {
                 if (PermissionChecker
                         .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
@@ -60,7 +63,6 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
             }
             setTheme(R.style.Picture_Theme_Translucent);
         }
-        super.onCreate(savedInstanceState);
     }
 
 
@@ -77,7 +79,17 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         // 启动相机拍照,先判断手机是否有拍照权限
         if (PermissionChecker
                 .checkSelfPermission(this, Manifest.permission.CAMERA)) {
-            startCamera();
+            boolean isPermissionChecker = true;
+            if (config != null && config.isUseCustomCamera) {
+                isPermissionChecker = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+            }
+            if (isPermissionChecker) {
+                startCamera();
+            } else {
+                PermissionChecker
+                        .requestPermissions(this,
+                                new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
+            }
         } else {
             PermissionChecker.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
@@ -116,7 +128,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     singleCropHandleResult(data);
                     break;
                 case PictureConfig.REQUEST_CAMERA:
-                    requestCamera(data);
+                    dispatchHandleCamera(data);
                     break;
                 default:
                     break;
@@ -180,21 +192,21 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         int width = 0, height = 0;
         media.setOrientation(-1);
         if (PictureMimeType.isContent(media.getPath())) {
-            if (PictureMimeType.eqVideo(media.getMimeType())) {
+            if (PictureMimeType.isHasVideo(media.getMimeType())) {
                 int[] size = MediaUtils.getVideoSizeForUri(getContext(), Uri.parse(media.getPath()));
                 width = size[0];
                 height = size[1];
-            } else if (PictureMimeType.eqImage(media.getMimeType())) {
+            } else if (PictureMimeType.isHasImage(media.getMimeType())) {
                 int[] size = MediaUtils.getImageSizeForUri(getContext(), Uri.parse(media.getPath()));
                 width = size[0];
                 height = size[1];
             }
         } else {
-            if (PictureMimeType.eqVideo(media.getMimeType())) {
+            if (PictureMimeType.isHasVideo(media.getMimeType())) {
                 int[] size = MediaUtils.getVideoSizeForUrl(media.getPath());
                 width = size[0];
                 height = size[1];
-            } else if (PictureMimeType.eqImage(media.getMimeType())) {
+            } else if (PictureMimeType.isHasImage(media.getMimeType())) {
                 int[] size = MediaUtils.getImageSizeForUrl(media.getPath());
                 width = size[0];
                 height = size[1];
@@ -203,117 +215,132 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         media.setWidth(width);
         media.setHeight(height);
         // 如果有旋转信息图片宽高则是相反
-        MediaUtils.setOrientation(getContext(), media);
-        medias.add(media);
-        handlerResult(medias);
+        MediaUtils.setOrientationAsynchronous(getContext(), media,
+                item -> {
+                    medias.add(item);
+                    handlerResult(medias);
+                });
     }
 
 
     /**
      * 拍照后处理结果
      *
-     * @param data
+     * @param intent
      */
 
-    protected void requestCamera(Intent data) {
-        // on take photo success
-        String mimeType = null;
-        long duration = 0;
-        boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
-        if (config.chooseMode == PictureMimeType.ofAudio()) {
-            // 音频处理规则
-            config.cameraPath = getAudioPath(data);
-            if (TextUtils.isEmpty(config.cameraPath)) {
-                return;
-            }
-            mimeType = PictureMimeType.MIME_TYPE_AUDIO;
-            duration = MediaUtils.extractDuration(getContext(), isAndroidQ, config.cameraPath);
-        }
-        if (TextUtils.isEmpty(config.cameraPath) || new File(config.cameraPath) == null) {
+    protected void dispatchHandleCamera(Intent intent) {
+        boolean isAudio = config.chooseMode == PictureMimeType.ofAudio();
+        config.cameraPath = isAudio ? getAudioPath(intent) : config.cameraPath;
+        if (TextUtils.isEmpty(config.cameraPath)) {
             return;
         }
-        long size = 0;
-        int[] newSize = new int[2];
-        if (!isAndroidQ) {
-            if (config.isFallbackVersion3) {
-                new PictureMediaScannerConnection(getContext(), config.cameraPath);
-            } else {
-                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(config.cameraPath))));
-            }
-        }
-        LocalMedia media = new LocalMedia();
-        if (config.chooseMode != PictureMimeType.ofAudio()) {
-            // 图片视频处理规则
-            if (PictureMimeType.isContent(config.cameraPath)) {
-                String path = PictureFileUtils.getPath(getApplicationContext(), Uri.parse(config.cameraPath));
-                File file = new File(path);
-                size = file.length();
-                mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
-                if (PictureMimeType.eqImage(mimeType)) {
-                    newSize = MediaUtils.getImageSizeForUrlToAndroidQ(this, config.cameraPath);
-                } else {
-                    newSize = MediaUtils.getVideoSizeForUri(this, Uri.parse(config.cameraPath));
-                    duration = MediaUtils.extractDuration(getContext(), true, config.cameraPath);
-                }
-                int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
-                media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
-                media.setRealPath(path);
-                if (config.isUseCustomCamera) {
-                    // 自定义拍照时已经在应用沙盒内生成了文件
-                    if (data != null) {
-                        String mediaPath = data.getStringExtra(PictureConfig.EXTRA_MEDIA_PATH);
+        // 开启异步线程进行处理
+        showPleaseDialog();
+        PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<LocalMedia>() {
+            @Override
+            public LocalMedia doInBackground() {
+                // 创建一个LocalMedia对象
+                LocalMedia media = new LocalMedia();
+                String mimeType = isAudio ? PictureMimeType.MIME_TYPE_AUDIO : "";
+                int[] newSize = new int[2];
+                long duration = 0;
+                if (!isAudio) {
+                    // 图片和视频的处理逻辑
+                    if (PictureMimeType.isContent(config.cameraPath)) {
+                        // content://类型处理规则
+                        String path = PictureFileUtils.getPath(getContext(), Uri.parse(config.cameraPath));
+                        if (!TextUtils.isEmpty(path)) {
+                            File cameraFile = new File(path);
+                            mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
+                            media.setSize(cameraFile.length());
+                        }
+                        if (PictureMimeType.isHasImage(mimeType)) {
+                            // 图片
+                            newSize = MediaUtils.getImageSizeForUrlToAndroidQ(getContext(), config.cameraPath);
+                        } else if (PictureMimeType.isHasVideo(mimeType)) {
+                            // 视频
+                            newSize = MediaUtils.getVideoSizeForUri(getContext(), Uri.parse(config.cameraPath));
+                        }
+                        int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
+                        media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
+                        media.setRealPath(path);
+                        // 自定义拍照时已经在应用沙盒内生成了文件
+                        String mediaPath = intent != null ? intent.getStringExtra(PictureConfig.EXTRA_MEDIA_PATH) : null;
                         media.setAndroidQToPath(mediaPath);
+                    } else {
+                        // 普通类型处理规则
+                        File cameraFile = new File(config.cameraPath);
+                        mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
+                        media.setSize(cameraFile.length());
+                        if (PictureMimeType.isHasImage(mimeType)) {
+                            // 图片
+                            int degree = PictureFileUtils.readPictureDegree(getContext(), config.cameraPath);
+                            BitmapUtils.rotateImage(degree, config.cameraPath);
+                            newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
+                        } else if (PictureMimeType.isHasVideo(mimeType)) {
+                            // 视频
+                            newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
+                        }
+                        // 拍照产生一个临时id
+                        media.setId(System.currentTimeMillis());
+                    }
+                    // 给LocalMedia对象赋值
+                    media.setPath(config.cameraPath);
+                    media.setDuration(duration);
+                    media.setMimeType(mimeType);
+                    media.setWidth(newSize[0]);
+                    media.setHeight(newSize[1]);
+                    if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isHasVideo(media.getMimeType())) {
+                        media.setParentFolderName(Environment.DIRECTORY_MOVIES);
+                    } else {
+                        media.setParentFolderName(PictureMimeType.CAMERA);
+                    }
+                    media.setChooseModel(config.chooseMode);
+                    long bucketId = MediaUtils.getCameraFirstBucketId(getContext());
+                    media.setBucketId(bucketId);
+                    // 如果有旋转信息图片宽高则是相反
+                    MediaUtils.setOrientationSynchronous(getContext(), media);
+                }
+                return media;
+            }
+            @Override
+            public void onSuccess(LocalMedia result) {
+                // 刷新系统相册
+                dismissDialog();
+                if (!SdkVersionUtils.checkedAndroid_Q()) {
+                    if (config.isFallbackVersion3) {
+                        new PictureMediaScannerConnection(getContext(), config.cameraPath);
+                    } else {
+                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(config.cameraPath))));
                     }
                 }
-            } else {
-                final File file = new File(config.cameraPath);
-                mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
-                size = file.length();
-                if (PictureMimeType.eqImage(mimeType)) {
-                    int degree = PictureFileUtils.readPictureDegree(this, config.cameraPath);
-                    BitmapUtils.rotateImage(degree, config.cameraPath);
-                    newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
-                } else {
-                    newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
-                    duration = MediaUtils.extractDuration(getContext(), false, config.cameraPath);
+                dispatchCameraHandleResult(result);
+                // 这里主要解决极个别手机拍照会在DCIM目录重复生成一张照片问题
+                if (!SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isHasImage(result.getMimeType())) {
+                    int lastImageId = MediaUtils.getDCIMLastImageId(getContext());
+                    if (lastImageId != -1) {
+                        MediaUtils.removeMedia(getContext(), lastImageId);
+                    }
                 }
-                // 拍照产生一个临时id
-                media.setId(System.currentTimeMillis());
+
             }
-        }
-        media.setDuration(duration);
-        media.setWidth(newSize[0]);
-        media.setHeight(newSize[1]);
-        media.setPath(config.cameraPath);
-        media.setMimeType(mimeType);
-        media.setSize(size);
-        media.setChooseModel(config.chooseMode);
-        // 如果有旋转信息图片宽高则是相反
-        MediaUtils.setOrientation(getContext(), media);
-        cameraHandleResult(media, mimeType);
-        // 这里主要解决极个别手机拍照会在DCIM目录重复生成一张照片问题
-        if (!isAndroidQ && PictureMimeType.eqImage(media.getMimeType())) {
-            int lastImageId = MediaUtils.getLastImageId(getContext(), media.getMimeType());
-            if (lastImageId != -1) {
-                MediaUtils.removeMedia(getContext(), lastImageId);
-            }
-        }
+        });
     }
 
     /**
      * 摄像头后处理方式
      *
      * @param media
-     * @param mimeType
      */
-    private void cameraHandleResult(LocalMedia media, String mimeType) {
+    private void dispatchCameraHandleResult(LocalMedia media) {
         // 如果是单选 拍照后直接返回
-        boolean eqImg = PictureMimeType.eqImage(mimeType);
-        if (config.enableCrop && eqImg) {
+        boolean isHasImage = PictureMimeType.isHasImage(media.getMimeType());
+        if (config.enableCrop && isHasImage) {
             // 去裁剪
             config.originalPath = config.cameraPath;
-            startCrop(config.cameraPath, mimeType);
-        } else if (config.isCompress && eqImg && !config.isCheckOriginalImage) {
+            startCrop(config.cameraPath, media.getMimeType());
+        } else if (config.isCompress && isHasImage && !config.isCheckOriginalImage) {
             // 去压缩
             List<LocalMedia> result = new ArrayList<>();
             result.add(media);
@@ -327,13 +354,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        closeActivity();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE:
@@ -356,5 +378,12 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 }
                 break;
         }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        closeActivity();
     }
 }

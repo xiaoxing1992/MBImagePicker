@@ -105,9 +105,20 @@ public final class PictureMimeType {
      * @param mimeType
      * @return
      */
-    public static boolean eqVideo(String mimeType) {
+    public static boolean isHasVideo(String mimeType) {
         return mimeType != null && mimeType.startsWith(MIME_TYPE_PREFIX_VIDEO);
     }
+
+    /**
+     * isVideo
+     *
+     * @param url
+     * @return
+     */
+    public static boolean isUrlHasVideo(String url) {
+        return url.endsWith(".mp4");
+    }
+
 
     /**
      * 是否是音频
@@ -115,7 +126,7 @@ public final class PictureMimeType {
      * @param mimeType
      * @return
      */
-    public static boolean eqAudio(String mimeType) {
+    public static boolean isHasAudio(String mimeType) {
         return mimeType != null && mimeType.startsWith(MIME_TYPE_PREFIX_AUDIO);
     }
 
@@ -125,7 +136,7 @@ public final class PictureMimeType {
      * @param mimeType
      * @return
      */
-    public static boolean eqImage(String mimeType) {
+    public static boolean isHasImage(String mimeType) {
         return mimeType != null && mimeType.startsWith(MIME_TYPE_PREFIX_IMAGE);
     }
 
@@ -293,9 +304,9 @@ public final class PictureMimeType {
      */
     public static String s(Context context, String mimeType) {
         Context ctx = context.getApplicationContext();
-        if (eqVideo(mimeType)) {
+        if (isHasVideo(mimeType)) {
             return ctx.getString(R.string.picture_video_error);
-        } else if (eqAudio(mimeType)) {
+        } else if (isHasAudio(mimeType)) {
             return ctx.getString(R.string.picture_audio_error);
         } else {
             return ctx.getString(R.string.picture_error);
@@ -308,7 +319,18 @@ public final class PictureMimeType {
 
     public final static String MP4 = ".mp4";
 
+    public final static String JPEG_Q = "image/jpeg";
+
+    public final static String PNG_Q = "image/png";
+
+    public final static String MP4_Q = "video/mp4";
+
+    public final static String AVI_Q = "video/avi";
+
     public final static String DCIM = "DCIM/Camera";
+
+    public final static String CAMERA = "Camera";
+
     public final static String MIME_TYPE_IMAGE = "image/jpeg";
     public final static String MIME_TYPE_VIDEO = "video/mp4";
     public final static String MIME_TYPE_AUDIO = "audio/mpeg";

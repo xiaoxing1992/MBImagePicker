@@ -6,6 +6,7 @@ import android.content.Context;
 import com.luck.picture.lib.app.IApp;
 import com.luck.picture.lib.app.PictureAppMaster;
 import com.luck.picture.lib.crash.PictureSelectorCrashUtils;
+import com.luck.picture.lib.engine.PictureSelectorEngine;
 
 
 /**
@@ -15,6 +16,8 @@ import com.luck.picture.lib.crash.PictureSelectorCrashUtils;
  */
 
 public class App extends Application implements IApp {
+    private static final String TAG = App.class.getSimpleName();
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -30,6 +33,12 @@ public class App extends Application implements IApp {
         /** PictureSelector日志管理配制结束 **/
 
     }
+
+    @Override
+    public PictureSelectorEngine getPictureSelectorEngine() {
+        return new PictureSelectorEngineImp();
+    }
+
 
     @Override
     public Context getAppContext() {

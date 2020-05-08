@@ -4,15 +4,15 @@ ext {
             buildToolsVersion             : "28.0.3",
             minSdkVersion                 : 16,
             targetSdkVersion              : 29,
-            versionCode                   : 23,
-            versionName                   : "2.5.3",
+            versionCode                   : 24,
+            versionName                   : "2.5.4",
             ucropVersionCode              : 22,
             ucropVersionName              : "2.2.0-native",
 
             //open version control
-            androidSupportVersion         : "27.1.1",
-            version_recyclerview          : "27.1.1",
-            version_appcompat             : "27.1.1",
+            androidSupportVersion         : "28.0.0",
+            version_recyclerview          : "28.0.0",
+            version_appcompat             : "28.0.0",
 
 
             camerax_version               : "27.1.1",
@@ -21,12 +21,16 @@ ext {
             lifecycle_version             : "27.1.1",
 
             // ucrop
-            androidx_appcompat_version    : "27.1.1",
-            androidx_exifinterface_version: "27.1.1",
-            androidx_transition_version   : "27.1.1",
+            androidx_appcompat_version    : "28.0.0",
+            androidx_exifinterface_version: "27.1.0",
+            androidx_transition_version   : "28.0.0",
 
             // okio
-            okio_version                  : "2.5.0"
+            okio_version                  : "2.6.0",
 
+            glide_version                 : "4.9.0",
+
+            // picasso
+            picasso_version               : "2.71828"
     ]
 }

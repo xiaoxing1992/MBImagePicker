@@ -86,7 +86,7 @@ public class PictureFileUtils {
                 if (!rootDir.exists()) {
                     rootDir.mkdirs();
                 }
-                folderDir = new File(rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+                folderDir = new File(rootDir.getAbsolutePath() + File.separator + PictureMimeType.CAMERA + File.separator);
                 if (!folderDir.exists() && folderDir.mkdirs()) {
                 }
             }
@@ -229,7 +229,8 @@ public class PictureFileUtils {
      * @author paulburke
      */
     @SuppressLint("NewApi")
-    public static String getPath(final Context context, final Uri uri) {
+    public static String getPath(final Context ctx, final Uri uri) {
+        Context context = ctx.getApplicationContext();
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
@@ -373,6 +374,7 @@ public class PictureFileUtils {
 
     /**
      * 拷贝文件
+     *
      * @param inFile
      * @param outPutStream
      * @return
@@ -433,22 +435,16 @@ public class PictureFileUtils {
         return degree;
     }
 
-    @Nullable
-    public static String getDCIMCameraPath(Context ctx, String mimeType) {
+    /**
+     * getDCIMCameraPath
+     *
+     * @return
+     */
+    public static String getDCIMCameraPath() {
         String absolutePath;
         try {
-            if (SdkVersionUtils.checkedAndroid_Q()) {
-                if (PictureMimeType.eqVideo(mimeType)) {
-                    absolutePath = "%" + ctx.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-                } else if (PictureMimeType.eqAudio(mimeType)) {
-                    absolutePath = "%" + ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                } else {
-                    absolutePath = "%" + ctx.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-                }
-            } else {
-                absolutePath = "%" + Environment.getExternalStoragePublicDirectory
-                        (Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera";
-            }
+            absolutePath = "%" + Environment.getExternalStoragePublicDirectory
+                    (Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera";
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -605,7 +601,7 @@ public class PictureFileUtils {
      */
     public static String createFilePath(Context context, String md5, String mineType, String customFileName) {
         String suffix = PictureMimeType.getLastImgSuffix(mineType);
-        if (PictureMimeType.eqVideo(mineType)) {
+        if (PictureMimeType.isHasVideo(mineType)) {
             // 视频
             String filesDir = PictureFileUtils.getVideoDiskCacheDir(context) + File.separator;
             if (!TextUtils.isEmpty(md5)) {
@@ -615,7 +611,7 @@ public class PictureFileUtils {
                 String fileName = TextUtils.isEmpty(customFileName) ? DateUtils.getCreateFileName("VID_") + suffix : customFileName;
                 return filesDir + fileName;
             }
-        } else if (PictureMimeType.eqAudio(mineType)) {
+        } else if (PictureMimeType.isHasAudio(mineType)) {
             // 音频
             String filesDir = PictureFileUtils.getAudioDiskCacheDir(context) + File.separator;
             if (!TextUtils.isEmpty(md5)) {
@@ -636,6 +632,23 @@ public class PictureFileUtils {
                 return filesDir + fileName;
             }
         }
+    }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param context
+     * @param path
+     * @return
+     */
+    public static boolean isFileExists(Context context, String path) {
+        if (PictureMimeType.isContent(path)) {
+            path = PictureFileUtils.getPath(context, Uri.parse(path));
+        }
+        if (!TextUtils.isEmpty(path) && !new File(path).exists()) {
+            return false;
+        }
+        return true;
     }
 
 

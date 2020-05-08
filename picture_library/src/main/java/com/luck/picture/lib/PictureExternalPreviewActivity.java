@@ -268,8 +268,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
                 boolean isHttp = PictureMimeType.isHttp(path);
                 String mimeType = isHttp ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
-                boolean eqVideo = PictureMimeType.eqVideo(mimeType);
-                ivPlay.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
+                boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
+                ivPlay.setVisibility(isHasVideo ? View.VISIBLE : View.GONE);
                 boolean isGif = PictureMimeType.isGif(mimeType);
                 boolean eqLongImg = MediaUtils.isLongImg(media);
                 imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
@@ -314,7 +314,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     finish();
                     exitAnimation();
                 });
-                if (!eqVideo) {
+                if (!isHasVideo) {
                     longImageView.setOnLongClickListener(v -> {
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -330,7 +330,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         return true;
                     });
                 }
-                if (!eqVideo) {
+                if (!isHasVideo) {
                     imageView.setOnLongClickListener(v -> {
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -388,9 +388,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     new PictureCustomDialog(getContext(), R.layout.picture_wind_base_dialog);
             Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
             Button btn_commit = dialog.findViewById(R.id.btn_commit);
-            TextView tv_title = dialog.findViewById(R.id.tv_title);
+            TextView tvTitle = dialog.findViewById(R.id.tvTitle);
             TextView tv_content = dialog.findViewById(R.id.tv_content);
-            tv_title.setText(getString(R.string.picture_prompt));
+            tvTitle.setText(getString(R.string.picture_prompt));
             tv_content.setText(getString(R.string.picture_prompt_content));
             btn_cancel.setOnClickListener(v -> {
                 if (!isFinishing()) {
@@ -450,7 +450,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
         }
         File folderDir = new File(isAndroidQ || !state.equals(Environment.MEDIA_MOUNTED)
-                ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+                ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + PictureMimeType.CAMERA + File.separator);
         if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {
         }
         String fileName = DateUtils.getCreateFileName("IMG_") + suffix;
@@ -566,7 +566,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         rootDir.mkdirs();
                     }
                     File folderDir = new File(!state.equals(Environment.MEDIA_MOUNTED)
-                            ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+                            ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + PictureMimeType.CAMERA + File.separator);
                     if (!folderDir.exists() && folderDir.mkdirs()) {
                     }
                     String fileName = DateUtils.getCreateFileName("IMG_") + suffix;

@@ -137,8 +137,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //    config.cameraMimeType = PictureMimeType.ofImage();
 //                Intent intent = new Intent();
 //                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH,file.getAbsolutePath());
+//                 intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
 //                if (config.camera) {
-//                    requestCamera(intent);
+//                    dispatchHandleCamera(intent);
 //                } else {
 //                    setResult(RESULT_OK, intent);
 //                    onBackPressed();
@@ -150,8 +151,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //    config.cameraMimeType = PictureMimeType.ofVideo();
 //                  Intent intent = new Intent();
 //                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+//       intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
 //                if (config.camera) {
-//                    requestCamera(intent);
+//                     dispatchHandleCamera(intent);
 //                } else {
 //                  setResult(RESULT_OK, intent);
 //                    onBackPressed();
@@ -236,9 +238,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //        Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
 //        Button btn_commit = dialog.findViewById(R.id.btn_commit);
 //        btn_commit.setText(getString(R.string.picture_go_setting));
-//        TextView tv_title = dialog.findViewById(R.id.tv_title);
+//        TextView tvTitle = dialog.findViewById(R.id.tvTitle);
 //        TextView tv_content = dialog.findViewById(R.id.tv_content);
-//        tv_title.setText(getString(R.string.picture_prompt));
+//        tvTitle.setText(getString(R.string.picture_prompt));
 //        tv_content.setText(errorMsg);
 //        btn_cancel.setOnClickListener(v -> {
 //            if (!isFinishing()) {

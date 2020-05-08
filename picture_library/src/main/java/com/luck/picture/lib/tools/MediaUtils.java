@@ -12,9 +12,12 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.listener.OnCallbackListener;
+import com.luck.picture.lib.thread.PictureThreadUtils;
 
 import java.io.InputStream;
 
@@ -29,10 +32,11 @@ public class MediaUtils {
      * 创建一条图片地址uri,用于保存拍照后的照片
      *
      * @param context
+     * @param suffixType
      * @return 图片的uri
      */
     @Nullable
-    public static Uri createImageUri(final Context context) {
+    public static Uri createImageUri(final Context context, String suffixType) {
         final Uri[] imageFilePath = {null};
         String status = Environment.getExternalStorageState();
         String time = ValueOf.toString(System.currentTimeMillis());
@@ -40,10 +44,10 @@ public class MediaUtils {
         ContentValues values = new ContentValues(3);
         values.put(MediaStore.Images.Media.DISPLAY_NAME, DateUtils.getCreateFileName("IMG_"));
         values.put(MediaStore.Images.Media.DATE_TAKEN, time);
-        values.put(MediaStore.Images.Media.MIME_TYPE, PictureMimeType.MIME_TYPE_IMAGE);
+        values.put(MediaStore.Images.Media.MIME_TYPE, TextUtils.isEmpty(suffixType) ? PictureMimeType.MIME_TYPE_IMAGE : suffixType);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, PictureMimeType.DCIM);
+            values.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES);
             imageFilePath[0] = context.getContentResolver()
                     .insert(MediaStore.Images.Media.getContentUri("external"), values);
         } else {
@@ -58,10 +62,11 @@ public class MediaUtils {
      * 创建一条视频地址uri,用于保存录制的视频
      *
      * @param context
+     * @param suffixType
      * @return 视频的uri
      */
     @Nullable
-    public static Uri createVideoUri(final Context context) {
+    public static Uri createVideoUri(final Context context, String suffixType) {
         final Uri[] imageFilePath = {null};
         String status = Environment.getExternalStorageState();
         String time = ValueOf.toString(System.currentTimeMillis());
@@ -69,7 +74,7 @@ public class MediaUtils {
         ContentValues values = new ContentValues(3);
         values.put(MediaStore.Video.Media.DISPLAY_NAME, DateUtils.getCreateFileName("VID_"));
         values.put(MediaStore.Video.Media.DATE_TAKEN, time);
-        values.put(MediaStore.Video.Media.MIME_TYPE, PictureMimeType.MIME_TYPE_VIDEO);
+        values.put(MediaStore.Video.Media.MIME_TYPE, TextUtils.isEmpty(suffixType) ? PictureMimeType.MIME_TYPE_VIDEO : suffixType);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
             values.put(MediaStore.Video.Media.RELATIVE_PATH, PictureMimeType.DCIM);
@@ -294,14 +299,13 @@ public class MediaUtils {
     /**
      * 获取DCIM文件下最新一条拍照记录
      *
-     * @param mimeType
      * @return
      */
-    public static int getLastImageId(Context context, String mimeType) {
+    public static int getDCIMLastImageId(Context context) {
         Cursor data = null;
         try {
             //selection: 指定查询条件
-            String absolutePath = PictureFileUtils.getDCIMCameraPath(context, mimeType);
+            String absolutePath = PictureFileUtils.getDCIMCameraPath();
             String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
             String selection = MediaStore.Images.Media.DATA + " like ?";
             //定义selectionArgs：
@@ -327,6 +331,35 @@ public class MediaUtils {
         }
     }
 
+
+    /**
+     * 获取Camera文件下最新一条拍照记录
+     *
+     * @return
+     */
+    public static long getCameraFirstBucketId(Context context) {
+        Cursor data = null;
+        try {
+            String absolutePath = PictureFileUtils.getDCIMCameraPath();
+            //selection: 指定查询条件
+            String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
+            String selection = MediaStore.Files.FileColumns.DATA + " like ?";
+            //定义selectionArgs：
+            String[] selectionArgs = {absolutePath + "%"};
+            data = context.getApplicationContext().getContentResolver().query(MediaStore.Files.getContentUri("external"), null,
+                    selection, selectionArgs, ORDER_BY);
+            if (data != null && data.getCount() > 0 && data.moveToFirst()) {
+                return data.getLong(data.getColumnIndex("bucket_id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (data != null) {
+                data.close();
+            }
+        }
+        return -1;
+    }
 
     /**
      * 获取刚录取的音频文件
@@ -366,9 +399,9 @@ public class MediaUtils {
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(path);
-            int rotation = ValueOf.toInt(mmr.extractMetadata
+            int orientation = ValueOf.toInt(mmr.extractMetadata
                     (MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-            switch (rotation) {
+            switch (orientation) {
                 case 90:
                     return ExifInterface.ORIENTATION_ROTATE_90;
                 case 270:
@@ -442,31 +475,78 @@ public class MediaUtils {
      *
      * @param context
      * @param media
+     * @param listener
      * @return
      */
-    public static int setOrientation(Context context, LocalMedia media) {
+    public static void setOrientationAsynchronous(Context context, LocalMedia media,
+                                                  OnCallbackListener<LocalMedia> listener) {
         // 如果有旋转信息图片宽高则是相反
-        if (media.getOrientation() == -1) {
-            int orientation = 0;
-            if (PictureMimeType.eqImage(media.getMimeType())) {
-                orientation = MediaUtils.getImageOrientationForUrl(context, media.getPath());
-            } else if (PictureMimeType.eqVideo(media.getMimeType())) {
-                if (PictureMimeType.isContent(media.getPath())) {
-                    orientation = MediaUtils.getVideoOrientationForUri(context, Uri.parse(media.getPath()));
-                } else {
-                    orientation = MediaUtils.getVideoOrientationForUrl(media.getPath());
+        if (media.getOrientation() != -1) {
+            if (listener != null) {
+                listener.onCall(media);
+            }
+            return;
+        }
+        PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<Integer>() {
+
+            @Override
+            public Integer doInBackground() {
+                int orientation = 0;
+                if (PictureMimeType.isHasImage(media.getMimeType())) {
+                    orientation = MediaUtils.getImageOrientationForUrl(context, media.getPath());
+                } else if (PictureMimeType.isHasVideo(media.getMimeType())) {
+                    if (PictureMimeType.isContent(media.getPath())) {
+                        orientation = MediaUtils.getVideoOrientationForUri(context, Uri.parse(media.getPath()));
+                    } else {
+                        orientation = MediaUtils.getVideoOrientationForUrl(media.getPath());
+                    }
+                }
+                return orientation;
+            }
+
+            @Override
+            public void onSuccess(Integer orientation) {
+                if (orientation == ExifInterface.ORIENTATION_ROTATE_90
+                        || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+                    int width = media.getWidth();
+                    int height = media.getHeight();
+                    media.setWidth(height);
+                    media.setHeight(width);
+                }
+                media.setOrientation(orientation);
+                if (listener != null) {
+                    listener.onCall(media);
                 }
             }
-            if (orientation == ExifInterface.ORIENTATION_ROTATE_90
-                    || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                int width = media.getWidth();
-                int height = media.getHeight();
-                media.setWidth(height);
-                media.setHeight(width);
+        });
+    }
+
+    /**
+     * 设置LocalMedia旋转信息
+     *
+     * @param context
+     * @param media
+     * @return
+     */
+    public static void setOrientationSynchronous(Context context, LocalMedia media) {
+        // 如果有旋转信息图片宽高则是相反
+        int orientation = 0;
+        if (PictureMimeType.isHasImage(media.getMimeType())) {
+            orientation = MediaUtils.getImageOrientationForUrl(context, media.getPath());
+        } else if (PictureMimeType.isHasVideo(media.getMimeType())) {
+            if (PictureMimeType.isContent(media.getPath())) {
+                orientation = MediaUtils.getVideoOrientationForUri(context, Uri.parse(media.getPath()));
+            } else {
+                orientation = MediaUtils.getVideoOrientationForUrl(media.getPath());
             }
-            media.setOrientation(orientation);
-            return orientation;
         }
-        return media.getOrientation();
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90
+                || orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            int width = media.getWidth();
+            int height = media.getHeight();
+            media.setWidth(height);
+            media.setHeight(width);
+        }
+        media.setOrientation(orientation);
     }
 }

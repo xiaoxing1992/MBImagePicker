@@ -56,6 +56,7 @@ public class LocalMedia implements Parcelable {
     private long duration;
     /**
      * If the selected
+     * # Internal use
      */
     private boolean isChecked;
     /**
@@ -135,9 +136,36 @@ public class LocalMedia implements Parcelable {
      */
     public boolean isLongImage;
 
+    /**
+     * bucketId
+     */
+    private long bucketId = -1;
+
+    /**
+     * isMaxSelectEnabledMask
+     * # For internal use only
+     */
+    private boolean isMaxSelectEnabledMask;
+
     public LocalMedia() {
 
     }
+
+    public LocalMedia(long id, String path, String fileName, String parentFolderName, long duration, int chooseModel,
+                      String mimeType, int width, int height, long size, long bucketId) {
+        this.id = id;
+        this.path = path;
+        this.fileName = fileName;
+        this.parentFolderName = parentFolderName;
+        this.duration = duration;
+        this.chooseModel = chooseModel;
+        this.mimeType = mimeType;
+        this.width = width;
+        this.height = height;
+        this.size = size;
+        this.bucketId = bucketId;
+    }
+
 
     public LocalMedia(String path, long duration, int chooseModel, String mimeType) {
         this.path = path;
@@ -347,6 +375,22 @@ public class LocalMedia implements Parcelable {
         this.orientation = orientation;
     }
 
+    public long getBucketId() {
+        return bucketId;
+    }
+
+    public void setBucketId(long bucketId) {
+        this.bucketId = bucketId;
+    }
+
+    public boolean isMaxSelectEnabledMask() {
+        return isMaxSelectEnabledMask;
+    }
+
+    public void setMaxSelectEnabledMask(boolean maxSelectEnabledMask) {
+        isMaxSelectEnabledMask = maxSelectEnabledMask;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -378,6 +422,8 @@ public class LocalMedia implements Parcelable {
         dest.writeInt(this.orientation);
         dest.writeInt(this.loadLongImageStatus);
         dest.writeByte(this.isLongImage ? (byte) 1 : (byte) 0);
+        dest.writeLong(this.bucketId);
+        dest.writeByte(this.isMaxSelectEnabledMask ? (byte) 1 : (byte) 0);
     }
 
     protected LocalMedia(Parcel in) {
@@ -405,9 +451,11 @@ public class LocalMedia implements Parcelable {
         this.orientation = in.readInt();
         this.loadLongImageStatus = in.readInt();
         this.isLongImage = in.readByte() != 0;
+        this.bucketId = in.readLong();
+        this.isMaxSelectEnabledMask = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {
+    public static final Creator<LocalMedia> CREATOR = new Creator<LocalMedia>() {
         @Override
         public LocalMedia createFromParcel(Parcel source) {
             return new LocalMedia(source);

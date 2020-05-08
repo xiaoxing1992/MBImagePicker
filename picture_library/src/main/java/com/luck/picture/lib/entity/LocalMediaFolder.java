@@ -14,6 +14,10 @@ import java.util.List;
 
 public class LocalMediaFolder implements Parcelable {
     /**
+     * bucketId
+     */
+    private long bucketId = -1;
+    /**
      * Folder name
      */
     private String name;
@@ -42,15 +46,29 @@ public class LocalMediaFolder implements Parcelable {
      * Whether or not the camera
      */
     private boolean isCameraFolder;
+    /**
+     * data
+     */
+    private List<LocalMedia> data = new ArrayList<>();
 
-    private List<LocalMedia> images = new ArrayList<LocalMedia>();
+    /**
+     * # Internal use
+     * setCurrentDataPage
+     */
+    private int currentDataPage;
 
-    public boolean isChecked() {
-        return isChecked;
+    /**
+     * # Internal use
+     * is load more
+     */
+    private boolean isHasMore;
+
+    public long getBucketId() {
+        return bucketId;
     }
 
-    public void setChecked(boolean checked) {
-        isChecked = checked;
+    public void setBucketId(long bucketId) {
+        this.bucketId = bucketId;
     }
 
     public String getName() {
@@ -60,7 +78,6 @@ public class LocalMediaFolder implements Parcelable {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public String getFirstImagePath() {
         return firstImagePath;
@@ -78,20 +95,20 @@ public class LocalMediaFolder implements Parcelable {
         this.imageNum = imageNum;
     }
 
-    public List<LocalMedia> getImages() {
-        return images == null ? new ArrayList<>() : images;
-    }
-
-    public void setImages(List<LocalMedia> images) {
-        this.images = images;
-    }
-
     public int getCheckedNum() {
         return checkedNum;
     }
 
     public void setCheckedNum(int checkedNum) {
         this.checkedNum = checkedNum;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 
     public int getOfAllType() {
@@ -110,7 +127,29 @@ public class LocalMediaFolder implements Parcelable {
         isCameraFolder = cameraFolder;
     }
 
-    public LocalMediaFolder() {
+    public List<LocalMedia> getData() {
+        return data;
+    }
+
+    public void setData(List<LocalMedia> data) {
+        this.data = data;
+    }
+
+    public int getCurrentDataPage() {
+        return currentDataPage;
+    }
+
+    public void setCurrentDataPage(int currentDataPage) {
+        this.currentDataPage = currentDataPage;
+    }
+
+
+    public boolean isHasMore() {
+        return isHasMore;
+    }
+
+    public void setHasMore(boolean hasMore) {
+        isHasMore = hasMore;
     }
 
     @Override
@@ -120,6 +159,7 @@ public class LocalMediaFolder implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.bucketId);
         dest.writeString(this.name);
         dest.writeString(this.firstImagePath);
         dest.writeInt(this.imageNum);
@@ -127,10 +167,17 @@ public class LocalMediaFolder implements Parcelable {
         dest.writeByte(this.isChecked ? (byte) 1 : (byte) 0);
         dest.writeInt(this.ofAllType);
         dest.writeByte(this.isCameraFolder ? (byte) 1 : (byte) 0);
-        dest.writeTypedList(this.images);
+        dest.writeTypedList(this.data);
+        dest.writeInt(this.currentDataPage);
+        dest.writeByte(this.isHasMore ? (byte) 1 : (byte) 0);
     }
 
+    public LocalMediaFolder() {
+    }
+
+
     protected LocalMediaFolder(Parcel in) {
+        this.bucketId = in.readLong();
         this.name = in.readString();
         this.firstImagePath = in.readString();
         this.imageNum = in.readInt();
@@ -138,7 +185,9 @@ public class LocalMediaFolder implements Parcelable {
         this.isChecked = in.readByte() != 0;
         this.ofAllType = in.readInt();
         this.isCameraFolder = in.readByte() != 0;
-        this.images = in.createTypedArrayList(LocalMedia.CREATOR);
+        this.data = in.createTypedArrayList(LocalMedia.CREATOR);
+        this.currentDataPage = in.readInt();
+        this.isHasMore = in.readByte() != 0;
     }
 
     public static final Creator<LocalMediaFolder> CREATOR = new Creator<LocalMediaFolder>() {

@@ -28,6 +28,7 @@ import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ import java.util.List;
  */
 
 public class PictureSimpleFragmentAdapter extends PagerAdapter {
-    private List<LocalMedia> images;
+    private List<LocalMedia> data;
     private OnCallBackActivity onBackPressed;
     private PictureSelectionConfig config;
     /**
@@ -69,18 +70,49 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
         void onActivityBackPressed();
     }
 
-    public PictureSimpleFragmentAdapter(PictureSelectionConfig config, List<LocalMedia> images,
+    public PictureSimpleFragmentAdapter(PictureSelectionConfig config,
                                         OnCallBackActivity onBackPressed) {
         super();
         this.config = config;
-        this.images = images;
         this.onBackPressed = onBackPressed;
         this.mCacheView = new SparseArray<>();
     }
 
+    /**
+     * 绑定数据
+     *
+     * @param data
+     */
+    public void bindData(List<LocalMedia> data) {
+        this.data = data;
+    }
+
+    /**
+     * 获取绑定数据
+     *
+     * @return
+     */
+    public List<LocalMedia> getData() {
+        return data == null ? new ArrayList<>() : data;
+    }
+
+    public int getSize() {
+        return data == null ? 0 : data.size();
+    }
+
+    public void remove(int currentItem) {
+        if (getSize() > currentItem) {
+            data.remove(currentItem);
+        }
+    }
+
+    public LocalMedia getItem(int position) {
+        return getSize() > 0 && position < getSize() ? data.get(position) : null;
+    }
+
     @Override
     public int getCount() {
-        return images != null ? images.size() : 0;
+        return data != null ? data.size() : 0;
     }
 
     @Override
@@ -117,7 +149,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
         // 视频播放按钮
         ImageView ivPlay = contentView.findViewById(R.id.iv_play);
 
-        LocalMedia media = images.get(position);
+        LocalMedia media = getItem(position);
         if (media != null) {
             final String mimeType = media.getMimeType();
             final String path;
@@ -131,8 +163,8 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 path = media.getPath();
             }
             boolean isGif = PictureMimeType.isGif(mimeType);
-            boolean eqVideo = PictureMimeType.eqVideo(mimeType);
-            ivPlay.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
+            boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
+            ivPlay.setVisibility(isHasVideo ? View.VISIBLE : View.GONE);
             ivPlay.setOnClickListener(v -> {
                 if (PictureSelectionConfig.customVideoPlayCallback != null) {
                     PictureSelectionConfig.customVideoPlayCallback.startPlayVideo(media);

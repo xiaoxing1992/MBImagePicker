@@ -15,22 +15,31 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
+import com.luck.picture.lib.app.PictureAppMaster;
 import com.luck.picture.lib.compress.Luban;
 import com.luck.picture.lib.compress.OnCompressListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.dialog.PictureLoadingDialog;
+import com.luck.picture.lib.engine.ImageEngine;
+import com.luck.picture.lib.engine.PictureSelectorEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.immersive.ImmersiveManage;
 import com.luck.picture.lib.immersive.NavBarUtils;
+import com.luck.picture.lib.language.PictureLanguageUtils;
+import com.luck.picture.lib.listener.OnResultCallbackListener;
+import com.luck.picture.lib.model.LocalMediaPageLoader;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.thread.PictureThreadUtils;
 import com.luck.picture.lib.tools.AndroidQTransformUtils;
 import com.luck.picture.lib.tools.AttrsUtils;
 import com.luck.picture.lib.tools.DateUtils;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
@@ -44,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,6 +73,14 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected List<LocalMedia> selectionMedias;
     protected Handler mHandler;
     protected View container;
+    /**
+     * 是否还有更多
+     */
+    protected boolean isHasMore = true;
+    /**
+     * 分页码
+     */
+    protected int mPage = 1;
     /**
      * 是否走过onSaveInstanceState方法，用于内存不足情况
      */
@@ -138,12 +156,23 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             config = savedInstanceState.getParcelable(PictureConfig.EXTRA_CONFIG);
         }
-        isCheckConfigNull();
+        // 如果Intent有值同步一下PictureSelectionConfig,确保页面跳转config保持一致
+        if (config == null) {
+            config = getIntent() != null ? getIntent().getParcelableExtra(PictureConfig.EXTRA_CONFIG) : config;
+        }
+        checkConfigNull();
+        // 设置语言
+        PictureLanguageUtils.setAppLanguage(getContext(), config.language);
         // 单独拍照不设置主题因为拍照界面已经设置了透明主题了
         if (!config.camera) {
-            setTheme(config.themeStyleId);
+            setTheme(config.themeStyleId == 0 ? R.style.picture_default_style : config.themeStyleId);
         }
         super.onCreate(savedInstanceState);
+
+        // 当内存极度不足，比如开启了开发者选项不保留活动导致单例Config被重新创建图片引擎为空时的补救措施
+        newCreateEngine();
+        newCreateResultCallbackListener();
+
         if (isRequestedOrientation()) {
             setNewRequestedOrientation();
         }
@@ -166,7 +195,47 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         isOnSaveInstanceState = false;
     }
 
-    private void isCheckConfigNull() {
+    /**
+     * 重新获取一下图片加载引擎，前提是用户在Application中实现了IApp接口
+     */
+    private void newCreateEngine() {
+        if (PictureSelectionConfig.imageEngine == null) {
+            PictureSelectorEngine baseEngine = PictureAppMaster.getInstance().getPictureSelectorEngine();
+            if (baseEngine != null) {
+                ImageEngine engine = baseEngine.createEngine();
+                PictureSelectionConfig.imageEngine = engine;
+            }
+        }
+    }
+
+    /**
+     * 重新获取一下结果回调监听，前提是用户在Application中实现了IApp接口
+     */
+    private void newCreateResultCallbackListener() {
+        if (config.isCallbackMode) {
+            if (PictureSelectionConfig.listener == null) {
+                PictureSelectorEngine baseEngine = PictureAppMaster.getInstance().getPictureSelectorEngine();
+                if (baseEngine != null) {
+                    OnResultCallbackListener<LocalMedia> listener = baseEngine.getResultCallbackListener();
+                    PictureSelectionConfig.listener = listener;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        if (config == null) {
+            super.attachBaseContext(newBase);
+        } else {
+            super.attachBaseContext(PictureContextWrapper.wrap(newBase, config.language));
+        }
+    }
+
+    /**
+     * CheckConfigNull
+     */
+    private void checkConfigNull() {
         if (config == null) {
             config = PictureSelectionConfig.getInstance();
         }
@@ -262,14 +331,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         outState.putParcelable(PictureConfig.EXTRA_CONFIG, config);
     }
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        config = PictureSelectionConfig.getInstance();
-        if (config != null) {
-            super.attachBaseContext(PictureContextWrapper.wrap(newBase, config.language));
-        }
-    }
-
     /**
      * loading dialog
      */
@@ -320,15 +381,16 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                         if (media == null) {
                             continue;
                         }
-                        String cachePath = PictureSelectionConfig.cacheResourcesEngine.onCachePath(getContext(), media.getPath());
-                        media.setAndroidQToPath(cachePath);
+                        if (!PictureMimeType.isHttp(media.getPath())) {
+                            String cachePath = PictureSelectionConfig.cacheResourcesEngine.onCachePath(getContext(), media.getPath());
+                            media.setAndroidQToPath(cachePath);
+                        }
                     }
                     return result;
                 }
 
                 @Override
                 public void onSuccess(List<LocalMedia> result) {
-                    PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                     compressToLuban(result);
                 }
             });
@@ -360,7 +422,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(List<File> files) {
-                    PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                     // 异步压缩回调
                     if (files != null && files.size() > 0 && files.size() == result.size()) {
                         handleCompressCallBack(result, files);
@@ -418,11 +479,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 // 如果是网络图片则不压缩
                 boolean http = PictureMimeType.isHttp(path);
                 boolean flag = !TextUtils.isEmpty(path) && http;
-                boolean eqVideo = PictureMimeType.eqVideo(image.getMimeType());
-                image.setCompressed(!eqVideo && !flag);
-                image.setCompressPath(eqVideo || flag ? "" : path);
+                boolean isHasVideo = PictureMimeType.isHasVideo(image.getMimeType());
+                image.setCompressed(!isHasVideo && !flag);
+                image.setCompressPath(isHasVideo || flag ? "" : path);
                 if (isAndroidQ) {
-                    image.setAndroidQToPath(eqVideo ? null : path);
+                    image.setAndroidQToPath(image.getCompressPath());
                 }
             }
         }
@@ -436,6 +497,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * @param mimeType
      */
     protected void startCrop(String originalPath, String mimeType) {
+        if (DoubleUtils.isFastDoubleClick()) {
+            return;
+        }
         if (TextUtils.isEmpty(originalPath)) {
             ToastUtils.s(this, getString(R.string.picture_not_crop_data));
             return;
@@ -451,7 +515,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(String result) {
-                    PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                     startSingleCropActivity(originalPath, result, mimeType, options);
                 }
             });
@@ -472,7 +535,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         boolean isHttp = PictureMimeType.isHttp(originalPath);
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(getContext()),
-                TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_") + suffix : config.renameCropFileName);
+                TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_") + suffix : config.renameCropFileName);
         Uri uri;
         if (!TextUtils.isEmpty(cachePath)) {
             uri = Uri.fromFile(new File(cachePath));
@@ -493,6 +556,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     private int index = 0;
 
     protected void startCrop(ArrayList<CutInfo> list) {
+        if (DoubleUtils.isFastDoubleClick()) {
+            return;
+        }
         if (list == null || list.size() == 0) {
             ToastUtils.s(this, getString(R.string.picture_not_crop_data));
             return;
@@ -504,12 +570,12 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         if (config.chooseMode == PictureMimeType.ofAll() && config.isWithVideoImage) {
             // 视频和图片共存
             String mimeType = size > 0 ? list.get(index).getMimeType() : "";
-            boolean eqVideo = PictureMimeType.eqVideo(mimeType);
-            if (eqVideo) {
+            boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
+            if (isHasVideo) {
                 // 第一个是视频就跳过直到遍历出图片为止
                 for (int i = 0; i < size; i++) {
                     CutInfo cutInfo = list.get(i);
-                    if (cutInfo != null && PictureMimeType.eqImage(cutInfo.getMimeType())) {
+                    if (cutInfo != null && PictureMimeType.isHasImage(cutInfo.getMimeType())) {
                         index = i;
                         break;
                     }
@@ -534,7 +600,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(List<CutInfo> list) {
-                    PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                     if (index < size) {
                         startMultipleCropActivity(list.get(index), options);
                     }
@@ -566,7 +631,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         }
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(this),
-                TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_")
+                TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_")
                         + suffix : config.camera ? config.renameCropFileName : StringUtils.rename(config.renameCropFileName));
         UCrop.of(uri, Uri.fromFile(file))
                 .withOptions(options)
@@ -690,6 +755,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     getString(R.string.picture_all_audio) : getString(R.string.picture_camera_roll);
             newFolder.setName(folderName);
             newFolder.setFirstImagePath("");
+            newFolder.setCameraFolder(true);
+            newFolder.setBucketId(-1);
+            newFolder.setChecked(true);
             folders.add(newFolder);
         }
     }
@@ -773,9 +841,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                             && !media.isCompressed()
                             && TextUtils.isEmpty(media.getAndroidQToPath());
                     if (isCopyAndroidQToPath && PictureMimeType.isContent(media.getPath())) {
-                        String AndroidQToPath = AndroidQTransformUtils.copyPathToAndroidQ(getContext(),
-                                media.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), config.cameraFileName);
-                        media.setAndroidQToPath(AndroidQToPath);
+                        if (!PictureMimeType.isHttp(media.getPath())) {
+                            String AndroidQToPath = AndroidQTransformUtils.copyPathToAndroidQ(getContext(),
+                                    media.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), config.cameraFileName);
+                            media.setAndroidQToPath(AndroidQToPath);
+                        }
                     } else if (media.isCut() && media.isCompressed()) {
                         media.setAndroidQToPath(media.getCompressPath());
                     }
@@ -789,7 +859,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(List<LocalMedia> images) {
-                PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                 dismissDialog();
                 if (images != null) {
                     if (config.camera
@@ -850,12 +919,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * @param data
      */
     protected String getAudioPath(Intent data) {
-        boolean compare_SDK_19 = Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT;
         if (data != null && config.chooseMode == PictureMimeType.ofAudio()) {
             try {
                 Uri uri = data.getData();
                 if (uri != null) {
-                    return compare_SDK_19 ? uri.getPath() : MediaUtils.getAudioFilePathFromUri(getContext(), uri);
+                    return Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT ? uri.getPath() : MediaUtils.getAudioFilePathFromUri(getContext(), uri);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -872,7 +940,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             Uri imageUri;
             if (SdkVersionUtils.checkedAndroid_Q()) {
-                imageUri = MediaUtils.createImageUri(getApplicationContext());
+                imageUri = MediaUtils.createImageUri(getApplicationContext(), config.suffixType);
                 if (imageUri != null) {
                     config.cameraPath = imageUri.toString();
                 } else {
@@ -920,11 +988,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected void startOpenCameraVideo() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-            Uri imageUri;
+            Uri videoUri;
             if (SdkVersionUtils.checkedAndroid_Q()) {
-                imageUri = MediaUtils.createVideoUri(getApplicationContext());
-                if (imageUri != null) {
-                    config.cameraPath = imageUri.toString();
+                videoUri = MediaUtils.createVideoUri(getApplicationContext(), config.suffixType);
+                if (videoUri != null) {
+                    config.cameraPath = videoUri.toString();
                 } else {
                     ToastUtils.s(getContext(), "open is camera error，the uri is empty ");
                     if (config.camera) {
@@ -945,7 +1013,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                         chooseMode, cameraFileName, config.suffixType, config.outPutCameraPath);
                 if (cameraFile != null) {
                     config.cameraPath = cameraFile.getAbsolutePath();
-                    imageUri = PictureFileUtils.parUri(this, cameraFile);
+                    videoUri = PictureFileUtils.parUri(this, cameraFile);
                 } else {
                     ToastUtils.s(getContext(), "open is camera error，the uri is empty ");
                     if (config.camera) {
@@ -955,7 +1023,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 }
             }
             config.cameraMimeType = PictureMimeType.ofVideo();
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
             if (config.isCameraAroundState) {
                 cameraIntent.putExtra(PictureConfig.CAMERA_FACING, PictureConfig.CAMERA_BEFORE);
             }
@@ -987,6 +1055,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     private void releaseResultListener() {
         if (config != null) {
             PictureSelectionConfig.destroy();
+            LocalMediaPageLoader.setInstanceNull();
             PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
             PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
         }
@@ -995,18 +1064,15 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PictureConfig.APPLY_AUDIO_PERMISSIONS_CODE:
-                // 录音权限
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intent cameraIntent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                    if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
-                    }
-                } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_audio));
+        if (requestCode == PictureConfig.APPLY_AUDIO_PERMISSIONS_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent cameraIntent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
                 }
-                break;
+            } else {
+                ToastUtils.s(getContext(), getString(R.string.picture_audio));
+            }
         }
     }
 
@@ -1015,5 +1081,43 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      */
     protected void showPermissionsDialog(boolean isCamera, String errorMsg) {
 
+    }
+
+    /**
+     * 提示类
+     *
+     * @param content
+     */
+    protected void showPromptDialog(String content) {
+        if (!isFinishing()) {
+            PictureCustomDialog dialog = new PictureCustomDialog(getContext(), R.layout.picture_prompt_dialog);
+            TextView btnOk = dialog.findViewById(R.id.btnOk);
+            TextView tvContent = dialog.findViewById(R.id.tv_content);
+            tvContent.setText(content);
+            btnOk.setOnClickListener(v -> {
+                if (!isFinishing()) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+        }
+    }
+
+
+    /**
+     * 文件夹数量进行排序
+     *
+     * @param imageFolders
+     */
+    protected void sortFolder(List<LocalMediaFolder> imageFolders) {
+        // 文件夹按图片数量排序
+        Collections.sort(imageFolders, (lhs, rhs) -> {
+            if (lhs.getData() == null || rhs.getData() == null) {
+                return 0;
+            }
+            int lSize = lhs.getImageNum();
+            int rSize = rhs.getImageNum();
+            return Integer.compare(rSize, lSize);
+        });
     }
 }

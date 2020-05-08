@@ -40,4 +40,7 @@
     <color name="picture_color_f7f7f7">#FFF7F7F7</color>
     <color name="picture_color_ebebeb">#FFEBEBEB</color>
     <color name="picture_color_ffce00">#FFFFCE00</color>
+    <color name="picture_color_half_white">#99FFFFFF</color>
+    <color name="picture_color_ff572e">#ff572e</color>
+    <color name="picture_color_529BeA">#529BeA</color>
 </resources>

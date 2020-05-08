@@ -288,6 +288,12 @@ public class PictureParameterStyle implements Parcelable {
      */
     public boolean pictureExternalPreviewGonePreviewDelete;
 
+    /**
+     * 选择相册目录背景样式
+     */
+    @DrawableRes
+    public int pictureAlbumStyle;
+
     public PictureParameterStyle() {
         super();
     }
@@ -349,6 +355,7 @@ public class PictureParameterStyle implements Parcelable {
         dest.writeInt(this.pictureFirstIcon);
         dest.writeInt(this.pictureFirstBgColor);
         dest.writeInt(this.pictureFirstTextColor);
+        dest.writeInt(this.pictureAlbumStyle);
     }
 
     protected PictureParameterStyle(Parcel in) {
@@ -401,6 +408,7 @@ public class PictureParameterStyle implements Parcelable {
         this.pictureFirstIcon = in.readInt();
         this.pictureFirstBgColor = in.readInt();
         this.pictureFirstTextColor = in.readInt();
+        this.pictureAlbumStyle = in.readInt();
     }
 
     public static final Creator<PictureParameterStyle> CREATOR = new Creator<PictureParameterStyle>() {

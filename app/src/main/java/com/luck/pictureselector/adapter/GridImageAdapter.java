@@ -81,7 +81,7 @@ public class GridImageAdapter extends
     }
 
     public void remove(int position) {
-        if (list != null) {
+        if (list != null && position < list.size()) {
             list.remove(position);
         }
     }
@@ -192,7 +192,7 @@ public class GridImageAdapter extends
             }
 
             long duration = media.getDuration();
-            viewHolder.tvDuration.setVisibility(PictureMimeType.eqVideo(media.getMimeType())
+            viewHolder.tvDuration.setVisibility(PictureMimeType.isHasVideo(media.getMimeType())
                     ? View.VISIBLE : View.GONE);
             if (chooseModel == PictureMimeType.ofAudio()) {
                 viewHolder.tvDuration.setVisibility(View.VISIBLE);

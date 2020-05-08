@@ -97,7 +97,7 @@ public class PictureMultiCuttingActivity extends UCropActivity {
                 @Override
                 public void onItemClick(int position, View view) {
                     CutInfo cutInfo = list.get(position);
-                    if (MimeType.eqVideo(cutInfo.getMimeType())) {
+                    if (MimeType.isHasVideo(cutInfo.getMimeType())) {
                         return;
                     }
                     if (cutIndex == position) {
@@ -156,7 +156,7 @@ public class PictureMultiCuttingActivity extends UCropActivity {
                 getExternalFilesDir(Environment.DIRECTORY_PICTURES) : getCacheDir();
         extras.putParcelable(UCrop.EXTRA_OUTPUT_URI,
                 Uri.fromFile(new File(file,
-                        TextUtils.isEmpty(renameCropFilename) ? FileUtils.getCreateFileName("IMG_") + suffix : isCamera ? renameCropFilename : FileUtils.rename(renameCropFilename))));
+                        TextUtils.isEmpty(renameCropFilename) ? FileUtils.getCreateFileName("IMG_CROP_") + suffix : isCamera ? renameCropFilename : FileUtils.rename(renameCropFilename))));
         intent.putExtras(extras);
         setupViews(intent);
         refreshPhotoRecyclerData();
@@ -255,7 +255,7 @@ public class PictureMultiCuttingActivity extends UCropActivity {
     private void getIndex(int size) {
         for (int i = 0; i < size; i++) {
             CutInfo cutInfo = list.get(i);
-            if (cutInfo != null && MimeType.eqImage(cutInfo.getMimeType())) {
+            if (cutInfo != null && MimeType.isHasImage(cutInfo.getMimeType())) {
                 cutIndex = i;
                 break;
             }
@@ -300,7 +300,7 @@ public class PictureMultiCuttingActivity extends UCropActivity {
             resetLastCropStatus();
             cutIndex++;
             if (isWithVideoImage) {
-                if (cutIndex < list.size() && MimeType.eqVideo(list.get(cutIndex).getMimeType())) {
+                if (cutIndex < list.size() && MimeType.isHasVideo(list.get(cutIndex).getMimeType())) {
                     // 一个死循环找到了图片为终止条件，这里不需要考虑全是视频的问题，因为在启动裁剪时就已经判断好了
                     while (true) {
                         if (cutIndex >= list.size()) {
@@ -308,7 +308,7 @@ public class PictureMultiCuttingActivity extends UCropActivity {
                             break;
                         }
                         String newMimeType = list.get(cutIndex).getMimeType();
-                        if (MimeType.eqImage(newMimeType)) {
+                        if (MimeType.isHasImage(newMimeType)) {
                             // 命中图片跳出循环
                             break;
                         } else {
