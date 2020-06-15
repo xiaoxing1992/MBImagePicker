@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/picture_color_black"
@@ -18,7 +19,7 @@
         android:layout_height="48dp"
         android:background="@color/picture_color_transparent"
         android:scaleType="centerInside"
-        android:src="?attr/picture.preview.leftBack.icon" />
+        app:srcCompat="?attr/picture.preview.leftBack.icon" />
 
     <TextView
         android:id="@+id/picture_title"
@@ -40,7 +41,7 @@
         android:layout_alignParentRight="true"
         android:background="@color/picture_color_transparent"
         android:scaleType="centerInside"
-        android:src="@drawable/picture_icon_delete" />
+        app:srcCompat="@drawable/picture_icon_delete" />
 
     <com.luck.picture.lib.widget.PreviewViewPager
         android:id="@+id/preview_pager"

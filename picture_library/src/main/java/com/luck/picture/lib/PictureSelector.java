@@ -1,11 +1,11 @@
 package com.luck.picture.lib;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -25,18 +25,18 @@ import java.util.List;
 
 public final class PictureSelector {
 
-    private final WeakReference<Activity> mActivity;
+    private final WeakReference<AppCompatActivity> mActivity;
     private final WeakReference<Fragment> mFragment;
 
-    private PictureSelector(Activity activity) {
+    private PictureSelector(AppCompatActivity activity) {
         this(activity, null);
     }
 
     private PictureSelector(Fragment fragment) {
-        this(fragment.getActivity(), fragment);
+        this((AppCompatActivity) fragment.getActivity(), fragment);
     }
 
-    private PictureSelector(Activity activity, Fragment fragment) {
+    private PictureSelector(AppCompatActivity activity, Fragment fragment) {
         mActivity = new WeakReference<>(activity);
         mFragment = new WeakReference<>(fragment);
     }
@@ -47,7 +47,7 @@ public final class PictureSelector {
      * @param activity
      * @return PictureSelector instance.
      */
-    public static PictureSelector create(Activity activity) {
+    public static PictureSelector create(AppCompatActivity activity) {
         return new PictureSelector(activity);
     }
 
@@ -228,7 +228,7 @@ public final class PictureSelector {
      * @return Activity.
      */
     @Nullable
-    Activity getActivity() {
+    AppCompatActivity getActivity() {
         return mActivity.get();
     }
 

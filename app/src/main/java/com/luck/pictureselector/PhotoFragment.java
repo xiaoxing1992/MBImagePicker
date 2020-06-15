@@ -1,7 +1,6 @@
 package com.luck.pictureselector;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -399,7 +399,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                 //PictureFileUtils.deleteCacheDirFile(this, PictureMimeType.ofImage());
                 PictureFileUtils.deleteAllCacheDirFile(getContext());
             } else {
-                PermissionChecker.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PermissionChecker.requestPermissions((AppCompatActivity) getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
             }
         }
@@ -577,7 +577,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调

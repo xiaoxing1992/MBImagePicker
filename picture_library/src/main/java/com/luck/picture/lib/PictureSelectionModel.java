@@ -1,6 +1,5 @@
 package com.luck.picture.lib;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.ColorInt;
@@ -8,6 +7,7 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -1136,7 +1136,7 @@ public class PictureSelectionModel {
      */
     public void forResult(int requestCode) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            Activity activity = selector.getActivity();
+            AppCompatActivity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }
@@ -1176,7 +1176,7 @@ public class PictureSelectionModel {
     @Deprecated
     public void forResult(int requestCode, int enterAnim, int exitAnim) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            Activity activity = selector.getActivity();
+            AppCompatActivity activity = selector.getActivity();
             if (activity == null) {
                 return;
             }
@@ -1203,7 +1203,7 @@ public class PictureSelectionModel {
      */
     public void forResult(OnResultCallbackListener listener) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            Activity activity = selector.getActivity();
+            AppCompatActivity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }
@@ -1242,7 +1242,7 @@ public class PictureSelectionModel {
      */
     public void forResult(int requestCode, OnResultCallbackListener listener) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            Activity activity = selector.getActivity();
+            AppCompatActivity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }

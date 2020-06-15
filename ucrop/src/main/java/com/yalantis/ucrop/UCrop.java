@@ -127,7 +127,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void startAnimationActivity(@NonNull Activity activity, @AnimRes int activityCropEnterAnimation) {
+    public void startAnimationActivity(@NonNull AppCompatActivity activity, @AnimRes int activityCropEnterAnimation) {
         if (activityCropEnterAnimation != 0) {
             start(activity, REQUEST_CROP, activityCropEnterAnimation);
         } else {
@@ -141,7 +141,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull Activity activity, int requestCode, @AnimRes int activityCropEnterAnimation) {
+    public void start(@NonNull AppCompatActivity activity, int requestCode, @AnimRes int activityCropEnterAnimation) {
         activity.startActivityForResult(getIntent(activity), requestCode);
         activity.overridePendingTransition(activityCropEnterAnimation, R.anim.ucrop_anim_fade_in);
     }
@@ -152,7 +152,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull Activity activity, int requestCode) {
+    public void start(@NonNull AppCompatActivity activity, int requestCode) {
         activity.startActivityForResult(getIntent(activity), requestCode);
     }
 
@@ -171,7 +171,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull AppCompatActivity activity, int requestCode) {
+    public void start(@NonNull Activity activity, int requestCode) {
         activity.startActivityForResult(getIntent(activity), requestCode);
     }
 
@@ -203,7 +203,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void startAnimationMultipleCropActivity(@NonNull Activity activity,
+    public void startAnimationMultipleCropActivity(@NonNull AppCompatActivity activity,
                                                    @AnimRes int activityCropEnterAnimation) {
         if (activityCropEnterAnimation != 0) {
             startMultiple(activity, REQUEST_MULTI_CROP, activityCropEnterAnimation);
@@ -218,7 +218,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void startMultiple(@NonNull Activity activity, int requestCode, @AnimRes int activityCropEnterAnimation) {
+    public void startMultiple(@NonNull AppCompatActivity activity, int requestCode, @AnimRes int activityCropEnterAnimation) {
         activity.startActivityForResult(getMultipleIntent(activity), requestCode);
         activity.overridePendingTransition(activityCropEnterAnimation, R.anim.ucrop_anim_fade_in);
     }
@@ -228,7 +228,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void startMultiple(@NonNull Activity activity) {
+    public void startMultiple(@NonNull AppCompatActivity activity) {
         start(activity, REQUEST_MULTI_CROP);
     }
 
@@ -238,7 +238,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void startMultiple(@NonNull Activity activity, int requestCode) {
+    public void startMultiple(@NonNull AppCompatActivity activity, int requestCode) {
         activity.startActivityForResult(getMultipleIntent(activity), requestCode);
     }
 

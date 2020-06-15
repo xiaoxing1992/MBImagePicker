@@ -1,8 +1,8 @@
 package com.yalantis.ucrop.immersion;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,18 +17,18 @@ import java.lang.reflect.Method;
  */
 
 public class CropLightStatusBarUtils {
-    public static void setLightStatusBarAboveAPI23(Activity activity, boolean isMarginStatusBar
+    public static void setLightStatusBarAboveAPI23(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setLightStatusBar(activity, isMarginStatusBar, isMarginNavigationBar, isTransStatusBar, dark);
         }
     }
 
-    public static void setLightStatusBar(Activity activity, boolean dark) {
+    public static void setLightStatusBar(AppCompatActivity activity, boolean dark) {
         setLightStatusBar(activity, false, false, false, dark);
     }
 
-    public static void setLightStatusBar(Activity activity, boolean isMarginStatusBar
+    public static void setLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         switch (CropRomUtils.getLightStatausBarAvailableRomType()) {
             case CropRomUtils.AvailableRomType.MIUI:
@@ -54,7 +54,7 @@ public class CropLightStatusBarUtils {
     }
 
 
-    private static boolean setMIUILightStatusBar(Activity activity, boolean isMarginStatusBar
+    private static boolean setMIUILightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean darkmode) {
         initStatusBarStyle(activity, isMarginStatusBar, isMarginNavigationBar);
 
@@ -73,7 +73,7 @@ public class CropLightStatusBarUtils {
         return false;
     }
 
-    private static boolean setFlymeLightStatusBar(Activity activity, boolean isMarginStatusBar
+    private static boolean setFlymeLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         boolean result = false;
         if (activity != null) {
@@ -108,7 +108,7 @@ public class CropLightStatusBarUtils {
     }
 
     @TargetApi(11)
-    private static void setAndroidNativeLightStatusBar(Activity activity, boolean isMarginStatusBar
+    private static void setAndroidNativeLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean isDarkStatusBarIcon) {
 
         try {
@@ -168,7 +168,7 @@ public class CropLightStatusBarUtils {
         }
     }
 
-    private static void initStatusBarStyle(Activity activity, boolean isMarginStatusBar
+    private static void initStatusBarStyle(AppCompatActivity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             if (isMarginStatusBar && isMarginNavigationBar) {

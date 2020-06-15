@@ -1,8 +1,9 @@
 package com.yalantis.ucrop.util;
 
-import android.app.Activity;
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+
 
 /**
  * @author：luck
@@ -30,7 +31,7 @@ public class ScreenUtils {
      */
     public static int getScreenWidth(Context context) {
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
+        ((AppCompatActivity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
         return localDisplayMetrics.widthPixels;
     }
 }

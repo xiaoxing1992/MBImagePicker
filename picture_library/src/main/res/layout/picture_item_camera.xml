@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.luck.picture.lib.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:id="@+id/relativelayout"
     android:layout_height="wrap_content"
@@ -14,7 +15,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
         android:contentDescription="@null"
-        android:src="@drawable/icon_album_camera" />
+        app:srcCompat="@drawable/icon_album_camera" />
 
     <TextView
         android:id="@+id/tvCamera"
