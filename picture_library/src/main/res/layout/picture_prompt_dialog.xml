@@ -31,7 +31,7 @@
         android:layout_height="50dp"
         android:background="@drawable/picture_btn_bottom_selector"
         android:gravity="center"
-        android:text="@string/picture_know"
+        android:text="我知道了"
         android:textColor="@color/picture_color_9b"
         android:textStyle="bold" />
 </LinearLayout>

@@ -2,10 +2,11 @@ package com.luck.picture.lib.thread;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.CallSuper;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.List;

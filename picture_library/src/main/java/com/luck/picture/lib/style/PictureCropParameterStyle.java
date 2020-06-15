@@ -3,7 +3,8 @@ package com.luck.picture.lib.style;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
+
+import androidx.annotation.ColorInt;
 
 /**
  * @author：luck

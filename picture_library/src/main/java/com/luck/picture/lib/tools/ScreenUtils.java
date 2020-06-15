@@ -1,8 +1,9 @@
 package com.luck.picture.lib.tools;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Field;
 

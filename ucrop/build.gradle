@@ -31,8 +31,8 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:appcompat-v7:${cfgs.androidx_appcompat_version}"
-    implementation "com.android.support:exifinterface:${cfgs.androidx_exifinterface_version}"
-    implementation "com.android.support:transition:${cfgs.androidx_transition_version}"
-    implementation "com.android.support:recyclerview-v7:${cfgs.version_recyclerview}"
+    implementation "androidx.appcompat:appcompat:${cfgs.androidx_appcompat_version}"
+    implementation "androidx.exifinterface:exifinterface:${cfgs.androidx_exifinterface_version}"
+    implementation "androidx.transition:transition:${cfgs.androidx_transition_version}"
+    implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
 }

@@ -3,7 +3,8 @@ package com.luck.picture.lib.tools;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelectorPreviewWeChatStyleActivity;
