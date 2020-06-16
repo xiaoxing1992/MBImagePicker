@@ -1,5 +1,6 @@
 package com.luck.picture.lib;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -35,6 +36,10 @@ public final class PictureSelector {
 
     private PictureSelector(Fragment fragment) {
         this((AppCompatActivity) fragment.getActivity(), fragment);
+    }
+
+     private PictureSelector(Context context) {
+        this((AppCompatActivity) context, null);
     }
 
     private PictureSelector(AppCompatActivity activity, Fragment fragment) {
