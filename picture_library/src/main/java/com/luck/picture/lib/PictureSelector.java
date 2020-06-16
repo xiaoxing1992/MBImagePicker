@@ -38,7 +38,7 @@ public final class PictureSelector {
         this((AppCompatActivity) fragment.getActivity(), fragment);
     }
 
-     private PictureSelector(Context context) {
+    private PictureSelector(Context context) {
         this((AppCompatActivity) context, null);
     }
 
@@ -65,6 +65,16 @@ public final class PictureSelector {
      */
     public static PictureSelector create(Fragment fragment) {
         return new PictureSelector(fragment);
+    }
+
+    /**
+     * Start PictureSelector for Context.
+     *
+     * @param context
+     * @return PictureSelector instance.
+     */
+     public static PictureSelector create(Context context) {
+        return new PictureSelector(context);
     }
 
     /**
