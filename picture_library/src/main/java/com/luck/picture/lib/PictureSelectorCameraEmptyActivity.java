@@ -247,7 +247,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         }
         // 开启异步线程进行处理
         showPleaseDialog();
-        PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<LocalMedia>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<LocalMedia>() {
             @Override
             public LocalMedia doInBackground() {
                 // 创建一个LocalMedia对象

@@ -12,6 +12,7 @@ import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnCustomCameraInterfaceListener;
+import com.luck.picture.lib.listener.OnCustomImagePreviewCallback;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
@@ -105,6 +106,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public static CacheResourcesEngine cacheResourcesEngine;
     public static OnResultCallbackListener listener;
     public static OnVideoSelectedPlayCallback customVideoPlayCallback;
+    public static OnCustomImagePreviewCallback onCustomImagePreviewCallback;
     public static OnCustomCameraInterfaceListener onPictureSelectorInterfaceListener;
     public List<LocalMedia> selectionMedias;
     public String cameraFileName;
@@ -149,6 +151,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isCallbackMode;
     public boolean isAndroidQChangeWH;
     public boolean isAndroidQChangeVideoWH;
+    public boolean isQuickCapture;
     /**
      * 内测专用###########
      */
@@ -264,6 +267,7 @@ public final class PictureSelectionConfig implements Parcelable {
         isCallbackMode = false;
         isAndroidQChangeWH = true;
         isAndroidQChangeVideoWH = false;
+        isQuickCapture = true;
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -289,6 +293,8 @@ public final class PictureSelectionConfig implements Parcelable {
     public static void destroy() {
         PictureSelectionConfig.listener = null;
         PictureSelectionConfig.customVideoPlayCallback = null;
+        PictureSelectionConfig.onCustomImagePreviewCallback = null;
+//        PictureSelectionConfig.onCustomCameraInterfaceListener = null;
         PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
         PictureSelectionConfig.cacheResourcesEngine = null;
     }
@@ -400,6 +406,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isCallbackMode ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isAndroidQChangeWH ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isAndroidQChangeVideoWH ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isQuickCapture ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion2 ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion3 ? (byte) 1 : (byte) 0);
@@ -505,6 +512,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isCallbackMode = in.readByte() != 0;
         this.isAndroidQChangeWH = in.readByte() != 0;
         this.isAndroidQChangeVideoWH = in.readByte() != 0;
+        this.isQuickCapture = in.readByte() != 0;
         this.isFallbackVersion = in.readByte() != 0;
         this.isFallbackVersion2 = in.readByte() != 0;
         this.isFallbackVersion3 = in.readByte() != 0;

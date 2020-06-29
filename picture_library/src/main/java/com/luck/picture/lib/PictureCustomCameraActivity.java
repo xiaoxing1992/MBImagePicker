@@ -7,6 +7,9 @@ package com.luck.picture.lib;
  * @describe：自定义拍照和录音
  */
 public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActivity {
+
+    private final static String TAG = PictureCustomCameraActivity.class.getSimpleName();
+
     //
 //
 //    private CustomCameraView mCameraView;
@@ -162,8 +165,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 //
 //            @Override
 //            public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
-//                ToastUtils.s(getContext(), message);
-//                onBackPressed();
+//               Log.i(TAG, "onError: " + message);
 //            }
 //        });
 //

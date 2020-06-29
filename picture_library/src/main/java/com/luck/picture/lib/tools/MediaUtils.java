@@ -503,7 +503,7 @@ public class MediaUtils {
             }
             return;
         }
-        PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<Integer>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<Integer>() {
 
             @Override
             public Integer doInBackground() {

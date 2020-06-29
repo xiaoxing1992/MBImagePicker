@@ -265,7 +265,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     // 原图
                     path = media.getPath();
                 }
-                boolean isHttp = PictureMimeType.isHttp(path);
+                boolean isHttp = PictureMimeType.isHasHttp(path);
                 String mimeType = isHttp ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
                 boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
                 ivPlay.setVisibility(isHasVideo ? View.VISIBLE : View.GONE);
@@ -318,7 +318,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                                 downloadPath = path;
-                                String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
+                                String currentMimeType = PictureMimeType.isHasHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
                                 mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
                                 showDownLoadDialog();
                             } else {
@@ -334,7 +334,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                                 downloadPath = path;
-                                String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
+                                String currentMimeType = PictureMimeType.isHasHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
                                 mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
                                 showDownLoadDialog();
                             } else {
@@ -397,10 +397,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
             });
             btn_commit.setOnClickListener(view -> {
-                boolean isHttp = PictureMimeType.isHttp(downloadPath);
+                boolean isHttp = PictureMimeType.isHasHttp(downloadPath);
                 showPleaseDialog();
                 if (isHttp) {
-                    PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<String>() {
+                    PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<String>() {
                         @Override
                         public String doInBackground() {
                             return showLoadingImage(downloadPath);
@@ -408,7 +408,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                         @Override
                         public void onSuccess(String result) {
-                            PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                             onSuccessful(result);
                         }
                     });
@@ -498,7 +497,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             ToastUtils.s(getContext(), getString(R.string.picture_save_error));
             return;
         }
-        PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<String>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<String>() {
 
             @Override
             public String doInBackground() {
@@ -522,7 +521,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             @Override
             public void onSuccess(String result) {
-                PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
+                PictureThreadUtils.cancel(PictureThreadUtils.getIoPool());
                 onSuccessful(result);
 
             }

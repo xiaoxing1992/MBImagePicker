@@ -500,7 +500,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         }
                     });
         } else {
-            PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<List<LocalMediaFolder>>() {
+            PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<List<LocalMediaFolder>>() {
 
                 @Override
                 public List<LocalMediaFolder> doInBackground() {
@@ -582,7 +582,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
      */
     private void synchronousCover() {
         if (config.chooseMode == PictureMimeType.ofAll()) {
-            PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<Boolean>() {
+            PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<Boolean>() {
 
                 @Override
                 public Boolean doInBackground() {
@@ -811,16 +811,20 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     }
 
     private void onPreview() {
-        List<LocalMedia> selectedImages = mAdapter.getSelectedData();
+        List<LocalMedia> selectedData = mAdapter.getSelectedData();
         List<LocalMedia> medias = new ArrayList<>();
-        int size = selectedImages.size();
+        int size = selectedData.size();
         for (int i = 0; i < size; i++) {
-            LocalMedia media = selectedImages.get(i);
+            LocalMedia media = selectedData.get(i);
             medias.add(media);
+        }
+        if (PictureSelectionConfig.onCustomImagePreviewCallback != null) {
+            PictureSelectionConfig.onCustomImagePreviewCallback.onCustomPreviewCallback(getContext(), selectedData, 0);
+            return;
         }
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (ArrayList<? extends Parcelable>) medias);
-        bundle.putParcelableArrayList(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) selectedImages);
+        bundle.putParcelableArrayList(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) selectedData);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putBoolean(PictureConfig.EXTRA_CHANGE_ORIGINAL, config.isCheckOriginalImage);
         bundle.putBoolean(PictureConfig.EXTRA_SHOW_CAMERA, mAdapter.isShowCamera());
@@ -1356,11 +1360,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     /**
      * preview image and video
      *
-     * @param previewImages
+     * @param previewData
      * @param position
      */
-    public void startPreview(List<LocalMedia> previewImages, int position) {
-        LocalMedia media = previewImages.get(position);
+    public void startPreview(List<LocalMedia> previewData, int position) {
+        LocalMedia media = previewData.get(position);
         String mimeType = media.getMimeType();
         Bundle bundle = new Bundle();
         List<LocalMedia> result = new ArrayList<>();
@@ -1387,8 +1391,12 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             }
         } else {
             // image
+            if (PictureSelectionConfig.onCustomImagePreviewCallback != null) {
+                PictureSelectionConfig.onCustomImagePreviewCallback.onCustomPreviewCallback(getContext(), previewData, position);
+                return;
+            }
             List<LocalMedia> selectedData = mAdapter.getSelectedData();
-            ImagesObservable.getInstance().savePreviewMediaData(new ArrayList<>(previewImages));
+            ImagesObservable.getInstance().savePreviewMediaData(new ArrayList<>(previewData));
             bundle.putParcelableArrayList(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) selectedData);
             bundle.putInt(PictureConfig.EXTRA_POSITION, position);
             bundle.putBoolean(PictureConfig.EXTRA_CHANGE_ORIGINAL, config.isCheckOriginalImage);
@@ -1622,7 +1630,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
         showPleaseDialog();
         // 开启异步线程进行处理
-        PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<LocalMedia>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<LocalMedia>() {
 
             @Override
             public LocalMedia doInBackground() {
@@ -1688,7 +1696,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     long bucketId = MediaUtils.getCameraFirstBucketId(getContext());
                     media.setBucketId(bucketId);
                     // 如果有旋转信息图片宽高则是相反
-                    MediaUtils.setOrientationSynchronous(getContext(), media, config.isAndroidQChangeWH,config.isAndroidQChangeVideoWH);
+                    MediaUtils.setOrientationSynchronous(getContext(), media, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH);
                 }
                 return media;
             }
