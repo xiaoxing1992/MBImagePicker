@@ -214,14 +214,10 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                         }
                     }
                     // 如原图路径不存在或者路径存在但文件不存在
-                    String newPath = SdkVersionUtils.checkedAndroid_Q()
-                            ? PictureFileUtils.getPath(context, Uri.parse(path)) : path;
+                    String newPath = image.getRealPath();
                     if (!TextUtils.isEmpty(newPath) && !new File(newPath).exists()) {
                         ToastUtils.s(context, PictureMimeType.s(context, mimeType));
                         return;
-                    }
-                    if (SdkVersionUtils.checkedAndroid_Q()) {
-                        image.setRealPath(newPath);
                     }
                     // 如果有旋转信息图片宽高则是相反
                     MediaUtils.setOrientationAsynchronous(context, image, null);
@@ -235,8 +231,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     }
                 }
                 // 如原图路径不存在或者路径存在但文件不存在
-                String newPath = SdkVersionUtils.checkedAndroid_Q()
-                        ? PictureFileUtils.getPath(context, Uri.parse(path)) : path;
+                String newPath = image.getRealPath();
                 if (!TextUtils.isEmpty(newPath) && !new File(newPath).exists()) {
                     ToastUtils.s(context, PictureMimeType.s(context, mimeType));
                     return;
@@ -244,9 +239,6 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 int index = showCamera ? position - 1 : position;
                 if (index == -1) {
                     return;
-                }
-                if (SdkVersionUtils.checkedAndroid_Q()) {
-                    image.setRealPath(newPath);
                 }
                 // 如果有旋转信息图片宽高则是相反
                 MediaUtils.setOrientationAsynchronous(context, image, null);

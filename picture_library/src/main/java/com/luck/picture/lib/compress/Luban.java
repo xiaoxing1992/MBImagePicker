@@ -15,7 +15,6 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.AndroidQTransformUtils;
 import com.luck.picture.lib.tools.DESUtils;
 import com.luck.picture.lib.tools.DateUtils;
-import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
 
@@ -279,13 +278,7 @@ public class Luban implements Handler.Callback {
         if (media == null) {
             throw new NullPointerException("Luban Compress LocalMedia Can't be empty");
         }
-        String newPath;
-        if (isAndroidQ) {
-            newPath = !TextUtils.isEmpty(media.getRealPath()) ? media.getRealPath() :
-                    PictureFileUtils.getPath(context, Uri.parse(path.getPath()));
-        } else {
-            newPath = path.getPath();
-        }
+        String newPath = media.getRealPath();
         String suffix = Checker.SINGLE.extSuffix(media.getMimeType());
         File outFile = getImageCacheFile(context, path, TextUtils.isEmpty(suffix) ? Checker.SINGLE.extSuffix(path) : suffix);
         String filename = "";

@@ -12,7 +12,6 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
-import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ValueOf;
 
@@ -164,8 +163,10 @@ public class LocalMediaLoader {
                         long id = data.getLong
                                 (data.getColumnIndexOrThrow(PROJECTION[0]));
 
-                        String url = isAndroidQ ? getRealPathAndroid_Q(id) : data.getString
+                        String absolutePath = data.getString
                                 (data.getColumnIndexOrThrow(PROJECTION[1]));
+
+                        String url = isAndroidQ ? getRealPathAndroid_Q(id) : absolutePath;
 
                         String mimeType = data.getString
                                 (data.getColumnIndexOrThrow(PROJECTION[2]));
@@ -177,7 +178,6 @@ public class LocalMediaLoader {
                         // which makes it impossible to distinguish the specific type, such as mi 8,9,10 and other models
                         if (mimeType.endsWith("image/*")) {
                             if (PictureMimeType.isContent(url)) {
-                                String absolutePath = PictureFileUtils.getPath(mContext, Uri.parse(url));
                                 mimeType = PictureMimeType.getImageMimeType(absolutePath);
                             } else {
                                 mimeType = PictureMimeType.getImageMimeType(url);
@@ -238,7 +238,7 @@ public class LocalMediaLoader {
                             }
                         }
                         LocalMedia image = new LocalMedia
-                                (id, url, fileName, folderName, duration, config.chooseMode, mimeType, width, height, size, bucketId);
+                                (id, url, absolutePath, fileName, folderName, duration, config.chooseMode, mimeType, width, height, size, bucketId);
                         LocalMediaFolder folder = getImageFolder(url, folderName, imageFolders);
                         folder.setBucketId(image.getBucketId());
                         List<LocalMedia> images = folder.getData();
