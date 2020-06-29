@@ -1688,7 +1688,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     long bucketId = MediaUtils.getCameraFirstBucketId(getContext());
                     media.setBucketId(bucketId);
                     // 如果有旋转信息图片宽高则是相反
-                    MediaUtils.setOrientationSynchronous(getContext(), media);
+                    MediaUtils.setOrientationSynchronous(getContext(), media, config.isAndroidQChangeWH,config.isAndroidQChangeVideoWH);
                 }
                 return media;
             }
@@ -2142,7 +2142,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             allFolder.setImageNum(isAddSameImp(totalNum) ? allFolder.getImageNum() : allFolder.getImageNum() + 1);
 
             // Camera
-            LocalMediaFolder cameraFolder = getImageFolder(media.getPath(),media.getRealPath(), folderWindow.getFolderData());
+            LocalMediaFolder cameraFolder = getImageFolder(media.getPath(), media.getRealPath(), folderWindow.getFolderData());
             if (cameraFolder != null) {
                 allFolder.setImageNum(isAddSameImp(totalNum) ? allFolder.getImageNum() : allFolder.getImageNum() + 1);
                 cameraFolder.setBucketId(media.getBucketId());

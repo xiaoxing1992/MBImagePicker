@@ -221,7 +221,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                         return;
                     }
                     // 如果有旋转信息图片宽高则是相反
-                    MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, null);
+                    MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH, null);
                     changeCheckboxState(contentHolder, image);
                 });
             }
@@ -242,7 +242,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return;
                 }
                 // 如果有旋转信息图片宽高则是相反
-                MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, null);
+                MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH, null);
                 boolean eqResult =
                         PictureMimeType.isHasImage(mimeType) && config.enablePreview
                                 || PictureMimeType.isHasVideo(mimeType) && (config.enPreviewVideo

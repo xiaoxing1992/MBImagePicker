@@ -225,7 +225,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         media.setWidth(width);
         media.setHeight(height);
         // 如果有旋转信息图片宽高则是相反
-        MediaUtils.setOrientationAsynchronous(getContext(), media,config.isAndroidQChangeWH,
+        MediaUtils.setOrientationAsynchronous(getContext(), media, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH,
                 item -> {
                     medias.add(item);
                     handlerResult(medias);
@@ -310,7 +310,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     long bucketId = MediaUtils.getCameraFirstBucketId(getContext());
                     media.setBucketId(bucketId);
                     // 如果有旋转信息图片宽高则是相反
-                    MediaUtils.setOrientationSynchronous(getContext(), media);
+                    MediaUtils.setOrientationSynchronous(getContext(), media, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH);
                 }
                 return media;
             }

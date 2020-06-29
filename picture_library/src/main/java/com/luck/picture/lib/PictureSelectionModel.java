@@ -405,6 +405,16 @@ public class PictureSelectionModel {
         return this;
     }
 
+    /**
+     * Turn off Android Q to solve the problem that the width and height are reversed
+     *
+     * @param isChangeVideoWH
+     * @return
+     */
+    public PictureSelectionModel closeAndroidQChangeVideoWH(boolean isChangeVideoWH) {
+        selectionConfig.isAndroidQChangeVideoWH = isChangeVideoWH;
+        return this;
+    }
 
     /**
      * By clicking the title bar consecutively, RecyclerView automatically rolls back to the top
