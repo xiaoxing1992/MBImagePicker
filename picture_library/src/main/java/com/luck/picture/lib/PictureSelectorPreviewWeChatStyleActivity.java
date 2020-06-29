@@ -1,10 +1,11 @@
 package com.luck.picture.lib;
 
-import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -22,7 +23,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
      */
     private final static int ALPHA_DURATION = 300;
     private TextView mPictureSendView;
-//    private RecyclerView mRvGallery;
+    //    private RecyclerView mRvGallery;
     private TextView tvSelected;
     private View bottomLine;
 //    private PictureWeChatPreviewGalleryAdapter mGalleryAdapter;
@@ -39,7 +40,9 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
         if (mTvPictureOk.getVisibility() == View.VISIBLE) {
             mTvPictureOk.setVisibility(View.GONE);
         }
-        check.setText("");
+        if (!TextUtils.isEmpty(check.getText())) {
+            check.setText("");
+        }
     }
 
     @Override
@@ -207,8 +210,12 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     }
 
     @Override
+    protected void onUpdateSelectedChange(LocalMedia media) {
+        onChangeMediaStatus(media);
+    }
+
+    @Override
     protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {
-        super.onSelectedChange(isAddRemove, media);
         if (isAddRemove) {
             // 添加
             media.setChecked(true);
@@ -248,18 +255,40 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     protected void onPageSelectedChange(LocalMedia media) {
         super.onPageSelectedChange(media);
         goneParent();
+        if (!config.previewEggs) {
+            onChangeMediaStatus(media);
+        }
+    }
+
+    /**
+     * onChangeMediaStatus
+     *
+     * @param media
+     */
+    private void onChangeMediaStatus(LocalMedia media) {
 //        if (mGalleryAdapter != null) {
 //            int itemCount = mGalleryAdapter.getItemCount();
-//            for (int i = 0; i < itemCount; i++) {
-//                LocalMedia item = mGalleryAdapter.getItem(i);
-//                if (item == null || TextUtils.isEmpty(item.getPath())) {
-//                    continue;
+//            if (itemCount > 0) {
+//                boolean isChangeData = false;
+//                for (int i = 0; i < itemCount; i++) {
+//                    LocalMedia item = mGalleryAdapter.getItem(i);
+//                    if (item == null || TextUtils.isEmpty(item.getPath())) {
+//                        continue;
+//                    }
+//                    boolean isOldChecked = item.isChecked();
+//                    boolean isNewChecked = item.getPath().equals(media.getPath()) || item.getId() == media.getId();
+//                   if (!isChangeData) {
+//                        isChangeData = (isOldChecked && !isNewChecked) || (!isOldChecked && isNewChecked);
+//                    }
+//                    item.setChecked(isNewChecked);
 //                }
-//                item.setChecked(item.getPath().equals(media.getPath())
-//                        || item.getId() == media.getId());
+//                if (isChangeData) {
+//                    mGalleryAdapter.notifyDataSetChanged();
+//                }
 //            }
-//            mGalleryAdapter.notifyDataSetChanged();
 //        }
+
+
     }
 
     @Override
@@ -328,7 +357,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
                 if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mPictureSendView.setText(String.format(config.style.pictureCompleteText,
-                            selectData.size(),  config.maxSelectNum));
+                            selectData.size(), config.maxSelectNum));
                 } else {
                     mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
                             ? config.style.pictureUnCompleteText : config.isShowChooseNumber ?

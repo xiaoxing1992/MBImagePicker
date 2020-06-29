@@ -25,7 +25,6 @@ import com.luck.picture.lib.listener.OnQueryDataResultListener;
 import com.luck.picture.lib.model.LocalMediaPageLoader;
 import com.luck.picture.lib.observable.ImagesObservable;
 import com.luck.picture.lib.tools.MediaUtils;
-import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
@@ -165,11 +164,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (getContext() instanceof PictureSelectorPreviewWeChatStyleActivity) {
-                    //  不做处理
-                } else {
-                    isPreviewEggs(config.previewEggs, position, positionOffsetPixels);
-                }
+                isPreviewEggs(config.previewEggs, position, positionOffsetPixels);
             }
 
             @Override
@@ -391,22 +386,30 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     media = adapter.getItem(position);
                     if (media != null) {
                         check.setSelected(isSelected(media));
-                        if (config.checkNumMode) {
-                            num = media.getNum();
-                            check.setText(ValueOf.toString(num));
-                            notifyCheckChanged(media);
-                            onImageChecked(position);
+                        if (config.isWeChatStyle) {
+                            onUpdateSelectedChange(media);
+                        } else {
+                            if (config.checkNumMode) {
+                                num = media.getNum();
+                                check.setText(ValueOf.toString(num));
+                                notifyCheckChanged(media);
+                                onImageChecked(position);
+                            }
                         }
                     }
                 } else {
                     media = adapter.getItem(position + 1);
                     if (media != null) {
                         check.setSelected(isSelected(media));
-                        if (config.checkNumMode) {
-                            num = media.getNum();
-                            check.setText(ValueOf.toString(num));
-                            notifyCheckChanged(media);
-                            onImageChecked(position + 1);
+                        if (config.isWeChatStyle) {
+                            onUpdateSelectedChange(media);
+                        } else {
+                            if (config.checkNumMode) {
+                                num = media.getNum();
+                                check.setText(ValueOf.toString(num));
+                                notifyCheckChanged(media);
+                                onImageChecked(position + 1);
+                            }
                         }
                     }
                 }
@@ -732,7 +735,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 }
 
                 // 如果有旋转信息图片宽高则是相反
-                MediaUtils.setOrientationAsynchronous(getContext(), image, null);
+                MediaUtils.setOrientationAsynchronous(getContext(), image, config.isAndroidQChangeWH,null);
                 selectData.add(image);
                 onSelectedChange(true, image);
                 image.setNum(selectData.size());
@@ -764,6 +767,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
      * @param media
      */
     protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {
+
+    }
+
+    /**
+     * 更新选中或是移除状态
+     *
+     * @param media
+     */
+    protected void onUpdateSelectedChange(LocalMedia media) {
 
     }
 

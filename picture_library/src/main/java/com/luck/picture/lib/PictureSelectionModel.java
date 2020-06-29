@@ -17,7 +17,7 @@ import com.luck.picture.lib.config.UCropOptions;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
+import com.luck.picture.lib.listener.OnCustomCameraInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
@@ -117,6 +117,7 @@ public class PictureSelectionModel {
      * @param cacheResourcesEngine Image Cache
      * @return
      */
+    @Deprecated
     public PictureSelectionModel loadCacheResourcesCallback(CacheResourcesEngine cacheResourcesEngine) {
         if (SdkVersionUtils.checkedAndroid_Q()) {
             if (PictureSelectionConfig.cacheResourcesEngine != cacheResourcesEngine) {
@@ -169,7 +170,7 @@ public class PictureSelectionModel {
      * @param listener
      * @return
      */
-    public PictureSelectionModel bindPictureSelectorInterfaceListener(OnPictureSelectorInterfaceListener listener) {
+    public PictureSelectionModel bindPictureSelectorInterfaceListener(OnCustomCameraInterfaceListener listener) {
         PictureSelectionConfig.onPictureSelectorInterfaceListener = new WeakReference<>(listener).get();
         return this;
     }
@@ -392,6 +393,18 @@ public class PictureSelectionModel {
         selectionConfig.minVideoSelectNum = minVideoSelectNum;
         return this;
     }
+
+    /**
+     * Turn off Android Q to solve the problem that the width and height are reversed
+     *
+     * @param isChangeWH
+     * @return
+     */
+    public PictureSelectionModel closeAndroidQChangeWH(boolean isChangeWH) {
+        selectionConfig.isAndroidQChangeWH = isChangeWH;
+        return this;
+    }
+
 
     /**
      * By clicking the title bar consecutively, RecyclerView automatically rolls back to the top
@@ -739,7 +752,7 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel isPreviewEggs(boolean previewEggs) {
-        selectionConfig.previewEggs = !selectionConfig.isWeChatStyle && previewEggs;
+        selectionConfig.previewEggs = previewEggs;
         return this;
     }
 

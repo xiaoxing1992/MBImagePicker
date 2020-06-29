@@ -44,7 +44,7 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.language.LanguageConfig;
-import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
+import com.luck.picture.lib.listener.OnCustomCameraInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
@@ -53,6 +53,7 @@ import com.luck.picture.lib.style.PictureParameterStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.ValueOf;
 import com.luck.pictureselector.adapter.GridImageAdapter;
@@ -449,13 +450,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .minSelectNum(1)// 最小选择数量
                         .maxVideoSelectNum(1) // 视频最大选择数量
                         //.minVideoSelectNum(1)// 视频最小选择数量
+                        .closeAndroidQChangeWH(!SdkVersionUtils.checkedAndroid_Q())// 关闭在AndroidQ下获取图片或视频宽高相反自动转换
                         .imageSpanCount(4)// 每行显示个数
                         .isReturnEmpty(false)// 未选择数据时点击按钮是否可以返回
                         //.isAndroidQTransform(false)// 是否需要处理Android Q 拷贝至应用沙盒的操作，只针对compress(false); && isEnableCrop(false);有效,默认处理
                         .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)// 设置相册Activity方向，不设置默认使用系统
                         .isOriginalImageControl(cb_original.isChecked())// 是否显示原图控制按钮，如果设置为true则用户可以自由选择是否使用原图，压缩、裁剪功能将会失效
                         //.bindCustomPlayVideoCallback(new MyVideoSelectedPlayCallback(getContext()))// 自定义视频播放回调控制，用户可以使用自己的视频播放界面
-                        //.bindPictureSelectorInterfaceListener(new MyPictureSelectorInterfaceListener())// 提供给用户的一些额外的自定义操作回调
+                        //.bindPictureSelectorInterfaceListener(new MyCustomCameraInterfaceListener())// 提供给用户的一些额外的自定义操作回调
                         //.cameraFileName(System.currentTimeMillis() +".jpg")    // 重命名拍照文件名、如果是相册拍照则内部会自动拼上当前时间戳防止重复，注意这个只在使用相机时可以使用，如果使用相机又开启了压缩或裁剪 需要配合压缩和裁剪文件名api
                         //.renameCompressFile(System.currentTimeMillis() +".jpg")// 重命名压缩文件名、 如果是多张压缩则内部会自动拼上当前时间戳防止重复
                         //.renameCropFileName(System.currentTimeMillis() + ".jpg")// 重命名裁剪文件名、 如果是多张裁剪则内部会自动拼上当前时间戳防止重复
@@ -656,7 +658,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * PictureSelector自定义的一些回调接口
      */
-    private static class MyPictureSelectorInterfaceListener implements OnPictureSelectorInterfaceListener {
+    private static class MyCustomCameraInterfaceListener implements OnCustomCameraInterfaceListener {
 
         @Override
         public void onCameraClick(Context context, PictureSelectionConfig config, int type) {
@@ -895,6 +897,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#393a3e");
         // 相册列表标题栏背景色
         mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#393a3e");
+        // 相册父容器背景色
+        mPictureParameterStyle.pictureContainerBackgroundColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
         // 相册列表标题栏右侧上拉箭头
         mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_icon_arrow_up;
         // 相册列表标题栏右侧下拉箭头

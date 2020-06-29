@@ -335,14 +335,18 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * loading dialog
      */
     protected void showPleaseDialog() {
-        if (!isFinishing()) {
-            if (mLoadingDialog == null) {
-                mLoadingDialog = new PictureLoadingDialog(getContext());
+        try {
+            if (!isFinishing()) {
+                if (mLoadingDialog == null) {
+                    mLoadingDialog = new PictureLoadingDialog(getContext());
+                }
+                if (mLoadingDialog.isShowing()) {
+                    mLoadingDialog.dismiss();
+                }
+                mLoadingDialog.show();
             }
-            if (mLoadingDialog.isShowing()) {
-                mLoadingDialog.dismiss();
-            }
-            mLoadingDialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -601,14 +605,14 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(List<CutInfo> list) {
                     if (index < size) {
-                        startMultipleCropActivity(list.get(index), options);
+                        startMultipleCropActivity(list.get(index), size, options);
                     }
                 }
             });
 
         } else {
             if (index < size) {
-                startMultipleCropActivity(list.get(index), options);
+                startMultipleCropActivity(list.get(index), size, options);
             }
         }
     }
@@ -619,7 +623,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * @param cutInfo
      * @param options
      */
-    private void startMultipleCropActivity(CutInfo cutInfo, UCrop.Options options) {
+    private void startMultipleCropActivity(CutInfo cutInfo, int count, UCrop.Options options) {
         String path = cutInfo.getPath();
         String mimeType = cutInfo.getMimeType();
         boolean isHttp = PictureMimeType.isHttp(path);
@@ -632,7 +636,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(this),
                 TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_")
-                        + suffix : config.camera ? config.renameCropFileName : StringUtils.rename(config.renameCropFileName));
+                        + suffix : config.camera || count == 1 ? config.renameCropFileName : StringUtils.rename(config.renameCropFileName));
         UCrop.of(uri, Uri.fromFile(file))
                 .withOptions(options)
                 .startAnimationMultipleCropActivity(this, config.windowAnimationStyle != null
@@ -908,9 +912,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+            mLoadingDialog = null;
+        }
         super.onDestroy();
-        dismissDialog();
-        mLoadingDialog = null;
     }
 
     /**

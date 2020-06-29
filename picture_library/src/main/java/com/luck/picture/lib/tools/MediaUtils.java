@@ -476,11 +476,16 @@ public class MediaUtils {
      *
      * @param context
      * @param media
+     * @param isAndroidQChangeWH
      * @param listener
      * @return
      */
-    public static void setOrientationAsynchronous(Context context, LocalMedia media,
+    public static void setOrientationAsynchronous(Context context, LocalMedia media, boolean isAndroidQChangeWH,
                                                   OnCallbackListener<LocalMedia> listener) {
+        if (!isAndroidQChangeWH) {
+            return;
+        }
+
         // 如果有旋转信息图片宽高则是相反
         if (media.getOrientation() != -1) {
             if (listener != null) {

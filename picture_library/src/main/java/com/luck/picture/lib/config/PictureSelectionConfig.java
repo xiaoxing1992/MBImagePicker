@@ -11,7 +11,7 @@ import com.luck.picture.lib.R;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
+import com.luck.picture.lib.listener.OnCustomCameraInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
@@ -105,7 +105,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public static CacheResourcesEngine cacheResourcesEngine;
     public static OnResultCallbackListener listener;
     public static OnVideoSelectedPlayCallback customVideoPlayCallback;
-    public static OnPictureSelectorInterfaceListener onPictureSelectorInterfaceListener;
+    public static OnCustomCameraInterfaceListener onPictureSelectorInterfaceListener;
     public List<LocalMedia> selectionMedias;
     public String cameraFileName;
     public boolean isCheckOriginalImage;
@@ -147,6 +147,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public int animationMode;
     public boolean isAutomaticTitleRecyclerTop;
     public boolean isCallbackMode;
+    public boolean isAndroidQChangeWH;
     /**
      * 内测专用###########
      */
@@ -260,6 +261,7 @@ public final class PictureSelectionConfig implements Parcelable {
         animationMode = -1;
         isAutomaticTitleRecyclerTop = true;
         isCallbackMode = false;
+        isAndroidQChangeWH = true;
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -394,6 +396,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeInt(this.animationMode);
         dest.writeByte(this.isAutomaticTitleRecyclerTop ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isCallbackMode ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isAndroidQChangeWH ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion2 ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion3 ? (byte) 1 : (byte) 0);
@@ -497,12 +500,13 @@ public final class PictureSelectionConfig implements Parcelable {
         this.animationMode = in.readInt();
         this.isAutomaticTitleRecyclerTop = in.readByte() != 0;
         this.isCallbackMode = in.readByte() != 0;
+        this.isAndroidQChangeWH = in.readByte() != 0;
         this.isFallbackVersion = in.readByte() != 0;
         this.isFallbackVersion2 = in.readByte() != 0;
         this.isFallbackVersion3 = in.readByte() != 0;
     }
 
-    public static final Creator<PictureSelectionConfig> CREATOR = new Creator<PictureSelectionConfig>() {
+    public static final Parcelable.Creator<PictureSelectionConfig> CREATOR = new Parcelable.Creator<PictureSelectionConfig>() {
         @Override
         public PictureSelectionConfig createFromParcel(Parcel source) {
             return new PictureSelectionConfig(source);

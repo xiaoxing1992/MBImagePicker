@@ -55,6 +55,15 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                         .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
                         PermissionChecker
                                 .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                    if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
+//                        if (config.chooseMode == PictureConfig.TYPE_VIDEO) {
+//                            PictureSelectionConfig.onCustomCameraInterfaceListener.onCameraClick(getContext(), config, PictureConfig.TYPE_VIDEO);
+//                        } else {
+//                            PictureSelectionConfig.onCustomCameraInterfaceListener.onCameraClick(getContext(), config, PictureConfig.TYPE_IMAGE);
+//                        }
+//                    }else {
+//                        onTakePhoto();
+//                    }
                     onTakePhoto();
                 } else {
                     PermissionChecker.requestPermissions(this, new String[]{
@@ -216,7 +225,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         media.setWidth(width);
         media.setHeight(height);
         // 如果有旋转信息图片宽高则是相反
-        MediaUtils.setOrientationAsynchronous(getContext(), media,
+        MediaUtils.setOrientationAsynchronous(getContext(), media,config.isAndroidQChangeWH,
                 item -> {
                     medias.add(item);
                     handlerResult(medias);

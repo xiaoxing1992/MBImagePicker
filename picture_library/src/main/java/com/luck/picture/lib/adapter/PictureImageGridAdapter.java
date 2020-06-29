@@ -209,7 +209,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 contentHolder.btnCheck.setOnClickListener(v -> {
                     if (config.isMaxSelectEnabledMask) {
                         if (!contentHolder.tvCheck.isSelected() && getSelectedSize() >= config.maxSelectNum) {
-                            showPromptDialog(context.getString(R.string.picture_message_max_num, config.maxSelectNum));
+                            String msg = StringUtils.getMsg(context, config.chooseMode == PictureMimeType.ofAll() ? null : image.getMimeType(), config.maxSelectNum);
+                            showPromptDialog(msg);
                             return;
                         }
                     }
@@ -220,7 +221,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                         return;
                     }
                     // 如果有旋转信息图片宽高则是相反
-                    MediaUtils.setOrientationAsynchronous(context, image, null);
+                    MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, null);
                     changeCheckboxState(contentHolder, image);
                 });
             }
@@ -241,7 +242,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return;
                 }
                 // 如果有旋转信息图片宽高则是相反
-                MediaUtils.setOrientationAsynchronous(context, image, null);
+                MediaUtils.setOrientationAsynchronous(context, image, config.isAndroidQChangeWH, null);
                 boolean eqResult =
                         PictureMimeType.isHasImage(mimeType) && config.enablePreview
                                 || PictureMimeType.isHasVideo(mimeType) && (config.enPreviewVideo
