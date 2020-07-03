@@ -98,6 +98,16 @@ public final class PictureMimeType {
         return mimeType != null && (mimeType.equals("image/gif") || mimeType.equals("image/GIF"));
     }
 
+    /**
+     * 是否是webp
+     *
+     * @param mimeType
+     * @return
+     */
+    public static boolean isWebP(String mimeType) {
+        return mimeType != null && (mimeType.contentEquals("webp"));
+    }
+
 
     /**
      * 是否是视频
