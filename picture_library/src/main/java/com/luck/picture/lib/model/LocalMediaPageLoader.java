@@ -16,7 +16,6 @@ import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.entity.MediaData;
 import com.luck.picture.lib.listener.OnQueryDataResultListener;
 import com.luck.picture.lib.thread.PictureThreadUtils;
-import com.luck.picture.lib.tools.ImageUtils;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ValueOf;
@@ -265,16 +264,6 @@ public class LocalMediaPageLoader {
 
                                 String url = SdkVersionUtils.checkedAndroid_Q() ? getRealPathAndroid_Q(id) : absolutePath;
 
-
-                                ImageUtils.ImageType imageType = ImageUtils.getImageType(absolutePath);
-                                String value = imageType.getValue();
-
-                                if (!config.isWebP) {
-                                    boolean isWebP = PictureMimeType.isWebP(value);
-                                    if (isWebP) {
-                                        continue;
-                                    }
-                                }
 
                                 if (config.isFilterInvalidFile) {
                                     if (!PictureFileUtils.isFileExists(absolutePath)) {

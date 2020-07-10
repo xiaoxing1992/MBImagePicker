@@ -77,7 +77,6 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isOriginalControl;
     public boolean isCamera;
     public boolean isGif;
-    public boolean isWebP;
     public boolean enablePreview;
     public boolean enPreviewVideo;
     public boolean enablePreviewAudio;
@@ -194,7 +193,6 @@ public final class PictureSelectionConfig implements Parcelable {
         isAndroidQTransform = true;
         isCamera = true;
         isGif = false;
-        isWebP = false;
         focusAlpha = false;
         isCheckOriginalImage = false;
         isSingleDirectReturn = false;
@@ -356,7 +354,6 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isOriginalControl ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isCamera ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isGif ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isWebP ? (byte) 1 : (byte) 0);
         dest.writeByte(this.enablePreview ? (byte) 1 : (byte) 0);
         dest.writeByte(this.enPreviewVideo ? (byte) 1 : (byte) 0);
         dest.writeByte(this.enablePreviewAudio ? (byte) 1 : (byte) 0);
@@ -463,7 +460,6 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isOriginalControl = in.readByte() != 0;
         this.isCamera = in.readByte() != 0;
         this.isGif = in.readByte() != 0;
-        this.isWebP = in.readByte() != 0;
         this.enablePreview = in.readByte() != 0;
         this.enPreviewVideo = in.readByte() != 0;
         this.enablePreviewAudio = in.readByte() != 0;

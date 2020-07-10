@@ -490,7 +490,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                         .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
                         .isGif(cb_isGif.isChecked())// 是否显示gif图片
-                        .isWebP(false)// 是否显示webp图片
                         .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
                         .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
                         //.setCropDimmedColor(ContextCompat.getColor(getContext(), R.color.app_color_white))// 设置裁剪背景色值
@@ -577,7 +576,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                         .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
                         .isGif(cb_isGif.isChecked())// 是否显示gif图片
-                        .isWebP(false)// 是否显示gif图片
                         .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
                         .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
                         //.setCropDimmedColor(ContextCompat.getColor(getContext(), R.color.app_color_white))// 设置裁剪背景色值

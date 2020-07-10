@@ -838,15 +838,6 @@ public class PictureSelectionModel {
         return this;
     }
 
-     /**
-     * @param isWebP Whether to open webp
-     * @return
-     */
-    public PictureSelectionModel isWebP(boolean isWebP) {
-        selectionConfig.isWebP = isWebP;
-        return this;
-    }
-
     /**
      * @param enablePreview Do you want to preview the picture?
      * @return Use {link .isPreviewImage()}
