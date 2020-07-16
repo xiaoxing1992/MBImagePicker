@@ -2,11 +2,12 @@ package com.luck.picture.lib;
 
 
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -244,28 +245,6 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
         if (config.isWithVideoImage) {
             // 混选模式
             if (config.selectionMode == PictureConfig.SINGLE) {
-                boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
-                    mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, 1));
-                } else {
-                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
-                            ? config.style.pictureCompleteText : getString(R.string.picture_send));
-                }
-            } else {
-                boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
-                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
-                    mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, config.maxSelectNum));
-                } else {
-                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
-                            ? config.style.pictureUnCompleteText : config.isShowChooseNumber ?
-                            getString(R.string.picture_send_num, size,  config.maxSelectNum)
-                            : getString(R.string.picture_send_shownum, size));
-                }
-            }
-        } else {
-            String mimeType = list.get(0).getMimeType();
-            int maxSize = PictureMimeType.isHasVideo(mimeType) ? config.maxVideoSelectNum : config.maxSelectNum;
-            if (config.selectionMode == PictureConfig.SINGLE) {
                 if (size <= 0) {
                     mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
                             ? config.style.pictureUnCompleteText : getString(R.string.picture_send));
@@ -281,6 +260,28 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
             } else {
                 boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
                 if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                    mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, config.maxSelectNum));
+                } else {
+                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
+                            ? config.style.pictureUnCompleteText : config.isShowChooseNumber ?
+                            getString(R.string.picture_send_num, size, config.maxSelectNum)
+                            : getString(R.string.picture_send_shownum, size));
+                }
+            }
+        } else {
+            String mimeType = list.get(0).getMimeType();
+            int maxSize = PictureMimeType.isHasVideo(mimeType)  && config.maxVideoSelectNum > 0? config.maxVideoSelectNum : config.maxSelectNum;
+            if (config.selectionMode == PictureConfig.SINGLE) {
+                boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
+                    mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, 1));
+                } else {
+                    mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureCompleteText)
+                            ? config.style.pictureCompleteText : getString(R.string.picture_send));
+                }
+            } else {
+                boolean isCompleteReplaceNum = isNotEmptyStyle && config.style.isCompleteReplaceNum;
+                if (isCompleteReplaceNum && !TextUtils.isEmpty(config.style.pictureCompleteText)) {
                     mPictureSendView.setText(String.format(config.style.pictureCompleteText, size, maxSize));
                 } else {
                     mPictureSendView.setText(isNotEmptyStyle && !TextUtils.isEmpty(config.style.pictureUnCompleteText)
@@ -291,5 +292,6 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
             }
         }
     }
+
 
 }
