@@ -27,7 +27,7 @@
         android:layout_alignTop="@id/titleViewBg"
         android:layout_alignBottom="@id/titleViewBg"
         android:padding="15dp"
-        app:srcCompat="?attr/picture.preview.leftBack.icon" />
+        android:src="?attr/picture.preview.leftBack.icon" />
 
 
     <TextView

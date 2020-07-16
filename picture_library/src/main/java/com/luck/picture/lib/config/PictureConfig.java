@@ -2,8 +2,8 @@ package com.luck.picture.lib.config;
 
 /**
  * @author：luck
- * @data：2017/5/24 下午1:00
- * @描述: 常量类
+ * @data：2017/5/24 1:00
+ * @describe : constant
  */
 public final class PictureConfig {
     public final static int APPLY_STORAGE_PERMISSIONS_CODE = 1;
@@ -47,7 +47,6 @@ public final class PictureConfig {
     public final static int LOADED = 0;
 
     public final static int NORMAL = -1;
-
 
     public final static int CAMERA_BEFORE = 1;
 

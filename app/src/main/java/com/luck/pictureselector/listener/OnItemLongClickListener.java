@@ -1,7 +1,8 @@
 package com.luck.pictureselector.listener;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author：luck

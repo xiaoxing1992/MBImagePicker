@@ -17,7 +17,7 @@
         android:layout_width="21dp"
         android:layout_height="21dp"
         android:layout_centerInParent="true"
-        app:srcCompat="@drawable/picture_icon_video_play"
+        android:src="@drawable/picture_icon_video_play"
         android:visibility="gone" />
 
     <View

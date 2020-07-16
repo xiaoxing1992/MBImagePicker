@@ -2,7 +2,6 @@ package com.luck.picture.lib.tools;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -27,7 +26,7 @@ public class AndroidQTransformUtils {
      * #耗时操作需要放在子线程中操作
      *
      * @param ctx
-     * @param url
+     * @param uri
      * @param mineType
      * @param customFileName
      * @return
@@ -66,7 +65,6 @@ public class AndroidQTransformUtils {
         return null;
     }
 
-
     /**
      * 复制文件至AndroidQ手机相册目录
      *
@@ -75,7 +73,6 @@ public class AndroidQTransformUtils {
      * @param outUri
      */
     public static boolean copyPathToDCIM(Context context, File inFile, Uri outUri) {
-        ParcelFileDescriptor parcelFileDescriptor = null;
         try {
             OutputStream fileOutputStream = context.getContentResolver().openOutputStream(outUri);
             return PictureFileUtils.bufferCopy(inFile, fileOutputStream);
@@ -84,4 +81,5 @@ public class AndroidQTransformUtils {
         }
         return false;
     }
+
 }

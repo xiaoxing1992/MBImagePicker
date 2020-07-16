@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author：luck
  * @data：2018/1/27 下午7:50
- * @描述:图片预览
+ * @describe:PictureSimpleFragmentAdapter
  */
 
 public class PictureSimpleFragmentAdapter extends PagerAdapter {
@@ -42,11 +42,11 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
     private OnCallBackActivity onBackPressed;
     private PictureSelectionConfig config;
     /**
-     * 最大缓存图片数量
+     * Maximum number of cached images
      */
     private static final int MAX_CACHE_SIZE = 20;
     /**
-     * 缓存view
+     * To cache the view
      */
     private SparseArray<View> mCacheView;
 
@@ -65,7 +65,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
 
     public interface OnCallBackActivity {
         /**
-         * 关闭预览Activity
+         * Close Activity
          */
         void onActivityBackPressed();
     }
@@ -79,7 +79,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
     }
 
     /**
-     * 绑定数据
+     * bind data
      *
      * @param data
      */
@@ -88,7 +88,7 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
     }
 
     /**
-     * 获取绑定数据
+     * get data
      *
      * @return
      */
@@ -142,22 +142,16 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                     .inflate(R.layout.picture_image_preview, container, false);
             mCacheView.put(position, contentView);
         }
-        // 常规图控件
         PhotoView imageView = contentView.findViewById(R.id.preview_image);
-        // 长图控件
         SubsamplingScaleImageView longImg = contentView.findViewById(R.id.longImg);
-        // 视频播放按钮
         ImageView ivPlay = contentView.findViewById(R.id.iv_play);
-
         LocalMedia media = getItem(position);
         if (media != null) {
             final String mimeType = media.getMimeType();
             final String path;
             if (media.isCut() && !media.isCompressed()) {
-                // 裁剪过
                 path = media.getCutPath();
             } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
-                // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
                 path = media.getCompressPath();
             } else {
                 path = media.getPath();
@@ -191,7 +185,6 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 }
             });
 
-            // 压缩过的gif就不是gif了
             if (isGif && !media.isCompressed()) {
                 if (config != null && PictureSelectionConfig.imageEngine != null) {
                     PictureSelectionConfig.imageEngine.loadAsGifImage
@@ -209,13 +202,13 @@ public class PictureSimpleFragmentAdapter extends PagerAdapter {
                 }
             }
         }
-        
+
         (container).addView(contentView, 0);
         return contentView;
     }
 
     /**
-     * 加载长图
+     * load long image
      *
      * @param uri
      * @param longImg

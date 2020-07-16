@@ -15,7 +15,7 @@ public interface OnAlbumItemClickListener {
      *
      * @param position
      * @param isCameraFolder
-     *  @param bucketId
+     * @param bucketId
      * @param folderName
      * @param data
      */

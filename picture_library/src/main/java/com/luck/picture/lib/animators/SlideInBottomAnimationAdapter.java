@@ -7,9 +7,9 @@ import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:09
- * @Description: SlideInBottomAnimationAdapter
+ * @author：luck
+ * @date：2020-04-18 14:19
+ * @describe：SlideInBottomAnimationAdapter
  */
 public class SlideInBottomAnimationAdapter extends BaseAnimationAdapter {
 

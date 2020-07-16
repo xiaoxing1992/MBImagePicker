@@ -7,7 +7,7 @@ import com.luck.picture.lib.engine.PictureSelectorEngine;
 /**
  * @author：luck
  * @date：2019-12-03 15:12
- * @describe：获取一些全局所需参数
+ * @describe：PictureAppMaster
  */
 public class PictureAppMaster implements IApp {
 

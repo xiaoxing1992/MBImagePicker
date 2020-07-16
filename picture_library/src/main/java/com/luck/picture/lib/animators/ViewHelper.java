@@ -1,14 +1,15 @@
 package com.luck.picture.lib.animators;
 
-import androidx.core.view.ViewCompat;
 import android.view.View;
 
+import androidx.core.view.ViewCompat;
+
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:10
- * @Description: ViewHelper
+ * @author：luck
+ * @date：2020-04-18 14:13
+ * @describe：ViewHelper
  */
-public class ViewHelper {
+public final class ViewHelper {
     public static void clear(View v) {
         v.setAlpha(1);
         v.setScaleY(1);

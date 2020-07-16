@@ -13,7 +13,6 @@ import android.util.Log;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.AndroidQTransformUtils;
-import com.luck.picture.lib.tools.DESUtils;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
@@ -290,6 +289,7 @@ public class Luban implements Handler.Callback {
         if (outFile.exists()) {
             return outFile;
         }
+
         if (mCompressionPredicate != null) {
             if (Checker.SINGLE.extSuffix(path).startsWith(".gif")) {
                 // GIF without compression
@@ -315,8 +315,6 @@ public class Luban implements Handler.Callback {
                     if (isCompress) {
                         // 压缩
                         result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
-                    } else {
-                        result = new File(newPath);
                     }
                 }
             }

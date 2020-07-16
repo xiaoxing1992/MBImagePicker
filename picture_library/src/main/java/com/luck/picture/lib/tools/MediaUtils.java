@@ -48,7 +48,7 @@ public class MediaUtils {
         values.put(MediaStore.Images.Media.MIME_TYPE, TextUtils.isEmpty(suffixType) ? PictureMimeType.MIME_TYPE_IMAGE : suffixType);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
-            values.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES);
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, PictureMimeType.DCIM);
             imageFilePath[0] = context.getContentResolver()
                     .insert(MediaStore.Images.Media.getContentUri("external"), values);
         } else {
@@ -78,7 +78,7 @@ public class MediaUtils {
         values.put(MediaStore.Video.Media.MIME_TYPE, TextUtils.isEmpty(suffixType) ? PictureMimeType.MIME_TYPE_VIDEO : suffixType);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
-            values.put(MediaStore.Video.Media.RELATIVE_PATH, PictureMimeType.DCIM);
+            values.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES);
             imageFilePath[0] = context.getContentResolver()
                     .insert(MediaStore.Video.Media.getContentUri("external"), values);
         } else {
@@ -162,6 +162,7 @@ public class MediaUtils {
             return 0;
         }
     }
+
 
     /**
      * get Local image width or height for api 29
@@ -255,6 +256,7 @@ public class MediaUtils {
         return size;
     }
 
+
     /**
      * get Local image width or height
      *
@@ -279,6 +281,7 @@ public class MediaUtils {
         }
         return size;
     }
+
 
     /**
      * 删除部分手机 拍照在DCIM也生成一张的问题
@@ -332,7 +335,6 @@ public class MediaUtils {
         }
     }
 
-
     /**
      * 获取Camera文件下最新一条拍照记录
      *
@@ -362,6 +364,7 @@ public class MediaUtils {
         return -1;
     }
 
+
     /**
      * 获取刚录取的音频文件
      *
@@ -390,6 +393,7 @@ public class MediaUtils {
         return path;
     }
 
+
     /**
      * 获取旋转角度
      *
@@ -400,9 +404,9 @@ public class MediaUtils {
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(path);
-            int orientation = ValueOf.toInt(mmr.extractMetadata
+            int rotation = ValueOf.toInt(mmr.extractMetadata
                     (MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-            switch (orientation) {
+            switch (rotation) {
                 case 90:
                     return ExifInterface.ORIENTATION_ROTATE_90;
                 case 270:
@@ -426,9 +430,9 @@ public class MediaUtils {
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(context, uri);
-            int rotation = ValueOf.toInt(mmr.extractMetadata
+            int orientation = ValueOf.toInt(mmr.extractMetadata
                     (MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-            switch (rotation) {
+            switch (orientation) {
                 case 90:
                     return ExifInterface.ORIENTATION_ROTATE_90;
                 case 270:
@@ -470,7 +474,6 @@ public class MediaUtils {
         }
     }
 
-
     /**
      * 设置LocalMedia旋转信息
      *
@@ -496,7 +499,6 @@ public class MediaUtils {
             }
         }
 
-        // 如果有旋转信息图片宽高则是相反
         if (media.getOrientation() != -1) {
             if (listener != null) {
                 listener.onCall(media);

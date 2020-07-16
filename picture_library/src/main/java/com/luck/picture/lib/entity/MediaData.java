@@ -3,11 +3,12 @@ package com.luck.picture.lib.entity;
 import java.util.List;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:21
- * @Description: MediaData
+ * @author：luck
+ * @date：2020-04-17 13:52
+ * @describe：MediaData
  */
 public class MediaData {
+
     /**
      * Is there more
      */

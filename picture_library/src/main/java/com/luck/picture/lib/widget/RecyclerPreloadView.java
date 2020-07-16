@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.luck.picture.lib.listener.OnRecyclerViewPreloadMoreListener;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:34
- * @Description: RecyclerPreloadView
+ * @author：luck
+ * @date：2020-04-14 18:43
+ * @describe：RecyclerPreloadView
  */
 public class RecyclerPreloadView extends RecyclerView {
     private static final String TAG = RecyclerPreloadView.class.getSimpleName();
@@ -134,6 +134,7 @@ public class RecyclerPreloadView extends RecyclerView {
             }
         }
     }
+
 
     private OnRecyclerViewPreloadMoreListener onRecyclerViewPreloadListener;
 

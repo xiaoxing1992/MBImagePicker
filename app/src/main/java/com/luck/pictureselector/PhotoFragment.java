@@ -1,6 +1,7 @@
 package com.luck.pictureselector;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -400,7 +401,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                 //PictureFileUtils.deleteCacheDirFile(this, PictureMimeType.ofImage());
                 PictureFileUtils.deleteAllCacheDirFile(getContext());
             } else {
-                PermissionChecker.requestPermissions((AppCompatActivity) getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PermissionChecker.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
             }
         }
@@ -431,7 +432,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         .isReturnEmpty(false)// 未选择数据时点击按钮是否可以返回
                         //.isAndroidQTransform(false)// 是否需要处理Android Q 拷贝至应用沙盒的操作，只针对.isCompress(false); && .isEnableCrop(false);有效,默认处理
                         .loadCacheResourcesCallback(GlideCacheEngine.createCacheEngine())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                        .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
+                        .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)// 设置相册Activity方向，不设置默认使用系统
                         .isOriginalImageControl(cb_original.isChecked())// 是否显示原图控制按钮，如果设置为true则用户可以自由选择是否使用原图，压缩、裁剪功能将会失效
                         //.cameraFileName("test.png")    // 重命名拍照文件名、注意这个只在使用相机时可以使用，如果使用相机又开启了压缩或裁剪 需要配合压缩和裁剪文件名api
                         //.renameCompressFile("test.png")// 重命名压缩文件名、 注意这个不要重复，只适用于单张图压缩使用
@@ -468,9 +469,9 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         .isOpenClickSound(cb_voice.isChecked())// 是否开启点击声音
                         .selectionData(mAdapter.getData())// 是否传入已选图片
                         //.isDragFrame(false)// 是否可拖动裁剪框(固定)
-//                        .videoMaxSecond(15)
-//                        .videoMinSecond(10)
-                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
+                        //.videoMaxSecond(15)
+                        //.videoMinSecond(10)
+                        .isPreviewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
                         //.cropCompressQuality(90)// 注：已废弃 改用cutOutQuality()
                         .cutOutQuality(90)// 裁剪输出质量 默认100
                         .minimumCompressSize(100)// 小于100kb的图片不压缩
@@ -480,6 +481,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         //.videoQuality()// 视频录制质量 0 or 1
                         //.recordVideoSecond()//录制视频秒数 默认60s
                         //.setOutputCameraPath("/CustomPath")// 自定义拍照保存路径  注：已废弃
+                        //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
                         .forResult(new MyResultCallback(mAdapter));
 
             } else {
@@ -494,7 +496,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         .maxSelectNum(maxSelectNum)// 最大图片选择数量
                         .minSelectNum(1)// 最小选择数量
                         .isUseCustomCamera(cb_custom_camera.isChecked())// 是否使用自定义相机
-                        .loadCacheResourcesCallback(GlideCacheEngine.createCacheEngine())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用reSelectorActiv
+                        .loadCacheResourcesCallback(GlideCacheEngine.createCacheEngine())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
                         //.querySpecifiedFormatSuffix(PictureMimeType.ofPNG())// 查询指定后缀格式资源
                         .selectionMode(cb_choose_mode.isChecked() ?
                                 PictureConfig.MULTIPLE : PictureConfig.SINGLE)// 多选 or 单选
@@ -521,8 +523,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         .showCropGrid(cb_showCropGrid.isChecked())// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
                         .isOpenClickSound(cb_voice.isChecked())// 是否开启点击声音
                         .selectionData(mAdapter.getData())// 是否传入已选图片
-                        .previewEggs(false)//预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
+                        .isPreviewEggs(false)//预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
                         //.cropCompressQuality(90)// 废弃 改用cutOutQuality()
                         .cutOutQuality(90)// 裁剪输出质量 默认100
                         .minimumCompressSize(100)// 小于100kb的图片不压缩
@@ -530,6 +531,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                         //.rotateEnabled() // 裁剪是否可旋转图片
                         //.scaleEnabled()// 裁剪是否可放大缩小图片
                         //.videoQuality()// 视频录制质量 0 or 1
+                        //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
                         .forResult(new MyResultCallback(mAdapter));
             }
         }
@@ -578,7 +580,7 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == AppCompatActivity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调

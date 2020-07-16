@@ -1,9 +1,8 @@
 package com.luck.picture.lib.tools;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Field;
 
@@ -23,13 +22,13 @@ public class ScreenUtils {
 
     public static int getScreenWidth(Context context) {
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
-        ((AppCompatActivity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
         return localDisplayMetrics.widthPixels;
     }
 
     public static int getScreenHeight(Context context) {
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
-        ((AppCompatActivity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
         return localDisplayMetrics.heightPixels - getStatusBarHeight(context);
     }
 

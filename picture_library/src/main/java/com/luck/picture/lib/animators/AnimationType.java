@@ -1,11 +1,12 @@
 package com.luck.picture.lib.animators;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:07
- * @Description: AnimationType
+ * @author：luck
+ * @date：2020-04-18 15:21
+ * @describe：AnimationType
  */
 public class AnimationType {
+
     /**
      * default animation
      */

@@ -15,9 +15,9 @@ import com.squareup.picasso.RequestHandler;
 import java.io.IOException;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/8 13:53
- * @Description: VideoRequestHandler
+ * @author：luck
+ * @date：2020/4/30 11:32 AM
+ * @describe：VideoRequestHandler
  */
 public class VideoRequestHandler extends RequestHandler {
     public String SCHEME_VIDEO = "video";

@@ -32,7 +32,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *     desc  : utils about thread
  * </pre>
  */
-public class PictureThreadUtils {
+public final class PictureThreadUtils {
+
     private static final Map<Integer, Map<Integer, ExecutorService>> TYPE_PRIORITY_POOLS = new HashMap<>();
 
     private static final Map<Task, TaskInfo> TASK_TASKINFO_MAP = new ConcurrentHashMap<>();

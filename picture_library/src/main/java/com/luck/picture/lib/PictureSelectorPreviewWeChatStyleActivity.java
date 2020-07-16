@@ -95,7 +95,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     }
 
     /**
-     * 是否是相同目录
+     * Is it the same directory
      *
      * @param parentFolderName
      * @param currentDirectory
@@ -333,7 +333,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
 
 
     /**
-     * 设置完成按钮文字
+     * initCompleteText
      */
     @Override
     protected void initCompleteText(int startCount) {

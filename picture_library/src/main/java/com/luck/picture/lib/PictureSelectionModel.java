@@ -1,5 +1,6 @@
 package com.luck.picture.lib;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 
@@ -178,13 +179,35 @@ public class PictureSelectionModel {
      * {link 如果是自定义相机则必须使用.startActivityForResult(this,PictureConfig.REQUEST_CAMERA);方式启动否则PictureSelector处理不了相机后的回调}
      *
      * @param listener
-     * @return
+     * @return Use ${bindCustomCameraInterfaceListener}
      */
+    @Deprecated
     public PictureSelectionModel bindPictureSelectorInterfaceListener(OnCustomCameraInterfaceListener listener) {
-        PictureSelectionConfig.onPictureSelectorInterfaceListener = new WeakReference<>(listener).get();
+        PictureSelectionConfig.onCustomCameraInterfaceListener = new WeakReference<>(listener).get();
         return this;
     }
 
+    /**
+     * # The developer provides an additional callback interface to the user where the user can perform some custom actions
+     * {link 如果是自定义相机则必须使用.startActivityForResult(this,PictureConfig.REQUEST_CAMERA);方式启动否则PictureSelector处理不了相机后的回调}
+     *
+     * @param listener
+     * @return
+     */
+    public PictureSelectionModel bindCustomCameraInterfaceListener(OnCustomCameraInterfaceListener listener) {
+        PictureSelectionConfig.onCustomCameraInterfaceListener = new WeakReference<>(listener).get();
+        return this;
+    }
+
+    /**
+     * @param buttonFeatures Set the record button function
+     *                       # 具体参考 CustomCameraView.BUTTON_STATE_BOTH、BUTTON_STATE_ONLY_CAPTURE、BUTTON_STATE_ONLY_RECORDER
+     * @return
+     */
+    public PictureSelectionModel setButtonFeatures(int buttonFeatures) {
+        selectionConfig.buttonFeatures = buttonFeatures;
+        return this;
+    }
 
     /**
      * @param enableCrop Do you want to start cutting ?
@@ -665,7 +688,6 @@ public class PictureSelectionModel {
         return this;
     }
 
-
     /**
      * @param compressQuality Image compressed output quality
      * @return
@@ -1138,7 +1160,6 @@ public class PictureSelectionModel {
         return this;
     }
 
-
     /**
      * # If you want to handle the Android Q path, if not, just return the uri，
      * The getAndroidQToPath(); field will be empty
@@ -1191,7 +1212,7 @@ public class PictureSelectionModel {
      */
     public void forResult(int requestCode) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            AppCompatActivity activity = selector.getActivity();
+            Activity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }
@@ -1204,7 +1225,6 @@ public class PictureSelectionModel {
                         selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
                                 : PictureSelectorActivity.class);
             }
-
             selectionConfig.isCallbackMode = false;
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
@@ -1231,7 +1251,7 @@ public class PictureSelectionModel {
     @Deprecated
     public void forResult(int requestCode, int enterAnim, int exitAnim) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            AppCompatActivity activity = selector.getActivity();
+            Activity activity = selector.getActivity();
             if (activity == null) {
                 return;
             }
@@ -1258,13 +1278,12 @@ public class PictureSelectionModel {
      */
     public void forResult(OnResultCallbackListener listener) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            AppCompatActivity activity = selector.getActivity();
+            Activity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }
             // 绑定回调监听
             PictureSelectionConfig.listener = new WeakReference<>(listener).get();
-
             selectionConfig.isCallbackMode = true;
             Intent intent;
             if (selectionConfig.camera && selectionConfig.isUseCustomCamera) {
@@ -1297,13 +1316,12 @@ public class PictureSelectionModel {
      */
     public void forResult(int requestCode, OnResultCallbackListener listener) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            AppCompatActivity activity = selector.getActivity();
+            Activity activity = selector.getActivity();
             if (activity == null || selectionConfig == null) {
                 return;
             }
             // 绑定回调监听
             PictureSelectionConfig.listener = new WeakReference<>(listener).get();
-
             selectionConfig.isCallbackMode = true;
             Intent intent;
             if (selectionConfig.camera && selectionConfig.isUseCustomCamera) {

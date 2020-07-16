@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
@@ -12,6 +13,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ValueOf;
 
@@ -26,15 +28,13 @@ import java.util.Locale;
  * @data：2016/12/31 19:12
  * @describe: Local media database query class
  */
-
 @Deprecated
-public class LocalMediaLoader {
+public final class LocalMediaLoader {
     private static final String TAG = LocalMediaLoader.class.getSimpleName();
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
     private static final String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
     private static final String NOT_GIF = "!='image/gif'";
     /**
-     * 过滤掉小于500毫秒的录音
      * Filter out recordings that are less than 500 milliseconds long
      */
     private static final int AUDIO_DURATION = 500;
@@ -46,7 +46,6 @@ public class LocalMediaLoader {
      */
     private static final long FILE_SIZE_UNIT = 1024 * 1024L;
     /**
-     * 媒体文件数据库字段
      * Media file database field
      */
     private static final String[] PROJECTION = {
@@ -62,7 +61,6 @@ public class LocalMediaLoader {
             MediaStore.MediaColumns.BUCKET_ID};
 
     /**
-     * 图片
      * Image
      */
     private static final String SELECTION = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
@@ -72,7 +70,6 @@ public class LocalMediaLoader {
             + " AND " + MediaStore.MediaColumns.SIZE + ">0"
             + " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF;
     /**
-     * 查询指定后缀名的图片
      * Queries for images with the specified suffix
      */
     private static final String SELECTION_SPECIFIED_FORMAT = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
@@ -80,8 +77,8 @@ public class LocalMediaLoader {
             + " AND " + MediaStore.MediaColumns.MIME_TYPE;
 
     /**
-     * 查询条件(音视频)
      * Query criteria (audio and video)
+     *
      * @param time_condition
      * @return
      */
@@ -92,8 +89,8 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 查询(视频)
      * Query (video)
+     *
      * @return
      */
     private static String getSelectionArgsForSingleMediaCondition() {
@@ -102,8 +99,8 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 全部模式下条件
      * Query conditions in all modes
+     *
      * @param time_condition
      * @param isGif
      * @return
@@ -118,7 +115,6 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 获取图片or视频
      * Get pictures or videos
      */
     private static final String[] SELECTION_ALL_ARGS = {
@@ -127,8 +123,8 @@ public class LocalMediaLoader {
     };
 
     /**
-     * 获取指定类型的文件
      * Gets a file of the specified type
+     *
      * @param mediaType
      * @return
      */
@@ -143,10 +139,9 @@ public class LocalMediaLoader {
         this.config = config;
     }
 
-
     /**
-     * 查询本地图库数据
      * Query the local gallery data
+     *
      * @return
      */
     public List<LocalMediaFolder> loadAllMedia() {
@@ -168,13 +163,10 @@ public class LocalMediaLoader {
 
                         String url = isAndroidQ ? getRealPathAndroid_Q(id) : absolutePath;
 
-
                         String mimeType = data.getString
                                 (data.getColumnIndexOrThrow(PROJECTION[2]));
 
                         mimeType = TextUtils.isEmpty(mimeType) ? PictureMimeType.ofJPEG() : mimeType;
-
-                        // 这里解决部分机型获取mimeType返回 image/* 格式导致无法判别其具体类型 例如小米8，9，10等机型
                         // Here, it is solved that some models obtain mimeType and return the format of image / *,
                         // which makes it impossible to distinguish the specific type, such as mi 8,9,10 and other models
                         if (mimeType.endsWith("image/*")) {
@@ -189,7 +181,6 @@ public class LocalMediaLoader {
                                     continue;
                                 }
                             }
-
                         }
                         int width = data.getInt
                                 (data.getColumnIndexOrThrow(PROJECTION[3]));
@@ -218,22 +209,18 @@ public class LocalMediaLoader {
                         }
                         if (PictureMimeType.isHasVideo(mimeType)) {
                             if (config.videoMinSecond > 0 && duration < config.videoMinSecond) {
-                                // 如果设置了最小显示多少秒的视频
                                 // If you set the minimum number of seconds of video to display
                                 continue;
                             }
                             if (config.videoMaxSecond > 0 && duration > config.videoMaxSecond) {
-                                // 如果设置了最大显示多少秒的视频
                                 // If you set the maximum number of seconds of video to display
                                 continue;
                             }
                             if (duration == 0) {
-                                // 时长如果为0，就当做损坏的视频处理过滤掉
                                 //If the length is 0, the corrupted video is processed and filtered out
                                 continue;
                             }
                             if (size <= 0) {
-                                // 视频大小为0过滤掉
                                 // The video size is 0 to filter out
                                 continue;
                             }
@@ -271,6 +258,7 @@ public class LocalMediaLoader {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Log.i(TAG, "loadAllMedia Data Error: " + e.getMessage());
             return null;
         } finally {
             if (data != null && !data.isClosed()) {
@@ -283,25 +271,25 @@ public class LocalMediaLoader {
     private String getSelection() {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
-                // 获取全部，不包括音频
+                // Get all, not including audio
                 return getSelectionArgsForAllMediaCondition(getDurationCondition(0, 0), config.isGif);
             case PictureConfig.TYPE_IMAGE:
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
-                    // 获取指定类型的图片
+                    // Gets the image of the specified type
                     return SELECTION_SPECIFIED_FORMAT + "='" + config.specifiedFormat + "'";
                 }
                 return config.isGif ? SELECTION : SELECTION_NOT_GIF;
             case PictureConfig.TYPE_VIDEO:
-                // 获取视频
+                // Access to video
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
-                    // 获取指定类型的图片
+                    // Gets the image of the specified type
                     return SELECTION_SPECIFIED_FORMAT + "='" + config.specifiedFormat + "'";
                 }
                 return getSelectionArgsForSingleMediaCondition();
             case PictureConfig.TYPE_AUDIO:
-                // 获取音频
+                // Access to the audio
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
-                    // 获取指定类型的图片
+                    // Gets the image of the specified type
                     return SELECTION_SPECIFIED_FORMAT + "='" + config.specifiedFormat + "'";
                 }
                 return getSelectionArgsForSingleMediaCondition(getDurationCondition(0, AUDIO_DURATION));
@@ -317,7 +305,7 @@ public class LocalMediaLoader {
                 // Get Image
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
             case PictureConfig.TYPE_VIDEO:
-                // 只获取视频
+                // Get Video
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
             case PictureConfig.TYPE_AUDIO:
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO);
@@ -326,12 +314,11 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 文件夹数量进行排序
+     * Sort by the number of files
      *
      * @param imageFolders
      */
     private void sortFolder(List<LocalMediaFolder> imageFolders) {
-        // 文件夹按图片数量排序
         Collections.sort(imageFolders, (lhs, rhs) -> {
             if (lhs.getData() == null || rhs.getData() == null) {
                 return 0;
@@ -343,7 +330,7 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 适配Android Q
+     * Android Q
      *
      * @param id
      * @return
@@ -353,7 +340,7 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 创建相应文件夹
+     * Create folder
      *
      * @param path
      * @param imageFolders
@@ -363,7 +350,7 @@ public class LocalMediaLoader {
     private LocalMediaFolder getImageFolder(String path, String folderName, List<LocalMediaFolder> imageFolders) {
         if (!config.isFallbackVersion) {
             for (LocalMediaFolder folder : imageFolders) {
-                // 同一个文件夹下，返回自己，否则创建新文件夹
+                // Under the same folder, return yourself, otherwise create a new folder
                 String name = folder.getName();
                 if (TextUtils.isEmpty(name)) {
                     continue;
@@ -378,11 +365,11 @@ public class LocalMediaLoader {
             imageFolders.add(newFolder);
             return newFolder;
         } else {
-            // 容错处理
+            // Fault-tolerant processing
             File imageFile = new File(path);
             File folderFile = imageFile.getParentFile();
             for (LocalMediaFolder folder : imageFolders) {
-                // 同一个文件夹下，返回自己，否则创建新文件夹
+                // Under the same folder, return yourself, otherwise create a new folder
                 String name = folder.getName();
                 if (TextUtils.isEmpty(name)) {
                     continue;
@@ -400,7 +387,7 @@ public class LocalMediaLoader {
     }
 
     /**
-     * 获取视频(最长或最小时间)
+     * Get video (maximum or minimum time)
      *
      * @param exMaxLimit
      * @param exMinLimit
@@ -416,4 +403,5 @@ public class LocalMediaLoader {
                 Math.max(exMinLimit, config.videoMinSecond) == 0 ? "" : "=",
                 maxS);
     }
+
 }

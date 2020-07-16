@@ -36,6 +36,7 @@ import java.util.List;
 public class FolderPopWindow extends PopupWindow {
     private Context context;
     private View window;
+    private View rootView;
     private RecyclerView mRecyclerView;
     private PictureAlbumDirectoryAdapter adapter;
     private boolean isDismiss = false;
@@ -94,8 +95,11 @@ public class FolderPopWindow extends PopupWindow {
         mRecyclerView = window.findViewById(R.id.folder_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerView.setAdapter(adapter);
-        window.findViewById(R.id.rootView).setOnClickListener(v -> dismiss());
+        rootView = window.findViewById(R.id.rootView);
         rootViewBg.setOnClickListener(v -> dismiss());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            rootView.setOnClickListener(v -> dismiss());
+        }
     }
 
     public void bindFolder(List<LocalMediaFolder> folders) {

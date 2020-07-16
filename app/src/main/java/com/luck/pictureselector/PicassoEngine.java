@@ -23,11 +23,11 @@ import com.squareup.picasso.Target;
 import java.io.File;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/8 13:50
- * @Description: Picasso加载引擎
+ * @author：luck
+ * @date：2020/4/30 10:54 AM
+ * @describe：Picasso加载引擎
  */
-public class PicassoEngine  implements ImageEngine {
+public class PicassoEngine implements ImageEngine {
 
     /**
      * 加载图片

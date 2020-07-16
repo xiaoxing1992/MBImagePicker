@@ -30,9 +30,10 @@
 
 package com.yalantis.ucrop.util;
 
-import android.media.ExifInterface;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.exifinterface.media.ExifInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -392,7 +393,7 @@ public class ImageHeaderParser {
                 ExifInterface.TAG_GPS_LONGITUDE_REF,
                 ExifInterface.TAG_GPS_PROCESSING_METHOD,
                 ExifInterface.TAG_GPS_TIMESTAMP,
-//                ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+                ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
                 ExifInterface.TAG_MAKE,
                 ExifInterface.TAG_MODEL,
                 ExifInterface.TAG_SUBSEC_TIME,

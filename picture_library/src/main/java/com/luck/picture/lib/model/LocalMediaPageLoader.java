@@ -30,11 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:25
- * @Description: LocalMediaPageLoader
+ * @author：luck
+ * @date：2020-04-13 15:06
+ * @describe：Local media database query class，Support paging
  */
-public class LocalMediaPageLoader {
+public final class LocalMediaPageLoader {
     private static final String TAG = LocalMediaPageLoader.class.getSimpleName();
 
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
@@ -47,7 +47,7 @@ public class LocalMediaPageLoader {
     private static final String COLUMN_BUCKET_DISPLAY_NAME = "bucket_display_name";
 
     /**
-     * 过滤掉小于500毫秒的录音
+     * Filter out recordings that are less than 500 milliseconds long
      */
     private static final int AUDIO_DURATION = 500;
     private Context mContext;
@@ -57,7 +57,7 @@ public class LocalMediaPageLoader {
      */
     private static final long FILE_SIZE_UNIT = 1024 * 1024L;
     /**
-     * 图片
+     * Image
      */
     private static final String SELECTION = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? )"
             + " AND " + MediaStore.MediaColumns.SIZE + ">0)" + GROUP_BY_BUCKET_Id;
@@ -71,19 +71,19 @@ public class LocalMediaPageLoader {
     private static final String SELECTION_NOT_GIF_29 = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
             + " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     /**
-     * 查询指定后缀名的图片
+     * Queries for images with the specified suffix
      */
     private static final String SELECTION_SPECIFIED_FORMAT = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
             + " AND " + MediaStore.MediaColumns.MIME_TYPE;
 
     /**
-     * 查询指定后缀名的图片
+     * Queries for images with the specified suffix targetSdk>=29
      */
     private static final String SELECTION_SPECIFIED_FORMAT_29 = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
             + " AND " + MediaStore.MediaColumns.MIME_TYPE;
 
     /**
-     * 查询条件(音视频)
+     * Query criteria (audio and video)
      *
      * @param timeCondition
      * @return
@@ -100,7 +100,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 全部模式下条件
+     * All mode conditions
      *
      * @param timeCondition
      * @param isGif
@@ -119,7 +119,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 获取图片or视频
+     * Get pictures or videos
      */
     private static final String[] SELECTION_ALL_ARGS = {
             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
@@ -127,7 +127,7 @@ public class LocalMediaPageLoader {
     };
 
     /**
-     * 获取指定类型的文件
+     * Gets a file of the specified type
      *
      * @param mediaType
      * @return
@@ -137,7 +137,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 获取指定类型的文件
+     * Gets a file of the specified type
      *
      * @param mediaType
      * @return
@@ -167,7 +167,7 @@ public class LocalMediaPageLoader {
             "COUNT(*) AS " + COLUMN_COUNT};
 
     /**
-     * 媒体文件数据库字段
+     * Media file database field
      */
     private static final String[] PROJECTION_PAGE = {
             MediaStore.Files.FileColumns._ID,
@@ -182,7 +182,7 @@ public class LocalMediaPageLoader {
             COLUMN_BUCKET_ID};
 
     /**
-     * 获取某个相册目录最新一张封面
+     * Get the latest cover of an album catalog
      *
      * @param bucketId
      * @return
@@ -226,7 +226,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 查询指定目录下的数据
+     * Queries for data in the specified directory
      *
      * @param bucketId
      * @param listener
@@ -237,9 +237,12 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 查询指定目录下的数据(分页)
+     * Queries for data in the specified directory (page)
      *
      * @param bucketId
+     * @param page
+     * @param limit
+     * @param pageSize
      * @return
      */
     public void loadPageMediaData(long bucketId, int page, int limit, int pageSize, OnQueryDataResultListener listener) {
@@ -264,19 +267,17 @@ public class LocalMediaPageLoader {
 
                                 String url = SdkVersionUtils.checkedAndroid_Q() ? getRealPathAndroid_Q(id) : absolutePath;
 
-
                                 if (config.isFilterInvalidFile) {
                                     if (!PictureFileUtils.isFileExists(absolutePath)) {
                                         continue;
                                     }
                                 }
-
                                 String mimeType = data.getString
                                         (data.getColumnIndexOrThrow(PROJECTION_PAGE[2]));
 
                                 mimeType = TextUtils.isEmpty(mimeType) ? PictureMimeType.ofJPEG() : mimeType;
-
-                                // 这里解决部分机型获取mimeType返回 image/* 格式导致无法判别其具体类型 例如小米8，9，10等机型
+                                // Here, it is solved that some models obtain mimeType and return the format of image / *,
+                                // which makes it impossible to distinguish the specific type, such as mi 8,9,10 and other models
                                 if (mimeType.endsWith("image/*")) {
                                     if (PictureMimeType.isContent(url)) {
                                         mimeType = PictureMimeType.getImageMimeType(absolutePath);
@@ -317,22 +318,21 @@ public class LocalMediaPageLoader {
                                     }
                                 }
 
-
                                 if (PictureMimeType.isHasVideo(mimeType)) {
                                     if (config.videoMinSecond > 0 && duration < config.videoMinSecond) {
-                                        // 如果设置了最小显示多少秒的视频
+                                        // If you set the minimum number of seconds of video to display
                                         continue;
                                     }
                                     if (config.videoMaxSecond > 0 && duration > config.videoMaxSecond) {
-                                        // 如果设置了最大显示多少秒的视频
+                                        // If you set the maximum number of seconds of video to display
                                         continue;
                                     }
                                     if (duration == 0) {
-                                        // 时长如果为0，就当做损坏的视频处理过滤掉
+                                        //If the length is 0, the corrupted video is processed and filtered out
                                         continue;
                                     }
                                     if (size <= 0) {
-                                        // 视频大小为0过滤掉
+                                        // The video size is 0 to filter out
                                         continue;
                                     }
                                 }
@@ -368,7 +368,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 查询本地图库数据
+     * Query the local gallery data
      *
      * @param listener
      */
@@ -481,7 +481,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 获取封面uri
+     * Get cover uri
      *
      * @param cursor
      * @return
@@ -492,7 +492,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 获取封面url
+     * Get cover url
      *
      * @param cursor
      * @return
@@ -508,19 +508,20 @@ public class LocalMediaPageLoader {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
                 if (bucketId == -1) {
-                    // 获取全部
+                    // ofAll
                     return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                             + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF)
                             + " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + durationCondition + ") AND " + MediaStore.MediaColumns.SIZE + ">0";
                 }
-                // 获取指定相册目录
+                // Gets the specified album directory
                 return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                         + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF)
                         + " OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + durationCondition + ") AND " + COLUMN_BUCKET_ID + "=? AND " + MediaStore.MediaColumns.SIZE + ">0";
 
             case PictureConfig.TYPE_IMAGE:
+                // Gets the image of the specified type
                 if (bucketId == -1) {
-                    // 获取全部
+                    // ofAll
                     if (isSpecifiedFormat) {
                         return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                                 + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF + " AND " + MediaStore.MediaColumns.MIME_TYPE + "='" + config.specifiedFormat + "'")
@@ -530,28 +531,28 @@ public class LocalMediaPageLoader {
                             + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF)
                             + ") AND " + MediaStore.MediaColumns.SIZE + ">0";
                 }
+                // Gets the specified album directory
                 if (isSpecifiedFormat) {
                     return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                             + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF + " AND " + MediaStore.MediaColumns.MIME_TYPE + "='" + config.specifiedFormat + "'")
                             + ") AND " + COLUMN_BUCKET_ID + "=? AND " + MediaStore.MediaColumns.SIZE + ">0";
                 }
-                // 获取指定相册目录
                 return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=?"
                         + (config.isGif ? "" : " AND " + MediaStore.MediaColumns.MIME_TYPE + NOT_GIF)
                         + ") AND " + COLUMN_BUCKET_ID + "=? AND " + MediaStore.MediaColumns.SIZE + ">0";
             case PictureConfig.TYPE_VIDEO:
             case PictureConfig.TYPE_AUDIO:
                 if (bucketId == -1) {
-                    // 获取全部
+                    // ofAll
                     if (isSpecifiedFormat) {
                         return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + MediaStore.MediaColumns.MIME_TYPE + "='" + config.specifiedFormat + "'" + " AND " + durationCondition + ") AND " + MediaStore.MediaColumns.SIZE + ">0";
                     }
                     return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + durationCondition + ") AND " + MediaStore.MediaColumns.SIZE + ">0";
                 }
+                // Gets the specified album directory
                 if (isSpecifiedFormat) {
                     return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + MediaStore.MediaColumns.MIME_TYPE + "='" + config.specifiedFormat + "'" + " AND " + durationCondition + ") AND " + COLUMN_BUCKET_ID + "=? AND " + MediaStore.MediaColumns.SIZE + ">0";
                 }
-                // 获取指定相册目录
                 return "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? AND " + durationCondition + ") AND " + COLUMN_BUCKET_ID + "=? AND " + MediaStore.MediaColumns.SIZE + ">0";
         }
         return null;
@@ -561,26 +562,26 @@ public class LocalMediaPageLoader {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
                 if (bucketId == -1) {
-                    // 获取全部(相机胶卷)
+                    // ofAll
                     return new String[]{
                             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
                             String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
                     };
                 }
-                // 获取指定目录资源
+                //  Gets the specified album directory
                 return new String[]{
                         String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
                         String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
                         ValueOf.toString(bucketId)
                 };
             case PictureConfig.TYPE_IMAGE:
-                // 只获取图片
+                // Get photo
                 return getSelectionArgsForPageSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, bucketId);
             case PictureConfig.TYPE_VIDEO:
-                // 只获取视频
+                // Get video
                 return getSelectionArgsForPageSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO, bucketId);
             case PictureConfig.TYPE_AUDIO:
-                // 只获取音频
+                // Get audio
                 return getSelectionArgsForPageSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO, bucketId);
         }
         return null;
@@ -590,7 +591,7 @@ public class LocalMediaPageLoader {
     private String getSelection() {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
-                // 获取全部，不包括音频
+                // Get all, not including audio
                 return getSelectionArgsForAllMediaCondition(getDurationCondition(0, 0), config.isGif);
             case PictureConfig.TYPE_IMAGE:
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
@@ -607,7 +608,7 @@ public class LocalMediaPageLoader {
             case PictureConfig.TYPE_VIDEO:
                 // 获取视频
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
-                    // 获取指定类型的图片
+                    // Gets the specified album directory
                     if (SdkVersionUtils.checkedAndroid_Q()) {
                         return SELECTION_SPECIFIED_FORMAT_29 + "='" + config.specifiedFormat + "' AND " + MediaStore.MediaColumns.SIZE + ">0";
                     }
@@ -615,9 +616,9 @@ public class LocalMediaPageLoader {
                 }
                 return getSelectionArgsForSingleMediaCondition(getDurationCondition(0, 0));
             case PictureConfig.TYPE_AUDIO:
-                // 获取音频
+                // Get Audio
                 if (!TextUtils.isEmpty(config.specifiedFormat)) {
-                    // 获取指定类型的图片
+                    // Gets the specified album directory
                     if (SdkVersionUtils.checkedAndroid_Q()) {
                         return SELECTION_SPECIFIED_FORMAT_29 + "='" + config.specifiedFormat + "' AND " + MediaStore.MediaColumns.SIZE + ">0";
                     }
@@ -633,10 +634,10 @@ public class LocalMediaPageLoader {
             case PictureConfig.TYPE_ALL:
                 return SELECTION_ALL_ARGS;
             case PictureConfig.TYPE_IMAGE:
-                // 只获取图片
+                // Get photo
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
             case PictureConfig.TYPE_VIDEO:
-                // 只获取视频
+                // Get video
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
             case PictureConfig.TYPE_AUDIO:
                 return getSelectionArgsForSingleMediaType(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO);
@@ -645,12 +646,11 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 文件夹数量进行排序
+     * Sort by number of files
      *
      * @param imageFolders
      */
     private void sortFolder(List<LocalMediaFolder> imageFolders) {
-        // 文件夹按图片数量排序
         Collections.sort(imageFolders, (lhs, rhs) -> {
             if (lhs.getData() == null || rhs.getData() == null) {
                 return 0;
@@ -662,7 +662,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 适配Android Q
+     * Android Q
      *
      * @param id
      * @return
@@ -672,7 +672,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 获取视频(最长或最小时间)
+     * Get video (maximum or minimum time)
      *
      * @param exMaxLimit
      * @param exMinLimit
@@ -705,7 +705,7 @@ public class LocalMediaPageLoader {
     }
 
     /**
-     * 置空
+     * set empty
      */
     public static void setInstanceNull() {
         instance = null;

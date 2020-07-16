@@ -814,7 +814,7 @@ public class UCropActivity extends AppCompatActivity {
         setResult(UCrop.RESULT_ERROR, new Intent().putExtra(UCrop.EXTRA_ERROR, throwable));
     }
 
-    protected AppCompatActivity getCurrentActivity() {
+    protected Activity getCurrentActivity() {
         return this;
     }
 

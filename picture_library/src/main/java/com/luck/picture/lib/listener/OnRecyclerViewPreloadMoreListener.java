@@ -1,9 +1,9 @@
 package com.luck.picture.lib.listener;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:23
- * @Description: OnRecyclerViewPreloadMoreListener
+ * @author：luck
+ * @date：2020-04-14 18:44
+ * @describe：OnRecyclerViewPreloadMoreListener
  */
 public interface OnRecyclerViewPreloadMoreListener {
     /**

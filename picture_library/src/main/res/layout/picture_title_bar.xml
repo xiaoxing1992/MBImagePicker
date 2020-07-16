@@ -31,7 +31,7 @@
         android:layout_alignBottom="@id/picture_title"
         android:layout_toRightOf="@id/picture_title"
         android:scaleType="centerInside"
-        app:srcCompat="?attr/picture.arrow_down.icon" />
+        android:src="?attr/picture.arrow_down.icon" />
 
     <TextView
         android:id="@+id/picture_right"
@@ -51,7 +51,7 @@
         android:layout_alignTop="@id/titleViewBg"
         android:layout_alignBottom="@id/titleViewBg"
         android:padding="15dp"
-        app:srcCompat="?attr/picture.leftBack.icon" />
+        android:src="?attr/picture.leftBack.icon" />
 
 </merge>
 

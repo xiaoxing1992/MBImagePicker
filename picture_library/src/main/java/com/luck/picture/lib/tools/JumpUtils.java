@@ -1,10 +1,9 @@
 package com.luck.picture.lib.tools;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelectorPreviewWeChatStyleActivity;
@@ -27,11 +26,11 @@ public class JumpUtils {
             Intent intent = new Intent();
             intent.setClass(context, PictureVideoPlayActivity.class);
             intent.putExtras(bundle);
-            if (!(context instanceof AppCompatActivity)) {
+            if (!(context instanceof Activity)) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             } else {
-                ((AppCompatActivity) context).startActivityForResult(intent, requestCode);
+                ((Activity) context).startActivityForResult(intent, requestCode);
             }
         }
     }
@@ -49,11 +48,11 @@ public class JumpUtils {
             Intent intent = new Intent();
             intent.setClass(context, isWeChatStyle ? PictureSelectorPreviewWeChatStyleActivity.class : PicturePreviewActivity.class);
             intent.putExtras(bundle);
-            if (!(context instanceof AppCompatActivity)) {
+            if (!(context instanceof Activity)) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             } else {
-                ((AppCompatActivity) context).startActivityForResult(intent, requestCode);
+                ((Activity) context).startActivityForResult(intent, requestCode);
             }
         }
     }

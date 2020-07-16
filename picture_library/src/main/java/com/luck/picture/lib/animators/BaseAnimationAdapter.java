@@ -9,9 +9,9 @@ import android.view.animation.LinearInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:08
- * @Description: BaseAnimationAdapter
+ * @author：luck
+ * @date：2020-04-18 14:12
+ * @describe：BaseAnimationAdapter
  */
 public abstract class BaseAnimationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private RecyclerView.Adapter<RecyclerView.ViewHolder> mAdapter;

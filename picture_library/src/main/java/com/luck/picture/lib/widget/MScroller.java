@@ -1,8 +1,8 @@
 package com.luck.picture.lib.widget;
 
 import android.content.Context;
-import android.view.animation.Interpolator;
 import android.widget.Scroller;
+import android.view.animation.Interpolator;
 
 /**
  * @author：luck

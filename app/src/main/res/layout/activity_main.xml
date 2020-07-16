@@ -20,7 +20,7 @@
             android:layout_centerVertical="true"
             android:background="@color/app_color_transparent"
             android:padding="15dp"
-            app:srcCompat="@drawable/picture_icon_back"
+            android:src="@drawable/picture_icon_back"
             android:visibility="visible" />
 
         <TextView
@@ -448,7 +448,6 @@
                         android:textColor="@color/app_color_53575e"
                         android:textSize="14sp" />
                 </RadioGroup>
-
 
                 <RadioGroup
                     android:id="@+id/rgb_photo_mode"

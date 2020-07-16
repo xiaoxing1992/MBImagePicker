@@ -46,6 +46,7 @@ public class LocalMediaFolder implements Parcelable {
      * Whether or not the camera
      */
     private boolean isCameraFolder;
+
     /**
      * data
      */
@@ -143,7 +144,6 @@ public class LocalMediaFolder implements Parcelable {
         this.currentDataPage = currentDataPage;
     }
 
-
     public boolean isHasMore() {
         return isHasMore;
     }
@@ -151,6 +151,7 @@ public class LocalMediaFolder implements Parcelable {
     public void setHasMore(boolean hasMore) {
         isHasMore = hasMore;
     }
+
 
     @Override
     public int describeContents() {
@@ -174,7 +175,6 @@ public class LocalMediaFolder implements Parcelable {
 
     public LocalMediaFolder() {
     }
-
 
     protected LocalMediaFolder(Parcel in) {
         this.bucketId = in.readLong();

@@ -1,9 +1,9 @@
 package com.luck.picture.lib.listener;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/8 12:10
- * @Description: OnCallbackListener
+ * @author：luck
+ * @date：2020/4/24 11:48 AM
+ * @describe：OnCallbackListener
  */
 public interface OnCallbackListener<T> {
     /**

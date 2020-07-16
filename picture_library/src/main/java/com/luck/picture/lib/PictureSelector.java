@@ -1,6 +1,7 @@
 package com.luck.picture.lib;
 
 import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -27,22 +28,18 @@ import java.util.List;
 
 public final class PictureSelector {
 
-    private final WeakReference<AppCompatActivity> mActivity;
+    private final WeakReference<Activity> mActivity;
     private final WeakReference<Fragment> mFragment;
 
-    private PictureSelector(AppCompatActivity activity) {
+    private PictureSelector(Activity activity) {
         this(activity, null);
     }
 
     private PictureSelector(Fragment fragment) {
-        this((AppCompatActivity) fragment.getActivity(), fragment);
+        this(fragment.getActivity(), fragment);
     }
 
-    private PictureSelector(Context context) {
-        this((AppCompatActivity) context, null);
-    }
-
-    private PictureSelector(AppCompatActivity activity, Fragment fragment) {
+    private PictureSelector(Activity activity, Fragment fragment) {
         mActivity = new WeakReference<>(activity);
         mFragment = new WeakReference<>(fragment);
     }
@@ -53,7 +50,7 @@ public final class PictureSelector {
      * @param activity
      * @return PictureSelector instance.
      */
-    public static PictureSelector create(AppCompatActivity activity) {
+    public static PictureSelector create(Activity activity) {
         return new PictureSelector(activity);
     }
 
@@ -65,16 +62,6 @@ public final class PictureSelector {
      */
     public static PictureSelector create(Fragment fragment) {
         return new PictureSelector(fragment);
-    }
-
-    /**
-     * Start PictureSelector for Context.
-     *
-     * @param context
-     * @return PictureSelector instance.
-     */
-     public static PictureSelector create(Context context) {
-        return new PictureSelector(context);
     }
 
     /**
@@ -244,7 +231,7 @@ public final class PictureSelector {
      * @return Activity.
      */
     @Nullable
-    AppCompatActivity getActivity() {
+    Activity getActivity() {
         return mActivity.get();
     }
 

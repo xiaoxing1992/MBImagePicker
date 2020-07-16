@@ -48,6 +48,7 @@ public class PictureFileUtils {
     public static final String POST_VIDEO = ".mp4";
     public static final String POST_AUDIO = ".mp3";
 
+
     /**
      * @param context
      * @param type
@@ -373,6 +374,7 @@ public class PictureFileUtils {
         return false;
     }
 
+
     /**
      * 拷贝文件
      *
@@ -398,7 +400,6 @@ public class PictureFileUtils {
         }
         return false;
     }
-
 
     /**
      * 读取图片属性：旋转的角度
@@ -595,8 +596,8 @@ public class PictureFileUtils {
      * 根据类型创建文件名
      *
      * @param context
-     * @param mineType
      * @param md5
+     * @param mineType
      * @param customFileName
      * @return
      */
@@ -647,7 +648,6 @@ public class PictureFileUtils {
         }
         return true;
     }
-
 
     @SuppressWarnings("ConstantConditions")
     public static void close(@Nullable Closeable c) {

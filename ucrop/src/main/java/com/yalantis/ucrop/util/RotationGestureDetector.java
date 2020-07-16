@@ -4,7 +4,6 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 
-
 public class RotationGestureDetector {
 
     private static final int INVALID_POINTER_INDEX = -1;

@@ -190,7 +190,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     mCbOriginal.setVisibility(isHasVideo ? View.GONE : View.VISIBLE);
                     mCbOriginal.setChecked(config.isCheckOriginalImage);
                 }
-
                 onPageSelectedChange(media);
 
                 if (config.isPageStrategy && !isBottomPreview) {
@@ -1034,4 +1033,5 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     public void onActivityBackPressed() {
         onBackPressed();
     }
+
 }

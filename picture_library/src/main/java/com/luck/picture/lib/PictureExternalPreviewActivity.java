@@ -523,10 +523,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             public void onSuccess(String result) {
                 PictureThreadUtils.cancel(PictureThreadUtils.getIoPool());
                 onSuccessful(result);
-
             }
         });
     }
+
 
     /**
      * 针对Q版本创建uri
@@ -613,13 +613,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         if (adapter != null) {
             adapter.clear();
         }
-
         if (PictureSelectionConfig.customVideoPlayCallback != null) {
             PictureSelectionConfig.customVideoPlayCallback = null;
         }
-
-        if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
-            PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
+        if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
+            PictureSelectionConfig.onCustomCameraInterfaceListener = null;
         }
     }
 

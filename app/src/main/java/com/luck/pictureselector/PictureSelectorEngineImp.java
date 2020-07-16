@@ -10,11 +10,11 @@ import com.luck.picture.lib.listener.OnResultCallbackListener;
 import java.util.List;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/8 10:54
- * @Description: PictureSelectorEngineImp
+ * @author：luck
+ * @date：2020/4/22 12:15 PM
+ * @describe：PictureSelectorEngineImp
  */
-public class PictureSelectorEngineImp  implements PictureSelectorEngine {
+public class PictureSelectorEngineImp implements PictureSelectorEngine {
     private static final String TAG = PictureSelectorEngineImp.class.getSimpleName();
 
     @Override

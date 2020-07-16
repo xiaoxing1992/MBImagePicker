@@ -3,9 +3,9 @@ package com.luck.picture.lib.listener;
 import java.util.List;
 
 /**
- * @Author: RenZhengWei
- * @CreateDate: 2020/5/7 16:22
- * @Description: OnQueryDataResultListener
+ * @author：luck
+ * @date：2020-04-16 12:42
+ * @describe：OnQueryMediaResultListener
  */
 public interface OnQueryDataResultListener<T> {
     /**

@@ -1,5 +1,6 @@
 package com.luck.picture.lib.entity;
 
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -151,23 +152,6 @@ public class LocalMedia implements Parcelable {
 
     }
 
-    public LocalMedia(long id, String path, String absolutePath, String fileName, String parentFolderName, long duration, int chooseModel,
-                      String mimeType, int width, int height, long size, long bucketId) {
-        this.id = id;
-        this.path = path;
-        this.realPath = absolutePath;
-        this.fileName = fileName;
-        this.parentFolderName = parentFolderName;
-        this.duration = duration;
-        this.chooseModel = chooseModel;
-        this.mimeType = mimeType;
-        this.width = width;
-        this.height = height;
-        this.size = size;
-        this.bucketId = bucketId;
-    }
-
-
     public LocalMedia(String path, long duration, int chooseModel, String mimeType) {
         this.path = path;
         this.duration = duration;
@@ -187,6 +171,22 @@ public class LocalMedia implements Parcelable {
         this.width = width;
         this.height = height;
         this.size = size;
+    }
+
+    public LocalMedia(long id, String path, String absolutePath, String fileName, String parentFolderName, long duration, int chooseModel,
+                      String mimeType, int width, int height, long size, long bucketId) {
+        this.id = id;
+        this.path = path;
+        this.realPath = absolutePath;
+        this.fileName = fileName;
+        this.parentFolderName = parentFolderName;
+        this.duration = duration;
+        this.chooseModel = chooseModel;
+        this.mimeType = mimeType;
+        this.width = width;
+        this.height = height;
+        this.size = size;
+        this.bucketId = bucketId;
     }
 
     public LocalMedia(String path, long duration,
@@ -391,6 +391,7 @@ public class LocalMedia implements Parcelable {
     public void setMaxSelectEnabledMask(boolean maxSelectEnabledMask) {
         isMaxSelectEnabledMask = maxSelectEnabledMask;
     }
+
 
     @Override
     public int describeContents() {

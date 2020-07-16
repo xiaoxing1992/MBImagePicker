@@ -1,11 +1,11 @@
 package com.luck.picture.lib.immersive;
 
+import android.app.Activity;
 import android.os.Build;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author：luck
@@ -19,7 +19,7 @@ public class NavBarUtils {
      * @param activity
      * @param color
      */
-    public static void setNavBarColor(@NonNull final AppCompatActivity activity, @ColorInt final int color) {
+    public static void setNavBarColor(@NonNull final Activity activity, @ColorInt final int color) {
         setNavBarColor(activity.getWindow(), color);
     }
 

@@ -1,5 +1,6 @@
 package com.luck.picture.lib.permissions;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,10 +8,8 @@ import android.net.Uri;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 
 /**
  * @author：luck
@@ -38,9 +37,10 @@ public class PermissionChecker {
      * @param activity
      * @param code
      */
-    public static void requestPermissions(AppCompatActivity activity, @NonNull String[] permissions, int code) {
+    public static void requestPermissions(Activity activity, @NonNull String[] permissions, int code) {
         ActivityCompat.requestPermissions(activity, permissions, code);
     }
+
 
     /**
      * Launch the application's details settings.

@@ -58,7 +58,7 @@
             android:layout_weight="1"
             android:background="@drawable/picture_btn_left_bottom_selector"
             android:text="@string/picture_cancel"
-            android:textColor="@color/picture_color_529BeA"  />
+            android:textColor="@color/picture_color_529BeA" />
 
         <View
             android:layout_width="0.5dp"

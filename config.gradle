@@ -2,7 +2,7 @@ ext {
     cfgs = [
             compileSdkVersion             : 29,
             buildToolsVersion             : "28.0.3",
-            minSdkVersion                 : 16,
+            minSdkVersion                 : 19,
             targetSdkVersion              : 29,
             versionCode                   : 28,
             versionName                   : "2.5.8",
@@ -14,7 +14,6 @@ ext {
             version_recyclerview          : "1.1.0",
             version_appcompat             : "1.1.0",
             localbroadcastmanager         : "1.0.0",
-
 
             camerax_view                  : "1.0.0-alpha10",
             camerax_version               : "1.0.0-beta03",
@@ -29,6 +28,7 @@ ext {
             // okio
             okio_version                  : "2.6.0",
 
+            // glide
             glide_version                 : "4.11.0",
 
             // picasso

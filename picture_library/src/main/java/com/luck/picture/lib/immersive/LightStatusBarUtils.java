@@ -1,12 +1,11 @@
 package com.luck.picture.lib.immersive;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.os.Build;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,18 +17,18 @@ import java.lang.reflect.Method;
  */
 
 public class LightStatusBarUtils {
-    public static void setLightStatusBarAboveAPI23(AppCompatActivity activity, boolean isMarginStatusBar
+    public static void setLightStatusBarAboveAPI23(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setLightStatusBar(activity, isMarginStatusBar, isMarginNavigationBar, isTransStatusBar, dark);
         }
     }
 
-    public static void setLightStatusBar(AppCompatActivity activity, boolean dark) {
+    public static void setLightStatusBar(Activity activity, boolean dark) {
         setLightStatusBar(activity, false, false, false, dark);
     }
 
-    public static void setLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
+    public static void setLightStatusBar(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         switch (RomUtils.getLightStatausBarAvailableRomType()) {
             case RomUtils.AvailableRomType.MIUI:
@@ -55,7 +54,7 @@ public class LightStatusBarUtils {
     }
 
 
-    private static boolean setMIUILightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
+    private static boolean setMIUILightStatusBar(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean darkmode) {
         initStatusBarStyle(activity, isMarginStatusBar, isMarginNavigationBar);
 
@@ -74,7 +73,7 @@ public class LightStatusBarUtils {
         return false;
     }
 
-    private static boolean setFlymeLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
+    private static boolean setFlymeLightStatusBar(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean dark) {
         boolean result = false;
         if (activity != null) {
@@ -109,7 +108,7 @@ public class LightStatusBarUtils {
     }
 
     @TargetApi(11)
-    private static void setAndroidNativeLightStatusBar(AppCompatActivity activity, boolean isMarginStatusBar
+    private static void setAndroidNativeLightStatusBar(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar, boolean isTransStatusBar, boolean isDarkStatusBarIcon) {
 
         try {
@@ -169,7 +168,7 @@ public class LightStatusBarUtils {
         }
     }
 
-    private static void initStatusBarStyle(AppCompatActivity activity, boolean isMarginStatusBar
+    private static void initStatusBarStyle(Activity activity, boolean isMarginStatusBar
             , boolean isMarginNavigationBar) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             if (isMarginStatusBar && isMarginNavigationBar) {
