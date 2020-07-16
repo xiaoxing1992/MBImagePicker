@@ -4,7 +4,7 @@ android {
     compileSdkVersion cfgs.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.luck.pictureselector"
+        applicationId "com.motoband.pictureselector"
         minSdkVersion cfgs.minSdkVersion
         targetSdkVersion cfgs.targetSdkVersion
         versionCode cfgs.versionCode
