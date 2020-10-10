@@ -42,5 +42,4 @@ public class LanguageConfig {
      * 越语
      */
     public static final int VIETNAM = 7;
-
 }

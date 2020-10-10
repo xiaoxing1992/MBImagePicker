@@ -608,6 +608,15 @@ public class PictureSelectionModel {
     }
 
     /**
+     * @param recordVideoMinSecond video record second
+     * @return
+     */
+    public PictureSelectionModel recordVideoMinSecond(int recordVideoMinSecond) {
+        selectionConfig.recordVideoMinSecond = recordVideoMinSecond;
+        return this;
+    }
+
+    /**
      * @param width  glide width
      * @param height glide height
      * @return 2.2.9开始 Glide改为外部用户自己定义此方法没有意义了
@@ -857,6 +866,24 @@ public class PictureSelectionModel {
      */
     public PictureSelectionModel isGif(boolean isGif) {
         selectionConfig.isGif = isGif;
+        return this;
+    }
+
+    /**
+     * @param isWebp Whether to open .webp
+     * @return
+     */
+    public PictureSelectionModel isWebp(boolean isWebp) {
+        selectionConfig.isWebp = isWebp;
+        return this;
+    }
+
+    /**
+     * @param isBmp Whether to open .isBmp
+     * @return
+     */
+    public PictureSelectionModel isBmp(boolean isBmp) {
+        selectionConfig.isWebp = isBmp;
         return this;
     }
 
