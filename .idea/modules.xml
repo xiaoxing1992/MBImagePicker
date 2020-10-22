@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MBImagePicker.iml" filepath="$PROJECT_DIR$/.idea/modules/MBImagePicker.iml" group="MBImagePicker" />
-      <module fileurl="file://$PROJECT_DIR$/PictureSelector-2.4.6.iml" filepath="$PROJECT_DIR$/PictureSelector-2.4.6.iml" group="PictureSelector-2.4.6" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="PictureSelector-2.4.6/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/com.yalantis-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/com.yalantis-app.iml" group="MBImagePicker/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/picture_library/com.yalantis-picture_library.iml" filepath="$PROJECT_DIR$/.idea/modules/picture_library/com.yalantis-picture_library.iml" group="MBImagePicker/picture_library" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ucrop/com.yalantis-ucrop.iml" filepath="$PROJECT_DIR$/.idea/modules/ucrop/com.yalantis-ucrop.iml" group="MBImagePicker/ucrop" />
-      <module fileurl="file://$PROJECT_DIR$/picture_library/picture_library.iml" filepath="$PROJECT_DIR$/picture_library/picture_library.iml" group="PictureSelector-2.4.6/picture_library" />
-      <module fileurl="file://$PROJECT_DIR$/ucrop/ucrop.iml" filepath="$PROJECT_DIR$/ucrop/ucrop.iml" group="PictureSelector-2.4.6/ucrop" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MBImagePicker.iml" filepath="$PROJECT_DIR$/.idea/modules/MBImagePicker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MBImagePicker.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MBImagePicker.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/picture_library/MBImagePicker.picture_library.iml" filepath="$PROJECT_DIR$/.idea/modules/picture_library/MBImagePicker.picture_library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ucrop/MBImagePicker.ucrop.iml" filepath="$PROJECT_DIR$/.idea/modules/ucrop/MBImagePicker.ucrop.iml" />
     </modules>
   </component>
 </project>

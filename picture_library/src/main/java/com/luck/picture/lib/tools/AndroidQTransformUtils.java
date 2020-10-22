@@ -26,7 +26,7 @@ public class AndroidQTransformUtils {
      * #耗时操作需要放在子线程中操作
      *
      * @param ctx
-     * @param uri
+     * @param url
      * @param mineType
      * @param customFileName
      * @return
