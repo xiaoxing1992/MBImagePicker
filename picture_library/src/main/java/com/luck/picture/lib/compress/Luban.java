@@ -315,6 +315,9 @@ public class Luban implements Handler.Callback {
                     if (isCompress) {
                         // 压缩
                         result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
+                    } else if (SdkVersionUtils.checkedAndroid_Q()) {
+                        result = new File(AndroidQTransformUtils.copyPathToAndroidQ(context, path.getPath(),
+                                media.getWidth(), media.getHeight(), media.getMimeType(), filename));
                     } else {
                         result = new File(newPath);
                     }
@@ -338,6 +341,9 @@ public class Luban implements Handler.Callback {
                 if (isCompress) {
                     // 压缩
                     result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
+                } else if (SdkVersionUtils.checkedAndroid_Q()) {
+                    result = new File(AndroidQTransformUtils.copyPathToAndroidQ(context, path.getPath(),
+                            media.getWidth(), media.getHeight(), media.getMimeType(), filename));
                 } else {
                     result = new File(newPath);
                 }
