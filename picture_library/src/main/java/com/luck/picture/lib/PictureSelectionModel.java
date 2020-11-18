@@ -543,7 +543,10 @@ public class PictureSelectionModel {
     }
 
     /**
-     * # alternative api cameraFileName(xxx.PNG);
+     * <p>
+     * if Android SDK >=Q Please use the video/mp4 or video/jpeg ... PictureMimeType.MP4_Q or PictureMimeType.PNG_Q
+     * else PictureMimeType.PNG or PictureMimeType.JPEG
+     * </p>
      *
      * @param suffixType PictureSelector media format
      * @return
@@ -1160,7 +1163,11 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel setPictureCropStyle(PictureCropParameterStyle style) {
-        selectionConfig.cropStyle = style;
+        if (style != null) {
+            PictureSelectionConfig.cropStyle = style;
+        } else {
+            PictureSelectionConfig.cropStyle = PictureCropParameterStyle.ofDefaultCropStyle();
+        }
         return this;
     }
 
@@ -1171,7 +1178,11 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel setPictureStyle(PictureParameterStyle style) {
-        selectionConfig.style = style;
+        if (style != null) {
+            PictureSelectionConfig.style = style;
+        } else {
+            PictureSelectionConfig.style = PictureParameterStyle.ofDefaultStyle();
+        }
         return this;
     }
 
@@ -1182,7 +1193,11 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel setPictureWindowAnimationStyle(PictureWindowAnimationStyle windowAnimationStyle) {
-        selectionConfig.windowAnimationStyle = windowAnimationStyle;
+        if (windowAnimationStyle != null) {
+            PictureSelectionConfig.windowAnimationStyle = windowAnimationStyle;
+        } else {
+            PictureSelectionConfig.windowAnimationStyle = PictureWindowAnimationStyle.ofDefaultWindowAnimationStyle();
+        }
         return this;
     }
 
@@ -1270,11 +1285,8 @@ public class PictureSelectionModel {
             } else {
                 activity.startActivityForResult(intent, requestCode);
             }
-            PictureWindowAnimationStyle windowAnimationStyle = selectionConfig.windowAnimationStyle;
-            activity.overridePendingTransition(windowAnimationStyle != null &&
-                    windowAnimationStyle.activityEnterAnimation != 0 ?
-                    windowAnimationStyle.activityEnterAnimation :
-                    R.anim.picture_anim_enter, R.anim.picture_anim_fade_in);
+            PictureWindowAnimationStyle windowAnimationStyle = PictureSelectionConfig.windowAnimationStyle;
+            activity.overridePendingTransition(windowAnimationStyle.activityEnterAnimation, R.anim.picture_anim_fade_in);
         }
     }
 
@@ -1338,11 +1350,9 @@ public class PictureSelectionModel {
             } else {
                 activity.startActivity(intent);
             }
-            PictureWindowAnimationStyle windowAnimationStyle = selectionConfig.windowAnimationStyle;
-            activity.overridePendingTransition(windowAnimationStyle != null &&
-                    windowAnimationStyle.activityEnterAnimation != 0 ?
-                    windowAnimationStyle.activityEnterAnimation :
-                    R.anim.picture_anim_enter, R.anim.picture_anim_fade_in);
+            PictureWindowAnimationStyle windowAnimationStyle = PictureSelectionConfig.windowAnimationStyle;
+            activity.overridePendingTransition(
+                    windowAnimationStyle.activityEnterAnimation, R.anim.picture_anim_fade_in);
         }
     }
 
@@ -1376,11 +1386,8 @@ public class PictureSelectionModel {
             } else {
                 activity.startActivityForResult(intent, requestCode);
             }
-            PictureWindowAnimationStyle windowAnimationStyle = selectionConfig.windowAnimationStyle;
-            activity.overridePendingTransition(windowAnimationStyle != null &&
-                    windowAnimationStyle.activityEnterAnimation != 0 ?
-                    windowAnimationStyle.activityEnterAnimation :
-                    R.anim.picture_anim_enter, R.anim.picture_anim_fade_in);
+            PictureWindowAnimationStyle windowAnimationStyle = PictureSelectionConfig.windowAnimationStyle;
+            activity.overridePendingTransition(windowAnimationStyle.activityEnterAnimation, R.anim.picture_anim_fade_in);
         }
     }
 
@@ -1392,10 +1399,7 @@ public class PictureSelectionModel {
      */
     public void openExternalPreview(int position, List<LocalMedia> medias) {
         if (selector != null) {
-            selector.externalPicturePreview(position, medias,
-                    selectionConfig.windowAnimationStyle != null &&
-                            selectionConfig.windowAnimationStyle.activityPreviewEnterAnimation != 0
-                            ? selectionConfig.windowAnimationStyle.activityPreviewEnterAnimation : 0);
+            selector.externalPicturePreview(position, medias, PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }
@@ -1413,9 +1417,7 @@ public class PictureSelectionModel {
     public void openExternalPreview(int position, String directory_path, List<LocalMedia> medias) {
         if (selector != null) {
             selector.externalPicturePreview(position, directory_path, medias,
-                    selectionConfig.windowAnimationStyle != null &&
-                            selectionConfig.windowAnimationStyle.activityPreviewEnterAnimation != 0
-                            ? selectionConfig.windowAnimationStyle.activityPreviewEnterAnimation : 0);
+                    PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation);
         } else {
             throw new NullPointerException("This PictureSelector is Null");
         }
