@@ -36,6 +36,7 @@ import com.luck.picture.lib.animators.SlideInBottomAnimationAdapter;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.manager.UCropManager;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.dialog.PhotoItemSelectedDialog;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
@@ -934,7 +935,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         if (config.enableCrop) {
             if (config.selectionMode == PictureConfig.SINGLE && isHasImage) {
                 config.originalPath = image.getPath();
-                startCrop(config.originalPath, image.getMimeType());
+                UCropManager.ofCrop(this, config.originalPath, image.getMimeType());
             } else {
                 ArrayList<CutInfo> cuts = new ArrayList<>();
                 int count = images.size();
@@ -961,7 +962,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (imageNum <= 0) {
                     onResult(images);
                 } else {
-                    startCrop(cuts);
+                    UCropManager.ofCrop(this, cuts);
                 }
             }
         } else if (config.isCompress) {
@@ -998,7 +999,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         if (config.enableCrop && isHasImage) {
             if (config.selectionMode == PictureConfig.SINGLE) {
                 config.originalPath = image.getPath();
-                startCrop(config.originalPath, image.getMimeType());
+                UCropManager.ofCrop(this, config.originalPath, image.getMimeType());
             } else {
                 ArrayList<CutInfo> cuts = new ArrayList<>();
                 int count = images.size();
@@ -1018,7 +1019,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     cutInfo.setRealPath(media.getRealPath());
                     cuts.add(cutInfo);
                 }
-                startCrop(cuts);
+                UCropManager.ofCrop(this, cuts);
             }
         } else if (config.isCompress
                 && isHasImage) {
@@ -1331,7 +1332,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             list.add(media);
             if (config.enableCrop && PictureMimeType.isHasImage(media.getMimeType()) && !config.isCheckOriginalImage) {
                 mAdapter.bindSelectData(list);
-                startCrop(media.getPath(), media.getMimeType());
+                UCropManager.ofCrop(this, media.getPath(), media.getMimeType());
             } else {
                 handlerResult(list);
             }
@@ -1576,7 +1577,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         boolean isHasImage = PictureMimeType.isHasImage(mimeType);
         if (config.enableCrop && isHasImage) {
             config.originalPath = config.cameraPath;
-            startCrop(config.cameraPath, mimeType);
+            UCropManager.ofCrop(this, config.originalPath, mimeType);
         } else if (config.isCompress && isHasImage) {
             List<LocalMedia> selectedImages = mAdapter.getSelectedData();
             compressImage(selectedImages);
