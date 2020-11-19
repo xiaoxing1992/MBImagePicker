@@ -198,7 +198,6 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         media.setCutPath(cutPath);
         String mimeType = PictureMimeType.getImageMimeType(cutPath);
         media.setMimeType(mimeType);
-        int width = 0, height = 0;
         media.setOrientation(-1);
         if (PictureMimeType.isContent(media.getPath())) {
             if (PictureMimeType.isHasVideo(media.getMimeType())) {
@@ -211,16 +210,14 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         } else {
             if (PictureMimeType.isHasVideo(media.getMimeType())) {
                 int[] size = MediaUtils.getVideoSizeForUrl(media.getPath());
-                width = size[0];
-                height = size[1];
+                media.setWidth(size[0]);
+                media.setHeight(size[1]);
             } else if (PictureMimeType.isHasImage(media.getMimeType())) {
                 int[] size = MediaUtils.getImageSizeForUrl(media.getPath());
-                width = size[0];
-                height = size[1];
+                media.setWidth(size[0]);
+                media.setHeight(size[1]);
             }
         }
-        media.setWidth(width);
-        media.setHeight(height);
         // The width and height of the image are reversed if there is rotation information
         MediaUtils.setOrientationAsynchronous(getContext(), media, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH,
                 item -> {
