@@ -906,7 +906,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 Intent intent = PictureSelector.putIntentResult(result);
                 setResult(RESULT_OK, intent);
             }
-            closeActivity();
+            exit();
             return;
         }
         if (config.isCheckOriginalImage) {
@@ -1752,16 +1752,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (config.maxVideoSelectNum <= 0) {
                     showPromptDialog(getString(R.string.picture_rule));
                 } else {
-                    if (selectedData.size() >= config.maxSelectNum) {
-                        showPromptDialog(getString(R.string.picture_message_max_num, config.maxSelectNum));
+                    if (videoSize >= config.maxVideoSelectNum) {
+                        showPromptDialog(getString(R.string.picture_message_max_num, config.maxVideoSelectNum));
                     } else {
-                        if (videoSize < config.maxVideoSelectNum) {
-                            selectedData.add(0, media);
-                            mAdapter.bindSelectData(selectedData);
-                        } else {
-                            showPromptDialog(StringUtils.getMsg(getContext(), media.getMimeType(),
-                                    config.maxVideoSelectNum));
-                        }
+                        selectedData.add(0, media);
+                        mAdapter.bindSelectData(selectedData);
                     }
                 }
             } else {
@@ -1769,8 +1764,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     selectedData.add(0, media);
                     mAdapter.bindSelectData(selectedData);
                 } else {
-                    showPromptDialog(StringUtils.getMsg(getContext(), media.getMimeType(),
-                            config.maxSelectNum));
+                    showPromptDialog(StringUtils.getMsg(getContext(), media.getMimeType(), config.maxSelectNum));
                 }
             }
 
@@ -1794,8 +1788,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         mAdapter.bindSelectData(selectedData);
                     }
                 } else {
-                    showPromptDialog(StringUtils.getMsg(getContext(), oldMimeType,
-                            config.maxSelectNum));
+                    showPromptDialog(StringUtils.getMsg(getContext(), oldMimeType, config.maxSelectNum));
                 }
             }
         }
@@ -2155,10 +2148,10 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (config != null && PictureSelectionConfig.listener != null) {
+        if (PictureSelectionConfig.listener != null) {
             PictureSelectionConfig.listener.onCancel();
         }
-        closeActivity();
+        exit();
     }
 
     @Override
@@ -2260,7 +2253,10 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 dialog.dismiss();
             }
             if (!isCamera) {
-                closeActivity();
+                if (PictureSelectionConfig.listener != null) {
+                    PictureSelectionConfig.listener.onCancel();
+                }
+                exit();
             }
         });
         btn_commit.setOnClickListener(v -> {

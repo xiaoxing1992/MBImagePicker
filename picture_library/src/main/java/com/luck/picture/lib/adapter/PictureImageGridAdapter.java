@@ -3,6 +3,7 @@ package com.luck.picture.lib.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,12 +24,12 @@ import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnPhotoSelectChangedListener;
 import com.luck.picture.lib.tools.AnimUtils;
+import com.luck.picture.lib.tools.AttrsUtils;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.VoiceUtils;
-import com.luck.picture.lib.widget.SquareRelativeLayout;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -205,10 +206,34 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (config.enablePreview || config.enPreviewVideo || config.enablePreviewAudio) {
                 contentHolder.btnCheck.setOnClickListener(v -> {
                     if (config.isMaxSelectEnabledMask) {
-                        if (!contentHolder.tvCheck.isSelected() && getSelectedSize() >= config.maxSelectNum) {
-                            String msg = StringUtils.getMsg(context, config.chooseMode == PictureMimeType.ofAll() ? null : image.getMimeType(), config.maxSelectNum);
-                            showPromptDialog(msg);
-                            return;
+                        if (config.isWithVideoImage) {
+                            int selectedCount = getSelectedSize();
+                            int videoSize = 0;
+                            for (int i = 0; i < selectedCount; i++) {
+                                LocalMedia media = selectData.get(i);
+                                if (PictureMimeType.isHasVideo(media.getMimeType())) {
+                                    videoSize++;
+                                }
+                            }
+                            String errorMsg;
+                            boolean isNotOption;
+                            if (PictureMimeType.isHasVideo(image.getMimeType())) {
+                                isNotOption = !contentHolder.tvCheck.isSelected() && videoSize >= config.maxVideoSelectNum;
+                                errorMsg = StringUtils.getMsg(context, image.getMimeType(), config.maxVideoSelectNum);
+                            } else {
+                                isNotOption = !contentHolder.tvCheck.isSelected() && selectedCount >= config.maxSelectNum;
+                                errorMsg = StringUtils.getMsg(context, image.getMimeType(), config.maxSelectNum);
+                            }
+                            if (isNotOption) {
+                                showPromptDialog(errorMsg);
+                                return;
+                            }
+                        } else {
+                            if (!contentHolder.tvCheck.isSelected() && getSelectedSize() >= config.maxSelectNum) {
+                                String msg = StringUtils.getMsg(context, image.getMimeType(), config.maxSelectNum);
+                                showPromptDialog(msg);
+                                return;
+                            }
                         }
                     }
                     // If the original path does not exist or the path does exist but the file does not exist
@@ -332,36 +357,15 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     public class CameraViewHolder extends RecyclerView.ViewHolder {
         View headerView;
         TextView tvCamera;
-        ImageView iv_camera;
-        SquareRelativeLayout relativelayout;
 
         public CameraViewHolder(View itemView) {
             super(itemView);
             headerView = itemView;
-            relativelayout = itemView.findViewById(R.id.relativelayout);
-            iv_camera = itemView.findViewById(R.id.iv_camera);
             tvCamera = itemView.findViewById(R.id.tvCamera);
             String title = config.chooseMode == PictureMimeType.ofAudio() ?
                     context.getString(R.string.picture_tape)
                     : context.getString(R.string.picture_take_picture);
             tvCamera.setText(title);
-
-            if (config.style != null) {
-                if (config.style.pictureFirstIcon != 0) {
-                    iv_camera.setImageResource(config.style.pictureFirstIcon);
-                }
-
-                if (config.style.pictureFirstTextColor != 0) {
-                    tvCamera.setTextColor(config.style.pictureFirstTextColor);
-                }
-
-                if (config.style.pictureFirstBgColor != 0) {
-                    relativelayout.setBackgroundColor(config.style.pictureFirstBgColor);
-                }
-
-
-            }
-
         }
     }
 
@@ -385,10 +389,9 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 if (PictureSelectionConfig.style.pictureCheckedStyle != 0) {
                     tvCheck.setBackgroundResource(PictureSelectionConfig.style.pictureCheckedStyle);
                 }
-
-                if (config.style.pictureSelectNumberTextColor != 0) {
-                    tvCheck.setTextColor(config.style.pictureSelectNumberTextColor);
-                }
+            } else {
+                Drawable checkedStyleDrawable = AttrsUtils.getTypeValueDrawable(itemView.getContext(), R.attr.picture_checked_style, R.drawable.picture_checkbox_selector);
+                tvCheck.setBackground(checkedStyleDrawable);
             }
         }
     }
@@ -454,7 +457,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return;
                 }
 
-                if (getSelectedSize() >= config.maxSelectNum && !isChecked) {
+                if (count >= config.maxSelectNum && !isChecked) {
                     showPromptDialog(context.getString(R.string.picture_message_max_num, config.maxSelectNum));
                     return;
                 }
@@ -473,15 +476,12 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     showPromptDialog(context.getString(R.string.picture_choose_max_seconds, config.videoMaxSecond / 1000));
                     return;
                 }
-            }
-
-            if (PictureMimeType.isHasImage(image.getMimeType())) {
-                if (getSelectedSize() >= config.maxSelectNum && !isChecked) {
+            } else {
+                if (count >= config.maxSelectNum && !isChecked) {
                     showPromptDialog(context.getString(R.string.picture_message_max_num, config.maxSelectNum));
                     return;
                 }
             }
-
         } else {
             if (!TextUtils.isEmpty(mimeType)) {
                 boolean mimeTypeSame = PictureMimeType.isMimeTypeSame(mimeType, image.getMimeType());
