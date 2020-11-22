@@ -53,12 +53,6 @@ public class PictureParameterStyle implements Parcelable {
     public int pictureTitleTextColor;
 
     /**
-     * 相册选中的数字颜色
-     */
-    @ColorInt
-    public int pictureSelectNumberTextColor;
-
-    /**
      * 相册标题字体大小
      */
     public int pictureTitleTextSize;
@@ -212,24 +206,6 @@ public class PictureParameterStyle implements Parcelable {
     public int pictureCheckedStyle;
 
     /**
-     * 相册拍摄或者拍照的图片样式
-     */
-    @DrawableRes
-    public int pictureFirstIcon;
-
-    /**
-     * 相册拍摄或者拍照的背景颜色
-     */
-    @ColorInt
-    public int pictureFirstBgColor;
-
-    /**
-     * 相册拍摄或者拍照的文字颜色
-     */
-    @ColorInt
-    public int pictureFirstTextColor;
-
-    /**
      * 是否使用(%1$d/%2$d)字符串
      */
     public boolean isCompleteReplaceNum;
@@ -302,11 +278,23 @@ public class PictureParameterStyle implements Parcelable {
      */
     public boolean pictureExternalPreviewGonePreviewDelete;
 
+
     /**
      * 选择相册目录背景样式
      */
     @DrawableRes
     public int pictureAlbumStyle;
+
+    /**
+     * 标题栏高度
+     */
+    public int pictureTitleBarHeight;
+
+    /**
+     * 标题栏右侧按钮方向箭头left Padding
+     */
+    public int pictureTitleRightArrowLeftPadding;
+
 
     public PictureParameterStyle() {
         super();
@@ -581,7 +569,6 @@ public class PictureParameterStyle implements Parcelable {
         dest.writeInt(this.pictureTitleBarBackgroundColor);
         dest.writeInt(this.pictureContainerBackgroundColor);
         dest.writeInt(this.pictureTitleTextColor);
-        dest.writeInt(this.pictureSelectNumberTextColor);
         dest.writeInt(this.pictureTitleTextSize);
         dest.writeInt(this.pictureCancelTextColor);
         dest.writeInt(this.pictureRightDefaultTextColor);
@@ -622,10 +609,9 @@ public class PictureParameterStyle implements Parcelable {
         dest.writeInt(this.pictureExternalPreviewDeleteStyle);
         dest.writeInt(this.pictureOriginalControlStyle);
         dest.writeByte(this.pictureExternalPreviewGonePreviewDelete ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.pictureFirstIcon);
-        dest.writeInt(this.pictureFirstBgColor);
-        dest.writeInt(this.pictureFirstTextColor);
         dest.writeInt(this.pictureAlbumStyle);
+        dest.writeInt(this.pictureTitleBarHeight);
+        dest.writeInt(this.pictureTitleRightArrowLeftPadding);
     }
 
     protected PictureParameterStyle(Parcel in) {
@@ -636,7 +622,6 @@ public class PictureParameterStyle implements Parcelable {
         this.pictureTitleBarBackgroundColor = in.readInt();
         this.pictureContainerBackgroundColor = in.readInt();
         this.pictureTitleTextColor = in.readInt();
-        this.pictureSelectNumberTextColor = in.readInt();
         this.pictureTitleTextSize = in.readInt();
         this.pictureCancelTextColor = in.readInt();
         this.pictureRightDefaultTextColor = in.readInt();
@@ -677,10 +662,9 @@ public class PictureParameterStyle implements Parcelable {
         this.pictureExternalPreviewDeleteStyle = in.readInt();
         this.pictureOriginalControlStyle = in.readInt();
         this.pictureExternalPreviewGonePreviewDelete = in.readByte() != 0;
-        this.pictureFirstIcon = in.readInt();
-        this.pictureFirstBgColor = in.readInt();
-        this.pictureFirstTextColor = in.readInt();
         this.pictureAlbumStyle = in.readInt();
+        this.pictureTitleBarHeight = in.readInt();
+        this.pictureTitleRightArrowLeftPadding = in.readInt();
     }
 
     public static final Creator<PictureParameterStyle> CREATOR = new Creator<PictureParameterStyle>() {
