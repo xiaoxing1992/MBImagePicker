@@ -28,7 +28,6 @@ import android.widget.Toast;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -124,7 +123,6 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
         RadioGroup rgb_animation = view.findViewById(R.id.rgb_animation);
         RadioGroup rgb_photo_mode = view.findViewById(R.id.rgb_photo_mode);
         RadioGroup rgb_language = view.findViewById(R.id.rgb_language);
-        RadioGroup rgb_language2 = view.findViewById(R.id.rgb_language2);
         cb_voice = view.findViewById(R.id.cb_voice);
         cb_choose_mode = view.findViewById(R.id.cb_choose_mode);
         cb_isCamera = view.findViewById(R.id.cb_isCamera);
@@ -147,7 +145,6 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
         rgb_style.setOnCheckedChangeListener(this);
         rgb_photo_mode.setOnCheckedChangeListener(this);
         rgb_language.setOnCheckedChangeListener(this);
-        rgb_language2.setOnCheckedChangeListener(this);
         rgb_animation.setOnCheckedChangeListener(this);
         RecyclerView mRecyclerView = view.findViewById(R.id.recycler);
         ImageView left_back = view.findViewById(R.id.left_back);
