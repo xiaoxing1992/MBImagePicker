@@ -265,7 +265,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             if (isHasMore) {
                 mPage++;
                 long bucketId = ValueOf.toLong(mTvPictureTitle.getTag(R.id.view_tag));
-                LocalMediaPageLoader.getInstance(getContext(), config).loadPageMediaData(bucketId, mPage, getPageLimit(),
+                LocalMediaPageLoader.getInstance(getContext()).loadPageMediaData(bucketId, mPage, getPageLimit(),
                         (OnQueryDataResultListener<LocalMedia>) (result, currentPage, isHasMore) -> {
                             if (!isFinishing()) {
                                 this.isHasMore = isHasMore;
@@ -478,7 +478,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     protected void readLocalMedia() {
         showPleaseDialog();
         if (config.isPageStrategy) {
-            LocalMediaPageLoader.getInstance(getContext(), config).loadAllMedia(
+            LocalMediaPageLoader.getInstance(getContext()).loadAllMedia(
                     (OnQueryDataResultListener<LocalMediaFolder>) (data, currentPage, isHasMore) -> {
                         if (!isFinishing()) {
                             this.isHasMore = true;
@@ -516,7 +516,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             mTvPictureTitle.setTag(R.id.view_index_tag, 0);
             long bucketId = folder != null ? folder.getBucketId() : -1;
             mRecyclerView.setEnabledLoadMore(true);
-            LocalMediaPageLoader.getInstance(getContext(), config).loadPageMediaData(bucketId, mPage,
+            LocalMediaPageLoader.getInstance(getContext()).loadPageMediaData(bucketId, mPage,
                     (OnQueryDataResultListener<LocalMedia>) (data, currentPage, isHasMore) -> {
                         if (!isFinishing()) {
                             dismissDialog();
@@ -574,7 +574,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                             continue;
                         }
                         String firstCover = LocalMediaPageLoader
-                                .getInstance(getContext(), config).getFirstCover(mediaFolder.getBucketId());
+                                .getInstance(getContext()).getFirstCover(mediaFolder.getBucketId());
                         mediaFolder.setFirstImagePath(firstCover);
                     }
                     return true;
@@ -1213,7 +1213,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (!isCurrentCacheFolderData) {
                     mPage = 1;
                     showPleaseDialog();
-                    LocalMediaPageLoader.getInstance(getContext(), config).loadPageMediaData(bucketId, mPage,
+                    LocalMediaPageLoader.getInstance(getContext()).loadPageMediaData(bucketId, mPage,
                             (OnQueryDataResultListener<LocalMedia>) (result, currentPage, isHasMore) -> {
                                 this.isHasMore = isHasMore;
                                 if (!isFinishing()) {
@@ -1580,7 +1580,6 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             public LocalMedia doInBackground() {
                 LocalMedia media = new LocalMedia();
                 String mimeType = isAudio ? PictureMimeType.MIME_TYPE_AUDIO : "";
-                int[] newSize = new int[2];
                 long duration = 0;
                 if (!isAudio) {
                     if (PictureMimeType.isContent(config.cameraPath)) {
@@ -1592,9 +1591,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                             media.setSize(cameraFile.length());
                         }
                         if (PictureMimeType.isHasImage(mimeType)) {
-                            newSize = MediaUtils.getImageSizeForUrlToAndroidQ(getContext(), config.cameraPath);
+                            int[] newSize = MediaUtils.getImageSizeForUrlToAndroidQ(getContext(), config.cameraPath);
+                            media.setWidth(newSize[0]);
+                            media.setHeight(newSize[1]);
                         } else if (PictureMimeType.isHasVideo(mimeType)) {
-                            newSize = MediaUtils.getVideoSizeForUri(getContext(), Uri.parse(config.cameraPath));
+                            MediaUtils.getVideoSizeForUri(getContext(), Uri.parse(config.cameraPath), media);
                             duration = MediaUtils.extractDuration(getContext(), SdkVersionUtils.checkedAndroid_Q(), config.cameraPath);
                         }
                         int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
@@ -1610,10 +1611,14 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                         if (PictureMimeType.isHasImage(mimeType)) {
                             int degree = PictureFileUtils.readPictureDegree(getContext(), config.cameraPath);
                             BitmapUtils.rotateImage(degree, config.cameraPath);
-                            newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
+                            int[] newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
+                            media.setWidth(newSize[0]);
+                            media.setHeight(newSize[1]);
                         } else if (PictureMimeType.isHasVideo(mimeType)) {
-                            newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
+                            int[] newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
                             duration = MediaUtils.extractDuration(getContext(), SdkVersionUtils.checkedAndroid_Q(), config.cameraPath);
+                            media.setWidth(newSize[0]);
+                            media.setHeight(newSize[1]);
                         }
                         // Taking a photo generates a temporary id
                         media.setId(System.currentTimeMillis());
@@ -1621,8 +1626,6 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     media.setPath(config.cameraPath);
                     media.setDuration(duration);
                     media.setMimeType(mimeType);
-                    media.setWidth(newSize[0]);
-                    media.setHeight(newSize[1]);
                     if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isHasVideo(media.getMimeType())) {
                         media.setParentFolderName(Environment.DIRECTORY_MOVIES);
                     } else {

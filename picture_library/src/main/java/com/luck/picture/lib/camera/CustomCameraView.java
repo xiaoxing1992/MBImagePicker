@@ -1,6 +1,8 @@
 package com.luck.picture.lib.camera;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -20,6 +22,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.view.CameraView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -403,9 +406,10 @@ public class CustomCameraView extends RelativeLayout {
         }
     }
 
+
     private Uri getOutUri(int type) {
         return type == PictureMimeType.ofVideo()
-                ? MediaUtils.createVideoUri(getContext(), mConfig.suffixType) : MediaUtils.createImageUri(getContext(), mConfig.suffixType);
+                ? MediaUtils.createVideoUri(getContext(),mConfig.cameraFileName, mConfig.suffixType) : MediaUtils.createImageUri(getContext(),mConfig.cameraFileName, mConfig.suffixType);
     }
 
     public void setCameraListener(CameraListener cameraListener) {
@@ -417,10 +421,12 @@ public class CustomCameraView extends RelativeLayout {
     }
 
     public void setBindToLifecycle(LifecycleOwner lifecycleOwner) {
-        mCameraView.bindToLifecycle(lifecycleOwner);
-        lifecycleOwner.getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            mCameraView.bindToLifecycle(lifecycleOwner);
+            lifecycleOwner.getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
 
-        });
+            });
+        }
     }
 
     /**

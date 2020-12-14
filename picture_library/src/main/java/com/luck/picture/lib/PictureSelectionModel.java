@@ -3,12 +3,12 @@ package com.luck.picture.lib;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.StyleRes;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.luck.picture.lib.config.PictureConfig;
@@ -549,6 +549,17 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel imageFormat(String suffixType) {
+        if (SdkVersionUtils.checkedAndroid_Q() || SdkVersionUtils.checkedAndroid_R()) {
+            if (TextUtils.equals(suffixType, PictureMimeType.PNG)) {
+                suffixType = PictureMimeType.PNG_Q;
+            }
+            if (TextUtils.equals(suffixType, PictureMimeType.JPEG)) {
+                suffixType = PictureMimeType.JPEG_Q;
+            }
+            if (TextUtils.equals(suffixType, PictureMimeType.MP4)) {
+                suffixType = PictureMimeType.MP4_Q;
+            }
+        }
         selectionConfig.suffixType = suffixType;
         return this;
     }

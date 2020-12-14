@@ -25,8 +25,6 @@ import com.luck.picture.lib.listener.OnPhotoSelectChangedListener;
 import com.luck.picture.lib.tools.AnimUtils;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.MediaUtils;
-import com.luck.picture.lib.tools.PictureFileUtils;
-import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.VoiceUtils;
@@ -357,8 +355,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                     tvCamera.setTextColor(config.style.pictureFirstTextColor);
                 }
 
-                 if (config.style.pictureFirstBgColor != 0) {
-                     relativelayout.setBackgroundColor(config.style.pictureFirstBgColor);
+                if (config.style.pictureFirstBgColor != 0) {
+                    relativelayout.setBackgroundColor(config.style.pictureFirstBgColor);
                 }
 
 
@@ -551,9 +549,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                 image.setOrientation(-1);
                 if (PictureMimeType.isContent(image.getPath())) {
                     if (PictureMimeType.isHasVideo(image.getMimeType())) {
-                        int[] size = MediaUtils.getVideoSizeForUri(context, Uri.parse(image.getPath()));
-                        width = size[0];
-                        height = size[1];
+                        MediaUtils.getVideoSizeForUri(context, Uri.parse(image.getPath()), image);
                     } else if (PictureMimeType.isHasImage(image.getMimeType())) {
                         int[] size = MediaUtils.getImageSizeForUri(context, Uri.parse(image.getPath()));
                         width = size[0];
