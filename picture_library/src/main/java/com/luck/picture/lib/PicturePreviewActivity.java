@@ -378,7 +378,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             if (PictureSelectionConfig.uiStyle.picture_check_style != 0) {
                 check.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_check_style);
             }
-            if (PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor);
                 if (colorStateList != null) {
                     mTvPictureOk.setTextColor(colorStateList);

@@ -65,7 +65,7 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
             } else {
                 mBottomLayout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.picture_color_grey));
             }
-            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor);
                 if (colorStateList != null) {
                     mTvPictureRight.setTextColor(colorStateList);
@@ -192,7 +192,7 @@ public class PictureSelectorWeChatStyleActivity extends PictureSelectorActivity 
                 } else {
                     mTvPictureRight.setBackgroundResource(R.drawable.picture_send_button_bg);
                 }
-                if (PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor.length > 0) {
+                if (PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor != null) {
                     ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor);
                     if (colorStateList != null) {
                         mTvPicturePreview.setTextColor(colorStateList);

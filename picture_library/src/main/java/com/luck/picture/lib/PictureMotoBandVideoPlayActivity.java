@@ -70,7 +70,7 @@ public class PictureMotoBandVideoPlayActivity extends PictureBaseActivity implem
     @Override
     protected void initPictureSelectorStyle() {
         if (PictureSelectionConfig.uiStyle != null) {
-            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor);
                 if (colorStateList != null) {
                     tvConfirm.setTextColor(colorStateList);

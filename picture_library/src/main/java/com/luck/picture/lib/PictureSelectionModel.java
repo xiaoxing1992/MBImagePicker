@@ -1310,10 +1310,11 @@ public class PictureSelectionModel {
             if (selectionConfig.camera && selectionConfig.isUseCustomCamera) {
                 intent = new Intent(activity, PictureCustomCameraActivity.class);
             } else {
-                intent = new Intent(activity, selectionConfig.camera
-                        ? PictureSelectorCameraEmptyActivity.class :
-                        selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : PictureSelectorActivity.class);
+                intent = new Intent(activity,
+                        selectionConfig.camera ? PictureSelectorCameraEmptyActivity.class :
+                                selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class :
+                                        selectionConfig.isMotoBandStyle ? PictureSelectorMotoBandStyleActivity.class
+                                                : PictureSelectorActivity.class);
             }
             selectionConfig.isCallbackMode = false;
             Fragment fragment = selector.getFragment();

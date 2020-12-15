@@ -329,7 +329,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             if (PictureSelectionConfig.uiStyle.picture_top_titleTextSize != 0) {
                 mTvPictureTitle.setTextSize(PictureSelectionConfig.uiStyle.picture_top_titleTextSize);
             }
-            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor);
                 if (colorStateList != null) {
                     mTvPictureRight.setTextColor(colorStateList);
@@ -341,7 +341,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             if (PictureSelectionConfig.uiStyle.picture_top_leftBack != 0) {
                 mIvPictureLeftBack.setImageResource(PictureSelectionConfig.uiStyle.picture_top_leftBack);
             }
-            if (PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_bottom_previewTextColor);
                 if (colorStateList != null) {
                     mTvPicturePreview.setTextColor(colorStateList);
@@ -363,7 +363,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 mTvPictureImgNum.setTextColor(PictureSelectionConfig.uiStyle.picture_bottom_completeRedDotTextColor);
             }
 
-            if (PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor.length > 0) {
+            if (PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor != null) {
                 ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_bottom_completeTextColor);
                 if (colorStateList != null) {
                     mTvPictureOk.setTextColor(colorStateList);
