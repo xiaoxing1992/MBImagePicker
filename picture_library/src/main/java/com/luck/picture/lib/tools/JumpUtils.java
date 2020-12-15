@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.luck.picture.lib.PictureMotoBandVideoPlayActivity;
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelectorPreviewWeChatStyleActivity;
+import com.luck.picture.lib.PictureSelectorPrevoewMotobandStyleActivity;
 import com.luck.picture.lib.PictureVideoPlayActivity;
 
 /**
@@ -21,10 +23,10 @@ public class JumpUtils {
      * @param context
      * @param bundle
      */
-    public static void startPictureVideoPlayActivity(Context context, Bundle bundle, int requestCode) {
+    public static void startPictureVideoPlayActivity(Context context, boolean isMotoBandStyle, Bundle bundle, int requestCode) {
         if (!DoubleUtils.isFastDoubleClick()) {
             Intent intent = new Intent();
-            intent.setClass(context, PictureVideoPlayActivity.class);
+            intent.setClass(context, isMotoBandStyle ? PictureMotoBandVideoPlayActivity.class : PictureVideoPlayActivity.class);
             intent.putExtras(bundle);
             if (!(context instanceof Activity)) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -43,10 +45,12 @@ public class JumpUtils {
      * @param bundle
      * @param requestCode
      */
-    public static void startPicturePreviewActivity(Context context, boolean isWeChatStyle, Bundle bundle, int requestCode) {
+    public static void startPicturePreviewActivity(Context context, boolean isWeChatStyle, boolean isMotoBandStyle, Bundle bundle, int requestCode) {
         if (!DoubleUtils.isFastDoubleClick()) {
             Intent intent = new Intent();
-            intent.setClass(context, isWeChatStyle ? PictureSelectorPreviewWeChatStyleActivity.class : PicturePreviewActivity.class);
+            intent.setClass(context, isWeChatStyle ? PictureSelectorPreviewWeChatStyleActivity.class :
+                    isMotoBandStyle ? PictureSelectorPrevoewMotobandStyleActivity.class
+                            : PicturePreviewActivity.class);
             intent.putExtras(bundle);
             if (!(context instanceof Activity)) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

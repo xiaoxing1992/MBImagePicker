@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int themeId;
     private int chooseMode = PictureMimeType.ofAll();
     private boolean isWeChatStyle;
+    private boolean isMotoBandStyle;
     private boolean isUpward;
     private boolean needScaleBig = true;
     private boolean needScaleSmall = true;
@@ -435,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //.setPictureCropStyle(mCropParameterStyle)// 动态自定义裁剪主题
                         .setPictureWindowAnimationStyle(mWindowAnimationStyle)// 自定义相册启动退出动画
                         .isWeChatStyle(isWeChatStyle)// 是否开启微信图片选择风格
+                        .isMotoBandStyle(isMotoBandStyle)// 是否开启摩托邦图片选择风格
                         .isUseCustomCamera(cb_custom_camera.isChecked())// 是否使用自定义相机
                         .setLanguage(language)// 设置语言，默认中文
                         .isPageStrategy(cbPage.isChecked())// 是否开启分页策略 & 每页多少条；默认开启
@@ -860,31 +862,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_default_style:
                 themeId = R.style.picture_default_style;
                 isWeChatStyle = false;
+                isMotoBandStyle = false;
                 mPictureParameterStyle = getDefaultStyle();
                 mSelectorUIStyle = PictureSelectorUIStyle.ofDefaultStyle();
                 break;
             case R.id.rb_white_style:
                 themeId = R.style.picture_white_style;
                 isWeChatStyle = false;
+                isMotoBandStyle = false;
                 mPictureParameterStyle = getWhiteStyle();
                 mSelectorUIStyle = PictureSelectorUIStyle.ofSelectTotalStyle();
                 break;
             case R.id.rb_num_style:
                 themeId = R.style.picture_QQ_style;
                 isWeChatStyle = false;
+                isMotoBandStyle = false;
                 mPictureParameterStyle = getNumStyle();
                 mSelectorUIStyle = PictureSelectorUIStyle.ofSelectNumberStyle();
                 break;
             case R.id.rb_sina_style:
                 themeId = R.style.picture_Sina_style;
                 isWeChatStyle = false;
+                isMotoBandStyle = false;
                 mPictureParameterStyle = getSinaStyle();
                 mSelectorUIStyle = PictureSelectorUIStyle.ofSelectTotalStyle();
+                break;
+            case R.id.rb_mb_style:
+                isWeChatStyle = false;
+                isMotoBandStyle = true;
+                mSelectorUIStyle = PictureSelectorUIStyle.ofMbStyle();
                 break;
             case R.id.rb_we_chat_style:
                 themeId = R.style.picture_WeChat_style;
                 isWeChatStyle = true;
-                mPictureParameterStyle = getWeChatStyle();
+                isMotoBandStyle = false;
                 mSelectorUIStyle = PictureSelectorUIStyle.ofNewStyle();
                 break;
             case R.id.rb_default:
@@ -1313,32 +1324,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPictureParameterStyle.pictureTitleBarHeight = ScreenUtils.dip2px(getContext(), 48);
         // 标题栏右侧按钮方向箭头left Padding
         mPictureParameterStyle.pictureTitleRightArrowLeftPadding = ScreenUtils.dip2px(getContext(), 3);
-
-        // 完成文案是否采用(%1$d/%2$d)的字符串，只允许两个占位符哟
-//        mPictureParameterStyle.isCompleteReplaceNum = true;
-        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureUnCompleteText = getString(R.string.app_wechat_send);
-        //自定义相册右侧已选中时文案 支持占位符String 但只支持两个 必须isCompleteReplaceNum为true
-//        mPictureParameterStyle.pictureCompleteText = getString(R.string.app_wechat_send_num);
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-//        // 自定义预览页右下角选择文字文案
-//        mPictureParameterStyle.pictureWeChatPreviewSelectedText = "";
-
-//        // 自定义相册标题文字大小
-//        mPictureParameterStyle.pictureTitleTextSize = 9;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 9;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 9;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 9;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 9;
-//        // 自定义预览页右下角选择文字大小
-//        mPictureParameterStyle.pictureWeChatPreviewSelectedTextSize = 9;
 
         // 裁剪主题
         mCropParameterStyle = new PictureCropParameterStyle(

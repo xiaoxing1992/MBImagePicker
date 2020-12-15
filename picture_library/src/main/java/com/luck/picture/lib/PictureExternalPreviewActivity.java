@@ -355,7 +355,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         Bundle bundle = new Bundle();
                         bundle.putString(PictureConfig.EXTRA_VIDEO_PATH, path);
                         intent.putExtras(bundle);
-                        JumpUtils.startPictureVideoPlayActivity(container.getContext(), bundle, PictureConfig.PREVIEW_VIDEO_CODE);
+                        JumpUtils.startPictureVideoPlayActivity(container.getContext(), config.isMotoBandStyle, bundle, PictureConfig.PREVIEW_VIDEO_CODE);
                     }
                 });
             }

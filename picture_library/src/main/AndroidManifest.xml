@@ -37,6 +37,9 @@
             android:name=".PictureSelectorWeChatStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
+            android:name=".PictureSelectorMotoBandStyleActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
             android:name=".PictureSelectorCameraEmptyActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/Picture.Theme.Translucent" />
@@ -51,7 +54,14 @@
             android:name=".PictureSelectorPreviewWeChatStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
+            android:name=".PictureSelectorPrevoewMotobandStyleActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
             android:name=".PictureVideoPlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensor" />
+        <activity
+            android:name=".PictureMotoBandVideoPlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensor" />
         <activity

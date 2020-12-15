@@ -180,13 +180,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             mTitleBar.setOnClickListener(this);
         }
         mTvPicturePreview.setVisibility(config.chooseMode != PictureMimeType.ofAudio() && config.enablePreview ? View.VISIBLE : View.GONE);
-        if (config.isShowSelectBottomLayout) {
-            mBottomLayout.setVisibility(config.selectionMode == PictureConfig.SINGLE
-                    && config.isSingleDirectReturn ? View.GONE : View.VISIBLE);
-        } else {
-            mBottomLayout.setVisibility(View.GONE);
-        }
-
+        mBottomLayout.setVisibility(config.selectionMode == PictureConfig.SINGLE
+                && config.isSingleDirectReturn ? View.GONE : View.VISIBLE);
         mIvPictureLeftBack.setOnClickListener(this);
         mTvPictureRight.setOnClickListener(this);
         mTvPictureOk.setOnClickListener(this);
@@ -1028,7 +1023,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         bundle.putBoolean(PictureConfig.EXTRA_CHANGE_ORIGINAL, config.isCheckOriginalImage);
         bundle.putBoolean(PictureConfig.EXTRA_SHOW_CAMERA, mAdapter.isShowCamera());
         bundle.putString(PictureConfig.EXTRA_IS_CURRENT_DIRECTORY, mTvPictureTitle.getText().toString());
-        JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, bundle,
+        JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, config.isMotoBandStyle, bundle,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCrop.REQUEST_MULTI_CROP);
 
         overridePendingTransition(PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation,
@@ -1560,7 +1555,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     PictureSelectionConfig.customVideoPlayCallback.startPlayVideo(media);
                 } else {
                     bundle.putParcelable(PictureConfig.EXTRA_MEDIA_KEY, media);
-                    JumpUtils.startPictureVideoPlayActivity(getContext(), bundle, PictureConfig.PREVIEW_VIDEO_CODE);
+                    JumpUtils.startPictureVideoPlayActivity(getContext(), config.isMotoBandStyle, bundle, PictureConfig.PREVIEW_VIDEO_CODE);
                 }
             }
         } else if (PictureMimeType.isHasAudio(mimeType)) {
@@ -1588,7 +1583,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             bundle.putParcelable(PictureConfig.EXTRA_CONFIG, config);
             bundle.putInt(PictureConfig.EXTRA_DATA_COUNT, ValueOf.toInt(mTvPictureTitle.getTag(R.id.view_count_tag)));
             bundle.putString(PictureConfig.EXTRA_IS_CURRENT_DIRECTORY, mTvPictureTitle.getText().toString());
-            JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, bundle,
+            JumpUtils.startPicturePreviewActivity(getContext(), config.isWeChatStyle, config.isMotoBandStyle, bundle,
                     config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCrop.REQUEST_MULTI_CROP);
             overridePendingTransition(PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation, R.anim.picture_anim_fade_in);
         }

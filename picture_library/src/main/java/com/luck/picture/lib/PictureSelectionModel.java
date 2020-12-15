@@ -170,6 +170,15 @@ public class PictureSelectionModel {
     }
 
     /**
+     * @param isMotoBandStyle Select style with or without MotoBand enabled
+     * @return
+     */
+    public PictureSelectionModel isMotoBandStyle(boolean isMotoBandStyle) {
+        selectionConfig.isMotoBandStyle = isMotoBandStyle;
+        return this;
+    }
+
+    /**
      * @param isUseCustomCamera Whether to use a custom camera
      * @return
      */
@@ -1333,10 +1342,11 @@ public class PictureSelectionModel {
             if (activity == null) {
                 return;
             }
-            Intent intent = new Intent(activity, selectionConfig != null && selectionConfig.camera
-                    ? PictureSelectorCameraEmptyActivity.class :
+            Intent intent = new Intent(activity, selectionConfig != null &&
+                    selectionConfig.camera ? PictureSelectorCameraEmptyActivity.class :
                     selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class :
-                            PictureSelectorActivity.class);
+                            selectionConfig.isMotoBandStyle ? PictureSelectorMotoBandStyleActivity.class :
+                                    PictureSelectorActivity.class);
             selectionConfig.isCallbackMode = false;
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
@@ -1369,8 +1379,9 @@ public class PictureSelectionModel {
             } else {
                 intent = new Intent(activity, selectionConfig.camera
                         ? PictureSelectorCameraEmptyActivity.class :
-                        selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : PictureSelectorActivity.class);
+                        selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class :
+                                selectionConfig.isMotoBandStyle ? PictureSelectorMotoBandStyleActivity.class :
+                                        PictureSelectorActivity.class);
             }
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
@@ -1405,8 +1416,9 @@ public class PictureSelectionModel {
             } else {
                 intent = new Intent(activity, selectionConfig.camera
                         ? PictureSelectorCameraEmptyActivity.class :
-                        selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : PictureSelectorActivity.class);
+                        selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class :
+                                selectionConfig.isMotoBandStyle ? PictureSelectorMotoBandStyleActivity.class :
+                                        PictureSelectorActivity.class);
             }
             Fragment fragment = selector.getFragment();
             if (fragment != null) {

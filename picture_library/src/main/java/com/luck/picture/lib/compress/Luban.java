@@ -327,7 +327,7 @@ public class Luban implements Handler.Callback {
                     String newFilePath = media.isCut() ? media.getCutPath() :
                             AndroidQTransformUtils.copyPathToAndroidQ(context,
                                     path.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), filename);
-                    if (newFilePath != null) {
+                    if (!TextUtils.isEmpty(newFilePath)) {
                         result = new File(newFilePath);
                     }
                 } else {
@@ -420,7 +420,7 @@ public class Luban implements Handler.Callback {
          * 扩展符合PictureSelector的压缩策略
          *
          * @param media LocalMedia对象
-         * @param <T>
+         * @param media
          * @return
          */
         private Builder load(final LocalMedia media) {

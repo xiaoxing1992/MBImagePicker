@@ -1,43 +1,37 @@
 package com.luck.picture.lib;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.luck.picture.lib.adapter.PictureWeChatPreviewGalleryAdapter;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
-import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.decoration.WrapContentLinearLayoutManager;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.tools.ScreenUtils;
-
+import com.luck.picture.lib.tools.AttrsUtils;
 
 /**
- * @author：luck
- * @date：2019-11-30 17:16
- * @describe：PictureSelector 预览微信风格
+ * @Author: YuChuan
+ * @CreateDate: 2020/12/11 16:00
+ * @Description:
  */
-public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewActivity {
+public class PictureSelectorPrevoewMotobandStyleActivity extends PicturePreviewActivity {
     /**
      * alpha duration
      */
     private final static int ALPHA_DURATION = 300;
-    private RecyclerView mRvGallery;
     private View bottomLine;
     private TextView mTvSelected;
-    private PictureWeChatPreviewGalleryAdapter mGalleryAdapter;
 
     @Override
     public int getResourceId() {
-        return R.layout.picture_wechat_style_preview;
+        return R.layout.picture_motoband_style_preview;
     }
 
     private void goneParent() {
@@ -56,30 +50,14 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     protected void initWidgets() {
         super.initWidgets();
         goneParent();
-        mRvGallery = findViewById(R.id.rv_gallery);
         bottomLine = findViewById(R.id.bottomLine);
         mTvPictureRight.setVisibility(View.VISIBLE);
         mTvPictureRight.setText(getString(R.string.picture_send));
-        mCbOriginal.setTextSize(16);
+        mCbOriginal.setTextSize(14);
         mTvSelected = findViewById(R.id.tv_selected);
         mTvPictureRight.setOnClickListener(this);
-        mGalleryAdapter = new PictureWeChatPreviewGalleryAdapter(config);
         WrapContentLinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(getContext());
         layoutManager.setOrientation(WrapContentLinearLayoutManager.HORIZONTAL);
-        mRvGallery.setLayoutManager(layoutManager);
-        mRvGallery.addItemDecoration(new GridSpacingItemDecoration(Integer.MAX_VALUE,
-                ScreenUtils.dip2px(this, 8), false));
-        mRvGallery.setAdapter(mGalleryAdapter);
-        mGalleryAdapter.setItemClickListener((position, media, v) -> {
-            if (viewPager != null && media != null) {
-                if (isEqualsDirectory(media.getParentFolderName(), currentDirectory)) {
-                    int newPosition = isBottomPreview ? position : isShowCamera ? media.position - 1 : media.position;
-                    viewPager.setCurrentItem(newPosition);
-                } else {
-                    // TODO The picture is not in the album directory, click invalid
-                }
-            }
-        });
         if (isBottomPreview) {
             if (selectData != null && selectData.size() > position) {
                 int size = selectData.size();
@@ -146,7 +124,10 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 selectBarLayout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.picture_color_half_grey));
             }
 
-            mTvPictureRight.setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));
+            ColorStateList colorStateList = AttrsUtils.getColorStateList(PictureSelectionConfig.uiStyle.picture_top_titleRightTextColor);
+            if (colorStateList != null) {
+                mTvPictureRight.setTextColor(colorStateList);
+            }
 
             if (PictureSelectionConfig.uiStyle.picture_bottom_selectedCheckStyle != 0) {
                 check.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_bottom_selectedCheckStyle);
@@ -158,15 +139,6 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 pictureLeftBack.setImageResource(PictureSelectionConfig.uiStyle.picture_top_leftBack);
             } else {
                 pictureLeftBack.setImageResource(R.drawable.picture_icon_back);
-            }
-
-            if (PictureSelectionConfig.uiStyle.picture_bottom_gallery_backgroundColor != 0) {
-                mRvGallery.setBackgroundColor(PictureSelectionConfig.uiStyle.picture_bottom_gallery_backgroundColor);
-            }
-
-            if (PictureSelectionConfig.uiStyle.picture_bottom_gallery_height > 0) {
-                ViewGroup.LayoutParams params = mRvGallery.getLayoutParams();
-                params.height = PictureSelectionConfig.uiStyle.picture_bottom_gallery_height;
             }
 
             if (config.isOriginalControl) {
@@ -279,97 +251,25 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     }
 
     @Override
-    protected void onUpdateSelectedChange(LocalMedia media) {
-        onChangeMediaStatus(media);
-    }
-
-    @Override
-    protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {
-        if (isAddRemove) {
-            media.setChecked(true);
-            if (config.selectionMode == PictureConfig.SINGLE) {
-                mGalleryAdapter.addSingleMediaToData(media);
-            }
-        } else {
-            media.setChecked(false);
-            mGalleryAdapter.removeMediaToData(media);
-            if (isBottomPreview) {
-                if (selectData != null && selectData.size() > position) {
-                    selectData.get(position).setChecked(true);
-                }
-                if (mGalleryAdapter.isDataEmpty()) {
-                    onActivityBackPressed();
-                } else {
-                    int currentItem = viewPager.getCurrentItem();
-                    adapter.remove(currentItem);
-                    adapter.removeCacheView(currentItem);
-                    position = currentItem;
-                    tvTitle.setText(getString(R.string.picture_preview_image_num,
-                            position + 1, adapter.getSize()));
-                    check.setSelected(true);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        }
-        int itemCount = mGalleryAdapter.getItemCount();
-        if (itemCount > 5) {
-            mRvGallery.smoothScrollToPosition(itemCount - 1);
-        }
-    }
-
-    @Override
     protected void onPageSelectedChange(LocalMedia media) {
         super.onPageSelectedChange(media);
         goneParent();
-        if (!config.previewEggs) {
-            onChangeMediaStatus(media);
-        }
-    }
-
-    /**
-     * onChangeMediaStatus
-     *
-     * @param media
-     */
-    private void onChangeMediaStatus(LocalMedia media) {
-        if (mGalleryAdapter != null) {
-            int itemCount = mGalleryAdapter.getItemCount();
-            if (itemCount > 0) {
-                boolean isChangeData = false;
-                for (int i = 0; i < itemCount; i++) {
-                    LocalMedia item = mGalleryAdapter.getItem(i);
-                    if (item == null || TextUtils.isEmpty(item.getPath())) {
-                        continue;
-                    }
-                    boolean isOldChecked = item.isChecked();
-                    boolean isNewChecked = item.getPath().equals(media.getPath()) || item.getId() == media.getId();
-                    if (!isChangeData) {
-                        isChangeData = (isOldChecked && !isNewChecked) || (!isOldChecked && isNewChecked);
-                    }
-                    item.setChecked(isNewChecked);
-                }
-                if (isChangeData) {
-                    mGalleryAdapter.notifyDataSetChanged();
-                }
-            }
-        }
     }
 
     @Override
     protected void onSelectNumChange(boolean isRefresh) {
         goneParent();
         boolean enable = selectData != null && selectData.size() != 0;
+        mTvPictureRight.setEnabled(enable);
         if (enable) {
             initCompleteText(selectData.size());
-            if (mRvGallery.getVisibility() == View.GONE) {
-                mRvGallery.animate().alpha(1).setDuration(ALPHA_DURATION).setInterpolator(new AccelerateInterpolator());
-                mRvGallery.setVisibility(View.VISIBLE);
-                bottomLine.animate().alpha(1).setDuration(ALPHA_DURATION).setInterpolator(new AccelerateInterpolator());
-                bottomLine.setVisibility(View.VISIBLE);
-                // 重置一片内存区域 不然在其他地方添加也影响这里的数量
-                mGalleryAdapter.setNewData(selectData);
-            }
-            if (PictureSelectionConfig.style != null) {
+            if (PictureSelectionConfig.uiStyle != null) {
+                if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground != 0) {
+                    mTvPictureRight.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground);
+                } else {
+                    mTvPictureRight.setBackgroundResource(R.drawable.picture_send_button_bg);
+                }
+            } else if (PictureSelectionConfig.style != null) {
                 if (PictureSelectionConfig.style.pictureCompleteTextColor != 0) {
                     mTvPictureRight.setTextColor(PictureSelectionConfig.style.pictureCompleteTextColor);
                 }
@@ -381,13 +281,22 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 mTvPictureRight.setBackgroundResource(R.drawable.picture_send_button_bg);
             }
         } else {
-            if (PictureSelectionConfig.style != null && !TextUtils.isEmpty(PictureSelectionConfig.style.pictureUnCompleteText)) {
+            if (PictureSelectionConfig.uiStyle != null) {
+                if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextDefaultBackground != 0) {
+                    mTvPictureRight.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_top_titleRightTextDefaultBackground);
+                } else {
+                    mTvPictureRight.setBackgroundResource(R.drawable.picture_send_button_default_bg);
+                }
+                if (!TextUtils.isEmpty(PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText)) {
+                    mTvPictureRight.setText(PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText);
+                } else {
+                    mTvPictureRight.setText(getString(R.string.picture_send));
+                }
+            } else if (PictureSelectionConfig.style != null && !TextUtils.isEmpty(PictureSelectionConfig.style.pictureUnCompleteText)) {
                 mTvPictureRight.setText(PictureSelectionConfig.style.pictureUnCompleteText);
             } else {
                 mTvPictureRight.setText(getString(R.string.picture_send));
             }
-            mRvGallery.animate().alpha(0).setDuration(ALPHA_DURATION).setInterpolator(new AccelerateInterpolator());
-            mRvGallery.setVisibility(View.GONE);
             bottomLine.animate().alpha(0).setDuration(ALPHA_DURATION).setInterpolator(new AccelerateInterpolator());
             bottomLine.setVisibility(View.GONE);
         }
