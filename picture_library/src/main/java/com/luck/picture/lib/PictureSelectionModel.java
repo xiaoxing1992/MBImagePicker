@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
-import com.luck.picture.lib.config.UCropOptions;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -28,8 +27,11 @@ import com.luck.picture.lib.style.PictureSelectorUIStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
+import com.yalantis.ucrop.UCrop;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
@@ -41,8 +43,8 @@ import static android.os.Build.VERSION_CODES.KITKAT;
  */
 
 public class PictureSelectionModel {
-    private PictureSelectionConfig selectionConfig;
-    private PictureSelector selector;
+    private final PictureSelectionConfig selectionConfig;
+    private final PictureSelector selector;
 
     public PictureSelectionModel(PictureSelector selector, int chooseMode) {
         this.selector = selector;
@@ -241,6 +243,17 @@ public class PictureSelectionModel {
     }
 
     /**
+     * Set Custom Camera Photo Loading color
+     *
+     * @param color
+     * @return
+     */
+    public PictureSelectionModel setCaptureLoadingColor(int color) {
+        selectionConfig.captureLoadingColor = color;
+        return this;
+    }
+
+    /**
      * @param enableCrop Do you want to start cutting ?
      * @return Use {link .isEnableCrop()}
      */
@@ -263,7 +276,7 @@ public class PictureSelectionModel {
      * @param uCropOptions UCrop parameter configuration is provided
      * @return
      */
-    public PictureSelectionModel basicUCropConfig(UCropOptions uCropOptions) {
+    public PictureSelectionModel basicUCropConfig(UCrop.Options uCropOptions) {
         selectionConfig.uCropOptions = uCropOptions;
         return this;
     }
@@ -896,11 +909,58 @@ public class PictureSelectionModel {
     /**
      * # file size The unit is M
      *
-     * @param fileSize Filter file size
+     * @param fileSize Filter max file size
+     *                 Use {@link .filterMaxFileSize()}
      * @return
      */
-    public PictureSelectionModel queryMaxFileSize(float fileSize) {
-        selectionConfig.filterFileSize = fileSize;
+    @Deprecated
+    public PictureSelectionModel queryFileSize(float fileMSize) {
+        selectionConfig.filterFileSize = fileMSize;
+        return this;
+    }
+
+    /**
+     * # file size The unit is KB
+     *
+     * @param fileSize Filter max file size
+     * @return
+     */
+    public PictureSelectionModel filterMaxFileSize(long fileKbSize) {
+        if (fileKbSize >= PictureConfig.MB) {
+            selectionConfig.filterMaxFileSize = fileKbSize;
+        } else {
+            selectionConfig.filterMaxFileSize = fileKbSize * 1024;
+        }
+        return this;
+    }
+
+    /**
+     * # file size The unit is KB
+     *
+     * @param fileSize Filter min file size
+     * @return
+     */
+    public PictureSelectionModel filterMinFileSize(long fileKbSize) {
+        if (fileKbSize >= PictureConfig.MB) {
+            selectionConfig.filterMinFileSize = fileKbSize;
+        } else {
+            selectionConfig.filterMinFileSize = fileKbSize * 1024;
+        }
+        return this;
+    }
+
+    /**
+     * query specified mimeType
+     *
+     * @param mimeTypes Use example {@link { image/jpeg or image/png ... }}
+     * @return
+     */
+    public PictureSelectionModel queryMimeTypeConditions(String... mimeTypes) {
+        if (mimeTypes != null && mimeTypes.length > 0) {
+            selectionConfig.queryMimeTypeHashSet = new HashSet<>(Arrays.asList(mimeTypes));
+        } else {
+            selectionConfig.queryMimeTypeHashSet = null;
+        }
         return this;
     }
 
@@ -927,7 +987,7 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel isBmp(boolean isBmp) {
-        selectionConfig.isWebp = isBmp;
+        selectionConfig.isBmp = isBmp;
         return this;
     }
 
@@ -980,8 +1040,10 @@ public class PictureSelectionModel {
 
     /**
      * @param Specify get image format
+     *                Use {@link .queryMimeTypeConditions()}
      * @return
      */
+    @Deprecated
     public PictureSelectionModel querySpecifiedFormatSuffix(String specifiedFormat) {
         selectionConfig.specifiedFormat = specifiedFormat;
         return this;

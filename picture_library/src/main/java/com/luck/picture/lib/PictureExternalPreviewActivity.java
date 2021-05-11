@@ -68,7 +68,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private ImageButton ibLeftBack;
     private TextView tvTitle;
     private PreviewViewPager viewPager;
-    private List<LocalMedia> images = new ArrayList<>();
+    private final List<LocalMedia> images = new ArrayList<>();
     private int position = 0;
     private SimpleFragmentAdapter adapter;
     private String downloadPath;
@@ -90,8 +90,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         ibDelete = findViewById(R.id.ib_delete);
         viewPager = findViewById(R.id.preview_pager);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
-        if (getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST) != null) {
-            images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        List<LocalMedia> mediaList = getIntent().getParcelableArrayListExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+        if (mediaList != null && mediaList.size() > 0) {
+            images.addAll(mediaList);
         }
         ibLeftBack.setOnClickListener(this);
         ibDelete.setOnClickListener(this);
@@ -163,7 +164,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             finish();
             exitAnimation();
         } else if (id == R.id.ib_delete) {
-            if (images != null && images.size() > 0) {
+            if (images.size() > 0) {
                 int currentItem = viewPager.getCurrentItem();
                 images.remove(currentItem);
                 adapter.removeCacheView(currentItem);
@@ -216,7 +217,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         @Override
         public int getCount() {
-            return images != null ? images.size() : 0;
+            return images.size();
         }
 
         @Override
@@ -355,7 +356,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         Bundle bundle = new Bundle();
                         bundle.putString(PictureConfig.EXTRA_VIDEO_PATH, path);
                         intent.putExtras(bundle);
-                        JumpUtils.startPictureVideoPlayActivity(container.getContext(), config.isMotoBandStyle, bundle, PictureConfig.PREVIEW_VIDEO_CODE);
+                        JumpUtils.startPictureVideoPlayActivity(container.getContext(), bundle, PictureConfig.PREVIEW_VIDEO_CODE);
                     }
                 });
             }
@@ -597,7 +598,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (SdkVersionUtils.checkedAndroid_Q()) {
+            finishAfterTransition();
+        } else {
+            super.onBackPressed();
+        }
         finish();
         exitAnimation();
     }

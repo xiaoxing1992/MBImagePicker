@@ -24,18 +24,21 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    resourcePrefix 'ucrop_'
 }
 
+apply from: '../publish.gradle'
+
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:${cfgs.version_appcompat}"
     implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
     implementation "androidx.concurrent:concurrent-futures:${cfgs.futures_version}"
     implementation "androidx.annotation:annotation-experimental:${cfgs.experimental_version}"
     implementation "com.squareup.okio:okio:${cfgs.okio_version}"
     implementation "androidx.exifinterface:exifinterface:${cfgs.androidx_exifinterface_version}"
-    implementation "androidx.camera:camera-lifecycle:${cfgs.camerax_version}"
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:${cfgs.localbroadcastmanager}"
     implementation "androidx.camera:camera-view:${cfgs.camerax_view}"
-    api project(':ucrop')
+    implementation "androidx.transition:transition:${cfgs.androidx_transition_version}"
+    implementation "androidx.camera:camera-lifecycle:${cfgs.camerax_version}"
 }

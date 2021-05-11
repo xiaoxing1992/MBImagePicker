@@ -23,7 +23,7 @@ import com.luck.picture.lib.tools.ScreenUtils;
 /**
  * @author：luck
  * @date：2019-11-30 17:16
- * @describe：PictureSelector 预览微信风格
+ * @describe：PictureSelector WeChatStyle
  */
 public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewActivity {
     /**
@@ -81,7 +81,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             }
         });
         if (isBottomPreview) {
-            if (selectData != null && selectData.size() > position) {
+            if (selectData.size() > position) {
                 int size = selectData.size();
                 for (int i = 0; i < size; i++) {
                     LocalMedia media = selectData.get(i);
@@ -91,7 +91,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 media.setChecked(true);
             }
         } else {
-            int size = selectData != null ? selectData.size() : 0;
+            int size = selectData.size();
             for (int i = 0; i < size; i++) {
                 LocalMedia media = selectData.get(i);
                 if (isEqualsDirectory(media.getParentFolderName(), currentDirectory)) {
@@ -120,8 +120,8 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     public void initPictureSelectorStyle() {
         super.initPictureSelectorStyle();
         if (PictureSelectionConfig.uiStyle != null) {
-            if (!TextUtils.isEmpty(PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText)) {
-                mTvPictureRight.setText(PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText);
+            if (PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText != 0) {
+                mTvPictureRight.setText(getString(PictureSelectionConfig.uiStyle.picture_top_titleRightDefaultText));
             }
             if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground != 0) {
                 mTvPictureRight.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground);
@@ -131,8 +131,8 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextSize != 0) {
                 mTvPictureRight.setTextSize(PictureSelectionConfig.uiStyle.picture_top_titleRightTextSize);
             }
-            if (!TextUtils.isEmpty(PictureSelectionConfig.uiStyle.picture_bottom_selectedText)) {
-                mTvSelected.setText(PictureSelectionConfig.uiStyle.picture_bottom_selectedText);
+            if (PictureSelectionConfig.uiStyle.picture_bottom_selectedText != 0) {
+                mTvSelected.setText(getString(PictureSelectionConfig.uiStyle.picture_bottom_selectedText));
             }
             if (PictureSelectionConfig.uiStyle.picture_bottom_selectedTextSize != 0) {
                 mTvSelected.setTextSize(PictureSelectionConfig.uiStyle.picture_bottom_selectedTextSize);
@@ -170,8 +170,8 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             }
 
             if (config.isOriginalControl) {
-                if (!TextUtils.isEmpty(PictureSelectionConfig.uiStyle.picture_bottom_originalPictureText)) {
-                    mCbOriginal.setText(PictureSelectionConfig.uiStyle.picture_bottom_originalPictureText);
+                if (PictureSelectionConfig.uiStyle.picture_bottom_originalPictureText != 0) {
+                    mCbOriginal.setText(getString(PictureSelectionConfig.uiStyle.picture_bottom_originalPictureText));
                 } else {
                     mCbOriginal.setText(getString(R.string.picture_original_image));
                 }
@@ -294,7 +294,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
             media.setChecked(false);
             mGalleryAdapter.removeMediaToData(media);
             if (isBottomPreview) {
-                if (selectData != null && selectData.size() > position) {
+                if (selectData.size() > position) {
                     selectData.get(position).setChecked(true);
                 }
                 if (mGalleryAdapter.isDataEmpty()) {
@@ -358,7 +358,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
     @Override
     protected void onSelectNumChange(boolean isRefresh) {
         goneParent();
-        boolean enable = selectData != null && selectData.size() != 0;
+        boolean enable = selectData.size() != 0;
         if (enable) {
             initCompleteText(selectData.size());
             if (mRvGallery.getVisibility() == View.GONE) {
@@ -427,7 +427,7 @@ public class PictureSelectorPreviewWeChatStyleActivity extends PicturePreviewAct
                 }
             }
         } else {
-            String mimeType = selectData.get(0).getMimeType();
+            String mimeType = selectData.size() > 0 ? selectData.get(0).getMimeType() : "";
             int maxSize = PictureMimeType.isHasVideo(mimeType) && config.maxVideoSelectNum > 0 ? config.maxVideoSelectNum : config.maxSelectNum;
             if (config.selectionMode == PictureConfig.SINGLE) {
                 if (startCount <= 0) {

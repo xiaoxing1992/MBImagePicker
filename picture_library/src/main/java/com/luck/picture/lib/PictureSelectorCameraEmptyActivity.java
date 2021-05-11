@@ -7,6 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +58,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
             return;
         }
         if (!config.isUseCustomCamera) {
+            setActivitySize();
             if (savedInstanceState == null) {
                 if (PermissionChecker
                         .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
@@ -76,8 +80,21 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
                 }
             }
-            setTheme(R.style.Picture_Theme_Translucent);
         }
+    }
+
+    /**
+     * 设置个1像素的Activity
+     */
+    private void setActivitySize() {
+        Window window = getWindow();
+        window.setGravity(Gravity.LEFT | Gravity.TOP);
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.x = 0;
+        params.y = 0;
+        params.height = 1;
+        params.width = 1;
+        window.setAttributes(params);
     }
 
 
@@ -147,6 +164,10 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         } else if (resultCode == RESULT_CANCELED) {
             if (PictureSelectionConfig.listener != null) {
                 PictureSelectionConfig.listener.onCancel();
+            }
+            // Delete this cameraPath when you cancel the camera
+            if (requestCode == PictureConfig.REQUEST_CAMERA) {
+                MediaUtils.deleteCamera(this, config.cameraPath);
             }
             exit();
         } else if (resultCode == UCrop.RESULT_ERROR) {
@@ -301,6 +322,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     media.setChooseModel(config.chooseMode);
                     long bucketId = MediaUtils.getCameraFirstBucketId(getContext());
                     media.setBucketId(bucketId);
+                    media.setDateAddedTime(Long.parseLong(String.valueOf(System.currentTimeMillis()).substring(0, 10)));
                     // The width and height of the image are reversed if there is rotation information
                     MediaUtils.setOrientationSynchronous(getContext(), media, config.isAndroidQChangeWH, config.isAndroidQChangeVideoWH);
                 }
@@ -390,7 +412,11 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (SdkVersionUtils.checkedAndroid_Q()) {
+            finishAfterTransition();
+        } else {
+            super.onBackPressed();
+        }
         exit();
     }
 }

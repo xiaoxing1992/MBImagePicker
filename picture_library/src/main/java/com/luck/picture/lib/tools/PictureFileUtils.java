@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Locale;
+import java.util.Objects;
 
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -103,6 +104,9 @@ public class PictureFileUtils {
         } else {
             // 自定义存储路径
             folderDir = new File(outCameraDirectory);
+            if (!Objects.requireNonNull(folderDir.getParentFile()).exists()) {
+                folderDir.getParentFile().mkdirs();
+            }
         }
         if (!folderDir.exists()) {
             folderDir.mkdirs();
@@ -218,7 +222,7 @@ public class PictureFileUtils {
                 cursor.close();
             }
         }
-        return null;
+        return "";
     }
 
     /**
@@ -302,7 +306,7 @@ public class PictureFileUtils {
             return uri.getPath();
         }
 
-        return null;
+        return "";
     }
 
     /**
@@ -568,7 +572,7 @@ public class PictureFileUtils {
      */
     public static Uri parUri(Context context, File cameraFile) {
         Uri imageUri;
-        String authority = context.getPackageName() + ".provider";
+        String authority = context.getPackageName() + ".luckProvider";
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             //通过FileProvider创建一个content类型的Uri
             imageUri = FileProvider.getUriForFile(context, authority, cameraFile);

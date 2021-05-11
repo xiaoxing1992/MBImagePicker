@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -151,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rgb_list_anim.setOnCheckedChangeListener(this);
         rgb_photo_mode.setOnCheckedChangeListener(this);
         rgb_language.setOnCheckedChangeListener(this);
+        rgb_language2.setOnCheckedChangeListener(this);
         RecyclerView mRecyclerView = findViewById(R.id.recycler);
         ImageView left_back = findViewById(R.id.left_back);
         left_back.setOnClickListener(this);
@@ -421,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
+    private final GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
         @Override
         public void onAddPicClick() {
             boolean mode = cb_mode.isChecked();
@@ -447,15 +447,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //.loadCacheResourcesCallback(GlideCacheEngine.createCacheEngine())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
                         //.setOutputCameraPath(createCustomCameraOutPath())// 自定义相机输出目录
                         //.setButtonFeatures(CustomCameraView.BUTTON_STATE_BOTH)// 设置自定义相机按钮状态
+                        .setCaptureLoadingColor(ContextCompat.getColor(getContext(), R.color.app_color_blue))
                         .maxSelectNum(maxSelectNum)// 最大图片选择数量
                         .minSelectNum(1)// 最小选择数量
                         .maxVideoSelectNum(1) // 视频最大选择数量
                         //.minVideoSelectNum(1)// 视频最小选择数量
                         //.closeAndroidQChangeVideoWH(!SdkVersionUtils.checkedAndroid_Q())// 关闭在AndroidQ下获取图片或视频宽高相反自动转换
                         .imageSpanCount(4)// 每行显示个数
+                        //.queryFileSize() // 过滤最大资源,已废弃
+                        //.filterMinFileSize()// 过滤最小资源，单位kb
+                        //.filterMaxFileSize()// 过滤最大资源，单位kb
                         .isReturnEmpty(false)// 未选择数据时点击按钮是否可以返回
                         .closeAndroidQChangeWH(true)//如果图片有旋转角度则对换宽高,默认为true
                         .closeAndroidQChangeVideoWH(!SdkVersionUtils.checkedAndroid_Q())// 如果视频有旋转角度则对换宽高,默认为false
+                        .isAndroidQTransform(true)// 是否需要处理Android Q 拷贝至应用沙盒的操作，只针对compress(false); && .isEnableCrop(false);有效,默认处理
                         //.isAndroidQTransform(false)// 是否需要处理Android Q 拷贝至应用沙盒的操作，只针对compress(false); && .isEnableCrop(false);有效,默认处理
                         .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)// 设置相册Activity方向，不设置默认使用系统
                         .isOriginalImageControl(cb_original.isChecked())// 是否显示原图控制按钮，如果设置为true则用户可以自由选择是否使用原图，压缩、裁剪功能将会失效
@@ -471,6 +476,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .isPreviewImage(cb_preview_img.isChecked())// 是否可预览图片
                         .isPreviewVideo(cb_preview_video.isChecked())// 是否可预览视频
                         //.querySpecifiedFormatSuffix(PictureMimeType.ofJPEG())// 查询指定后缀格式资源
+                        //.queryMimeTypeConditions(PictureMimeType.ofWEBP())
                         .isEnablePreviewAudio(cb_preview_audio.isChecked()) // 是否可播放音频
                         .isCamera(cb_isCamera.isChecked())// 是否显示拍照按钮
                         //.isMultipleSkipCrop(false)// 多图裁剪时是否支持跳过，默认支持
@@ -616,6 +622,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                 Log.i(TAG, "宽高: " + media.getWidth() + "x" + media.getHeight());
                 Log.i(TAG, "Size: " + media.getSize());
+
+                Log.i("MMM", "onResult: " + media.toString());
                 // TODO 可以通过PictureSelectorExternalUtils.getExifInterface();方法获取一些额外的资源信息，如旋转角度、经纬度等信息
             }
             if (mAdapterWeakReference.get() != null) {
@@ -634,12 +642,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 自定义播放逻辑处理，用户可以自己实现播放界面
      */
     private static class MyVideoSelectedPlayCallback implements OnVideoSelectedPlayCallback<LocalMedia> {
-        private WeakReference<Context> mContextWeakReference;
-        private Context context;
+        private final Context context;
 
         public MyVideoSelectedPlayCallback(Context context) {
             super();
-            this.mContextWeakReference = new WeakReference<>(context);
+            WeakReference<Context> mContextWeakReference = new WeakReference<>(context);
             this.context = mContextWeakReference.get();
         }
 
@@ -811,6 +818,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_audio:
                 chooseMode = PictureMimeType.ofAudio();
                 cb_preview_audio.setVisibility(View.VISIBLE);
+                break;
+            case R.id.rb_system:
+                language = -1;
                 break;
             case R.id.rb_jpan:
                 language = LanguageConfig.JAPAN;
@@ -1325,6 +1335,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 标题栏右侧按钮方向箭头left Padding
         mPictureParameterStyle.pictureTitleRightArrowLeftPadding = ScreenUtils.dip2px(getContext(), 3);
 
+        // 完成文案是否采用(%1$d/%2$d)的字符串，只允许两个占位符哟
+//        mPictureParameterStyle.isCompleteReplaceNum = true;
+        // 自定义相册右侧文本内容设置
+//        mPictureParameterStyle.pictureUnCompleteText = getString(R.string.app_wechat_send);
+        //自定义相册右侧已选中时文案 支持占位符String 但只支持两个 必须isCompleteReplaceNum为true
+//        mPictureParameterStyle.pictureCompleteText = getString(R.string.app_wechat_send_num);
+//        // 自定义相册列表不可预览文字
+//        mPictureParameterStyle.pictureUnPreviewText = "";
+//        // 自定义相册列表预览文字
+//        mPictureParameterStyle.picturePreviewText = "";
+//        // 自定义预览页右下角选择文字文案
+//        mPictureParameterStyle.pictureWeChatPreviewSelectedText = "";
+
+//        // 自定义相册标题文字大小
+//        mPictureParameterStyle.pictureTitleTextSize = 9;
+//        // 自定义相册右侧文字大小
+//        mPictureParameterStyle.pictureRightTextSize = 9;
+//        // 自定义相册预览文字大小
+//        mPictureParameterStyle.picturePreviewTextSize = 9;
+//        // 自定义相册完成文字大小
+//        mPictureParameterStyle.pictureCompleteTextSize = 9;
+//        // 自定义原图文字大小
+//        mPictureParameterStyle.pictureOriginalTextSize = 9;
+//        // 自定义预览页右下角选择文字大小
+//        mPictureParameterStyle.pictureWeChatPreviewSelectedTextSize = 9;
+
         // 裁剪主题
         mCropParameterStyle = new PictureCropParameterStyle(
                 ContextCompat.getColor(getContext(), R.color.app_color_grey),
@@ -1332,8 +1368,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Color.parseColor("#393a3e"),
                 ContextCompat.getColor(getContext(), R.color.app_color_white),
                 mPictureParameterStyle.isChangeStatusBarFontColor);
-
-        return mPictureParameterStyle;
     }
 
 

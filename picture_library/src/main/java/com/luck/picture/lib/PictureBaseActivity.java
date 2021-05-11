@@ -36,16 +36,12 @@ import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.thread.PictureThreadUtils;
 import com.luck.picture.lib.tools.AndroidQTransformUtils;
 import com.luck.picture.lib.tools.AttrsUtils;
-import com.luck.picture.lib.tools.DateUtils;
-import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.VoiceUtils;
-import com.yalantis.ucrop.UCrop;
-import com.yalantis.ucrop.model.CutInfo;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -65,8 +61,8 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected boolean openWhiteStatusBar, numComplete;
     protected int colorPrimary, colorPrimaryDark;
     protected PictureLoadingDialog mLoadingDialog;
-    protected List<LocalMedia> selectionMedias;
-    protected Handler mHandler;
+    protected List<LocalMedia> selectionMedias = new ArrayList<>();
+    protected Handler mHandler = new Handler(Looper.getMainLooper());
     protected View container;
     /**
      * if there more
@@ -148,16 +144,13 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         config = PictureSelectionConfig.getInstance();
         PictureLanguageUtils.setAppLanguage(getContext(), config.language);
-        if (!config.camera) {
-            setTheme(config.themeStyleId == 0 ? R.style.picture_default_style : config.themeStyleId);
-        }
+        setTheme(config.themeStyleId == 0 ? R.style.picture_default_style : config.themeStyleId);
         super.onCreate(savedInstanceState);
         newCreateEngine();
         newCreateResultCallbackListener();
         if (isRequestedOrientation()) {
             setNewRequestedOrientation();
         }
-        mHandler = new Handler(Looper.getMainLooper());
         initConfig();
         if (isImmersive()) {
             immersive();
@@ -236,7 +229,10 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * init Config
      */
     private void initConfig() {
-        selectionMedias = config.selectionMedias == null ? new ArrayList<>() : config.selectionMedias;
+        if (config.selectionMedias != null) {
+            selectionMedias.clear();
+            selectionMedias.addAll(config.selectionMedias);
+        }
         if (PictureSelectionConfig.uiStyle != null) {
             openWhiteStatusBar = PictureSelectionConfig.uiStyle.picture_statusBarChangeTextColor;
             if (PictureSelectionConfig.uiStyle.picture_top_titleBarBackgroundColor != 0) {
@@ -443,8 +439,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * @param result
      */
     protected void handlerResult(List<LocalMedia> result) {
-        if (config.isCompress
-                && !config.isCheckOriginalImage) {
+        if (config.isCompress && !config.isCheckOriginalImage) {
             compressImage(result);
         } else {
             onResult(result);
@@ -507,8 +502,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         } else {
             dismissDialog();
             if (config.camera
-                    && config.selectionMode == PictureConfig.MULTIPLE
-                    && selectionMedias != null) {
+                    && config.selectionMode == PictureConfig.MULTIPLE) {
                 images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
             }
             if (config.isCheckOriginalImage) {
@@ -569,8 +563,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 dismissDialog();
                 if (images != null) {
                     if (config.camera
-                            && config.selectionMode == PictureConfig.MULTIPLE
-                            && selectionMedias != null) {
+                            && config.selectionMode == PictureConfig.MULTIPLE) {
                         images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
                     }
                     if (PictureSelectionConfig.listener != null) {

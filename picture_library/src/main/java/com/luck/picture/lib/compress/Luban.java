@@ -17,6 +17,8 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,20 +36,20 @@ public class Luban implements Handler.Callback {
     private static final int MSG_COMPRESS_ERROR = 2;
 
     private String mTargetDir;
-    private String mNewFileName;
-    private boolean focusAlpha;
-    private boolean isCamera;
-    private int mLeastCompressSize;
-    private OnRenameListener mRenameListener;
-    private OnCompressListener mCompressListener;
-    private CompressionPredicate mCompressionPredicate;
-    private List<InputStreamProvider> mStreamProviders;
-    private List<String> mPaths;
-    private List<LocalMedia> mediaList;
+    private final String mNewFileName;
+    private final boolean focusAlpha;
+    private final boolean isCamera;
+    private final int mLeastCompressSize;
+    private final OnRenameListener mRenameListener;
+    private final OnCompressListener mCompressListener;
+    private final CompressionPredicate mCompressionPredicate;
+    private final List<InputStreamProvider> mStreamProviders;
+    private final List<String> mPaths;
+    private final List<LocalMedia> mediaList;
     private int index = -1;
-    private int compressQuality;
-    private Handler mHandler;
-    private int dataCount;
+    private final int compressQuality;
+    private final Handler mHandler;
+    private final int dataCount;
 
     private Luban(Builder builder) {
         this.mPaths = builder.mPaths;
@@ -306,17 +308,20 @@ public class Luban implements Handler.Callback {
             } else {
                 boolean isCompress = Checker.SINGLE.needCompressToLocalMedia(mLeastCompressSize, newPath);
                 if (mCompressionPredicate.apply(newPath) && isCompress) {
-                    // 压缩
                     result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
                 } else {
                     if (isCompress) {
-                        // 压缩
                         result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
-                    } else if (SdkVersionUtils.checkedAndroid_Q()) {
-                        result = new File(AndroidQTransformUtils.copyPathToAndroidQ(context, path.getPath(),
-                                media.getWidth(), media.getHeight(), media.getMimeType(), filename));
                     } else {
-                        result = new File(newPath);
+                        // 这种情况判断一下，如果是小于设置的图片压缩阀值，再Android 10以上做下拷贝的处理
+                        if (SdkVersionUtils.checkedAndroid_Q()) {
+                            String newFilePath = media.isCut() ? media.getCutPath() :
+                                    AndroidQTransformUtils.copyPathToAndroidQ(context,
+                                            path.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), filename);
+                            result = new File(TextUtils.isEmpty(newFilePath) ? newPath : newFilePath);
+                        } else {
+                            result = new File(newPath);
+                        }
                     }
                 }
             }
@@ -327,22 +332,24 @@ public class Luban implements Handler.Callback {
                     String newFilePath = media.isCut() ? media.getCutPath() :
                             AndroidQTransformUtils.copyPathToAndroidQ(context,
                                     path.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), filename);
-                    if (!TextUtils.isEmpty(newFilePath)) {
-                        result = new File(newFilePath);
-                    }
+                    result = new File(TextUtils.isEmpty(newFilePath) ? newPath : newFilePath);
                 } else {
                     result = new File(newPath);
                 }
             } else {
                 boolean isCompress = Checker.SINGLE.needCompressToLocalMedia(mLeastCompressSize, newPath);
                 if (isCompress) {
-                    // 压缩
                     result = new Engine(path, outFile, focusAlpha, compressQuality).compress();
-                } else if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(path.getPath())) {
-                    result = new File(AndroidQTransformUtils.copyPathToAndroidQ(context, path.getPath(),
-                            media.getWidth(), media.getHeight(), media.getMimeType(), filename));
                 } else {
-                    result = new File(newPath);
+                    // 这种情况判断一下，如果是小于设置的图片压缩阀值，再Android 10以上做下拷贝的处理
+                    if (SdkVersionUtils.checkedAndroid_Q()) {
+                        String newFilePath = media.isCut() ? media.getCutPath() :
+                                AndroidQTransformUtils.copyPathToAndroidQ(context,
+                                        path.getPath(), media.getWidth(), media.getHeight(), media.getMimeType(), filename);
+                        result = new File(TextUtils.isEmpty(newFilePath) ? newPath : newFilePath);
+                    } else {
+                        result = new File(newPath);
+                    }
                 }
             }
         }
@@ -350,7 +357,7 @@ public class Luban implements Handler.Callback {
     }
 
     @Override
-    public boolean handleMessage(Message msg) {
+    public boolean handleMessage(@NotNull Message msg) {
         if (mCompressListener == null) return false;
 
         switch (msg.what) {
