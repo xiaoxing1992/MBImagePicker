@@ -54,7 +54,7 @@
             android:name=".PictureSelectorPreviewWeChatStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".PictureSelectorPrevoewMotobandStyleActivity"
+            android:name=".PictureSelectorPreviewMotobandStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
             android:name=".PictureVideoPlayActivity"

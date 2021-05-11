@@ -584,6 +584,8 @@ public class PictureSelectorUIStyle {
 
         uiStyle.picture_switchSelectNumberStyle = true;
 
+        uiStyle.picture_statusBarChangeTextColor = false;
+
         uiStyle.picture_navBarColor = Color.parseColor("#FFFFFF");
 
         uiStyle.picture_check_textColor = Color.parseColor("#FF282828");

@@ -8,7 +8,7 @@ import android.os.Bundle;
 import com.luck.picture.lib.PictureMotoBandVideoPlayActivity;
 import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelectorPreviewWeChatStyleActivity;
-import com.luck.picture.lib.PictureSelectorPrevoewMotobandStyleActivity;
+import com.luck.picture.lib.PictureSelectorPreviewMotobandStyleActivity;
 import com.luck.picture.lib.PictureVideoPlayActivity;
 
 /**
@@ -49,7 +49,7 @@ public class JumpUtils {
         if (!DoubleUtils.isFastDoubleClick()) {
             Intent intent = new Intent();
             intent.setClass(context, isWeChatStyle ? PictureSelectorPreviewWeChatStyleActivity.class :
-                    isMotoBandStyle ? PictureSelectorPrevoewMotobandStyleActivity.class
+                    isMotoBandStyle ? PictureSelectorPreviewMotobandStyleActivity.class
                             : PicturePreviewActivity.class);
             intent.putExtras(bundle);
             if (!(context instanceof Activity)) {

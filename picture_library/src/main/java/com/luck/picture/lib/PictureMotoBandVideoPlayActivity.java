@@ -116,6 +116,15 @@ public class PictureMotoBandVideoPlayActivity extends PictureBaseActivity implem
         iv_play.setOnClickListener(this);
         tvConfirm.setOnClickListener(this);
 
+        if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground != 0) {
+            tvConfirm.setBackgroundResource(PictureSelectionConfig.uiStyle.picture_top_titleRightTextNormalBackground);
+        } else {
+            tvConfirm.setBackgroundResource(R.drawable.picture_send_button_bg);
+        }
+        if (PictureSelectionConfig.uiStyle.picture_top_titleRightTextSize != 0) {
+            tvConfirm.setTextSize(PictureSelectionConfig.uiStyle.picture_top_titleRightTextSize);
+        }
+
         tvConfirm.setVisibility(config.selectionMode
                 == PictureConfig.SINGLE
                 && config.enPreviewVideo && !isExternalPreview ? View.VISIBLE : View.GONE);

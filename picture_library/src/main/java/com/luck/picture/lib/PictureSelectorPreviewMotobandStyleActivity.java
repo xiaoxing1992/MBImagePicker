@@ -21,7 +21,7 @@ import com.luck.picture.lib.tools.AttrsUtils;
  * @CreateDate: 2020/12/11 16:00
  * @Description:
  */
-public class PictureSelectorPrevoewMotobandStyleActivity extends PicturePreviewActivity {
+public class PictureSelectorPreviewMotobandStyleActivity extends PicturePreviewActivity {
     /**
      * alpha duration
      */
